@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftSkills Hub</title>
+    <style>
+        :root {
+            /* Cores WCAG AA: contraste ≥ 4.5:1 com texto branco */
+            --verde: #367a28;   /* era #4C9F38 — branco sobre verde: 5.29:1 */
+            --laranja: #c4521a; /* era #FD6925 — branco sobre laranja: 4.59:1 */
+            --texto: #333333;
+            --muted: #777777;
+            --fundo: #f4f7f6;
+            --card: #ffffff;
+        }
+
+        /* ── Dark Mode — ativado por JS via class html.tema-escuro ── */
+        html.tema-escuro {
+            --verde: #4fb53e;
+            --laranja: #e0693a;
+            --texto: #e4e4e4;
+            --muted: #9e9e9e;
+            --fundo: #121212;
+            --card: #1e1e1e;
+        }
+        html.tema-escuro input,
+        html.tema-escuro select { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
+        html.tema-escuro .app-container { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        html.tema-escuro .tabs { background-color: #2a2a2a; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--fundo);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            background-color: var(--card);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { color: var(--verde); font-size: 1.8rem; margin-bottom: 5px; }
+        header p  { color: var(--muted); font-size: 0.9rem; }
+
+        .tabs { display: flex; background-color: #f0f0f0; border-radius: 30px; margin-bottom: 30px; overflow: hidden; }
+        .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn.active-jovem  { background-color: var(--verde);   color: white; border-radius: 30px; }
+        .tab-btn.active-gestor { background-color: var(--laranja); color: white; border-radius: 30px; }
+
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-size: 0.9rem; color: var(--texto); margin-bottom: 5px; font-weight: bold; }
+
+        input, select {
+            width: 100%; padding: 15px;
+            border: 1px solid #ddd; border-radius: 12px;
+            background-color: #fafafa; font-size: 1rem;
+            outline: none; transition: 0.3s; margin-bottom: 5px;
+        }
+        input:focus, select:focus { border-color: var(--verde); background-color: #fff; }
+
+        .btn {
+            width: 100%; padding: 15px; border: none; border-radius: 12px;
+            font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-verde   { background-color: var(--verde);   color: white; }
+        .btn-verde:hover:not(:disabled)   { background-color: #2a5e1e; }
+        .btn-laranja { background-color: var(--laranja); color: white; }
+        .btn-laranja:hover:not(:disabled) { background-color: #a8461a; }
+
+        .link-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--muted); }
+        .link-text span { color: var(--verde); font-weight: bold; cursor: pointer; }
+
+        .alerta {
+            border-radius: 10px; padding: 10px 14px;
+            font-size: 0.85rem; margin-top: 12px; display: none; line-height: 1.4;
+        }
+        .alerta-erro    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+        .alerta-sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .alerta-info    { background: #fff8e1; color: #856404; border: 1px solid #ffeeba; }
+
+        /* banner de status do servidor */
+        #statusServidor {
+            font-size: 0.78rem; text-align: center; padding: 6px 10px;
+            border-radius: 8px; margin-bottom: 16px; display: none;
+        }
+    </style>
+    <script>
+        // Aplica tema antes de renderizar para evitar flash
+        (function () {
+            const armazenado = localStorage.getItem('ssh_tema');
+            const sistemaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (armazenado === 'escuro' || (!armazenado && sistemaEscuro)) {
+                document.documentElement.classList.add('tema-escuro');
+            }
+        })();
+    </script>
+</head>
+<body>
+<div class="app-container">
+
+    <!-- ── LOGIN ──────────────────────────────────── -->
+    <div id="telaLogin" class="view active">
+        <header>
+            <h1>SoftSkills Hub</h1>
+            <p>Seu espaço seguro de desenvolvimento.</p>
+        </header>
+
+        <div id="statusServidor"></div>
+
+        <div class="tabs">
+            <button id="btnJovem"  class="tab-btn active-jovem" onclick="mudarAba('jovem')">Sou Aprendiz</button>
+            <button id="btnGestor" class="tab-btn"              onclick="mudarAba('gestor')">Sou Gestor</button>
+        </div>
+
+        <!-- Aprendiz -->
+        <div id="formJovem">
+            <input id="loginUsername" type="text"     placeholder="Nome de Usuário" autocomplete="username">
+            <input id="loginSenha"    type="password" placeholder="Senha"           autocomplete="current-password">
+            <div id="erroLogin" class="alerta alerta-erro"></div>
+            <button id="btnEntrar" class="btn btn-verde" onclick="loginAprendiz()">Entrar</button>
+            <p class="link-text">Primeiro acesso? <span onclick="irParaCadastro()">Criar meu perfil anônimo</span></p>
+        </div>
+
+        <!-- Gestor -->
+        <div id="formGestor" style="display:none;">
+            <input id="gestorUsername" type="text"     placeholder="Usuário (ex: admin)">
+            <input id="gestorSenha"    type="password" placeholder="Senha">
+            <div id="erroGestor" class="alerta alerta-erro"></div>
+            <button id="btnEntrarGestor" class="btn btn-laranja" onclick="loginGestor()">Acessar Painel de Dados</button>
+        </div>
+    </div>
+
+    <!-- ── CADASTRO ────────────────────────────────── -->
+    <div id="telaCadastro" class="view">
+        <header>
+            <h1 style="font-size:1.5rem;">Criar Perfil</h1>
+            <p>Nenhum dado pessoal será exigido.</p>
+        </header>
+
+        <div id="avisoEmpresa" class="alerta alerta-info" style="display:none; margin-bottom:12px;">
+            ⚠️ Não foi possível carregar as empresas. Verifique se o servidor está rodando em <strong>localhost:8000</strong>.
+        </div>
+
+        <div class="form-group">
+            <label>Nome de Usuário</label>
+            <input id="cadUsername" type="text" placeholder="Ex: aprendiz_dev" autocomplete="off">
+            <small style="color:var(--muted);font-size:0.8rem;">Dica: Evite usar seu nome real para manter o anonimato.</small>
+        </div>
+
+        <div class="form-group">
+            <label>Sua Idade</label>
+            <input id="cadIdade" type="number" min="15" max="22" placeholder="Entre 15 e 22 anos">
+        </div>
+
+        <div class="form-group">
+            <label>Gênero</label>
+            <select id="cadGenero">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="feminino">Feminino</option>
+                <option value="masculino">Masculino</option>
+                <option value="prefiro_nao_dizer">Pref. não dizer</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Onde você trabalha?</label>
+            <select id="cadEmpresa">
+                <option value="" disabled selected>Carregando...</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Crie uma Senha</label>
+            <input id="cadSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+        </div>
+
+        <div id="erroCadastro"   class="alerta alerta-erro"></div>
+        <div id="sucessoCadastro" class="alerta alerta-sucesso"></div>
+
+        <button id="btnCadastrar" class="btn btn-verde" onclick="cadastrarAprendiz()">Finalizar Cadastro</button>
+        <p class="link-text"><span onclick="navegarPara('telaLogin')">← Voltar para o Login</span></p>
+    </div>
+
+</div>
+
+<script>
+    const API = 'http://localhost:8000';
+
+    // ── Helpers ───────────────────────────────────────────────────
+
+    function mostrar(id, texto, tipo) {
+        const el = document.getElementById(id);
+        // remove classes anteriores
+        el.classList.remove('alerta-erro', 'alerta-sucesso', 'alerta-info');
+        if (tipo) el.classList.add('alerta-' + tipo);
+        el.textContent = texto;
+        el.style.display = 'block';
+    }
+
+    function ocultar(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    }
+
+    function setBotao(id, carregando, textoOriginal) {
+        const btn = document.getElementById(id);
+        btn.disabled = carregando;
+        btn.textContent = carregando ? 'Aguarde...' : textoOriginal;
+    }
+
+    async function apiFetch(path, opts = {}) {
+        const headers = { 'Content-Type': 'application/json', ...opts.headers };
+        const token = localStorage.getItem('ssh_token');
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+
+        let res;
+        try {
+            res = await fetch(API + path, { ...opts, headers });
+        } catch {
+            throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando: uvicorn main:app --reload`);
+        }
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Erro ao comunicar com o servidor.' }));
+            // Pydantic v2 retorna detail como lista em erros de validação
+            const detail = Array.isArray(err.detail)
+                ? err.detail.map(e => e.msg || JSON.stringify(e)).join(' | ')
+                : (err.detail || 'Erro desconhecido');
+            throw new Error(detail);
+        }
+        return res.json();
+    }
+
+    // ── Verificação do servidor ao abrir ─────────────────────────
+
+    async function verificarServidor() {
+        const el = document.getElementById('statusServidor');
+        try {
+            await fetch(`${API}/empresas`, { signal: AbortSignal.timeout(3000) });
+            // servidor ok — não exibe nada
+        } catch {
+            el.style.display = 'block';
+            el.style.background = '#fdecea';
+            el.style.color = '#c0392b';
+            el.style.border = '1px solid #f5c6cb';
+            el.textContent = '⚠️ Servidor offline. Inicie o backend com: uvicorn main:app --reload';
+        }
+    }
+
+    // ── Navegação ─────────────────────────────────────────────────
+
+    function navegarPara(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function irParaCadastro() {
+        navegarPara('telaCadastro');
+        carregarEmpresas();
+    }
+
+    function mudarAba(tipo) {
+        const fJ = document.getElementById('formJovem');
+        const fG = document.getElementById('formGestor');
+        const bJ = document.getElementById('btnJovem');
+        const bG = document.getElementById('btnGestor');
+        if (tipo === 'jovem') {
+            fJ.style.display = 'block'; fG.style.display = 'none';
+            bJ.classList.add('active-jovem');   bG.classList.remove('active-gestor');
+        } else {
+            fG.style.display = 'block'; fJ.style.display = 'none';
+            bG.classList.add('active-gestor');  bJ.classList.remove('active-jovem');
+        }
+    }
+
+    // ── Empresas ──────────────────────────────────────────────────
+
+    async function carregarEmpresas() {
+        const sel = document.getElementById('cadEmpresa');
+        sel.innerHTML = '<option value="" disabled selected>Carregando...</option>';
+        ocultar('avisoEmpresa');
+        try {
+            const lista = await apiFetch('/empresas');
+            sel.innerHTML = '<option value="" disabled selected>Selecione sua empresa...</option>';
+            lista.forEach(e => {
+                const opt = document.createElement('option');
+                opt.value = e.id;
+                opt.textContent = e.nome;
+                sel.appendChild(opt);
+            });
+        } catch {
+            sel.innerHTML = '<option value="" disabled selected>Erro ao carregar</option>';
+            document.getElementById('avisoEmpresa').style.display = 'block';
+        }
+    }
+
+    // ── Login Aprendiz ────────────────────────────────────────────
+
+    async function loginAprendiz() {
+        ocultar('erroLogin');
+        const username = document.getElementById('loginUsername').value.trim();
+        const senha    = document.getElementById('loginSenha').value;
+
+        if (!username || !senha) {
+            mostrar('erroLogin', 'Preencha usuário e senha.', 'erro');
+            return;
+        }
+
+        setBotao('btnEntrar', true, 'Entrar');
+        try {
+            // FastAPI OAuth2 exige form-urlencoded
+            const body = new URLSearchParams({ username, password: senha });
+            const res  = await fetch(`${API}/auth/aprendiz/login`, { method: 'POST', body });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({ detail: 'Usuário ou senha incorretos.' }));
+                throw new Error(err.detail);
+            }
+
+            const { access_token } = await res.json();
+            localStorage.setItem('ssh_token', access_token);
+            localStorage.setItem('ssh_username', username);
+            window.location.href = 'painel.aprendiz.html';
+        } catch (e) {
+            mostrar('erroLogin', e.message, 'erro');
+        } finally {
+            setBotao('btnEntrar', false, 'Entrar');
+        }
+    }
+
+    // ── Login Gestor ──────────────────────────────────────────────
+
+    async function loginGestor() {
+        ocultar('erroGestor');
+        const username = document.getElementById('gestorUsername').value.trim();
+        const senha    = document.getElementById('gestorSenha').value;
+
+        if (!username || !senha) {
+            mostrar('erroGestor', 'Preencha usuário e senha.', 'erro');
+            return;
+        }
+
+        setBotao('btnEntrarGestor', true, 'Acessar Painel de Dados');
+        try {
+            const dados = await apiFetch('/auth/gestor/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, senha }),
+            });
+            localStorage.setItem('ssh_token_gestor', dados.access_token);
+            localStorage.setItem('ssh_gestor', username);
+            window.location.href = 'painel-gestor.html';
+        } catch (e) {
+            mostrar('erroGestor', e.message, 'erro');
+        } finally {
+            setBotao('btnEntrarGestor', false, 'Acessar Painel de Dados');
+        }
+    }
+
+    // ── Cadastro Aprendiz ─────────────────────────────────────────
+
+    async function cadastrarAprendiz() {
+        ocultar('erroCadastro');
+        ocultar('sucessoCadastro');
+
+        const username   = document.getElementById('cadUsername').value.trim();
+        const idadeStr   = document.getElementById('cadIdade').value.trim();
+        const genero     = document.getElementById('cadGenero').value;
+        const empresaStr = document.getElementById('cadEmpresa').value;
+        const senha      = document.getElementById('cadSenha').value;
+
+        // Validações no front antes de chamar a API
+        if (!username)             { mostrar('erroCadastro', 'Informe um nome de usuário.',        'erro'); return; }
+        if (username.length < 3)   { mostrar('erroCadastro', 'Usuário deve ter ao menos 3 letras.', 'erro'); return; }
+        if (!idadeStr)             { mostrar('erroCadastro', 'Informe sua idade.',                  'erro'); return; }
+        const idade = parseInt(idadeStr);
+        if (isNaN(idade) || idade < 15 || idade > 22) {
+            mostrar('erroCadastro', 'Idade deve estar entre 15 e 22 anos.', 'erro'); return;
+        }
+        if (!genero)               { mostrar('erroCadastro', 'Selecione seu gênero.',               'erro'); return; }
+        if (!empresaStr)           { mostrar('erroCadastro', 'Selecione a empresa onde trabalha.',  'erro'); return; }
+        if (!senha)                { mostrar('erroCadastro', 'Crie uma senha.',                     'erro'); return; }
+        if (senha.length < 6)      { mostrar('erroCadastro', 'Senha deve ter ao menos 6 caracteres.', 'erro'); return; }
+
+        const empresa_id = parseInt(empresaStr);
+
+        setBotao('btnCadastrar', true, 'Finalizar Cadastro');
+        try {
+            await apiFetch('/auth/aprendiz/register', {
+                method: 'POST',
+                body: JSON.stringify({ username, idade, genero, empresa_id, senha }),
+            });
+            mostrar('sucessoCadastro', '✅ Perfil criado com sucesso! Redirecionando para o login...', 'sucesso');
+            setTimeout(() => navegarPara('telaLogin'), 1800);
+        } catch (e) {
+            mostrar('erroCadastro', e.message, 'erro');
+        } finally {
+            setBotao('btnCadastrar', false, 'Finalizar Cadastro');
+        }
+    }
+
+    // ── Enter para submeter ───────────────────────────────────────
+
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        const tela = document.querySelector('.view.active')?.id;
+        if (tela === 'telaLogin') {
+            document.getElementById('formGestor').style.display !== 'none'
+                ? loginGestor() : loginAprendiz();
+        } else if (tela === 'telaCadastro') {
+            cadastrarAprendiz();
+        }
+    });
+
+    // ── Init ──────────────────────────────────────────────────────
+
+    verificarServidor();
+
+    // Se já está logado, redireciona para o painel correto
+    if (localStorage.getItem('ssh_token_gestor')) {
+        window.location.href = 'painel-gestor.html';
+    } else if (localStorage.getItem('ssh_token')) {
+        window.location.href = 'painel.aprendiz.html';
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoftSkills Hub — Painel Gestor</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            /* Cores WCAG AA: contraste ≥ 4.5:1 com texto branco */
+            --laranja: #c4521a;   /* era #FD6925 — branco sobre laranja: 4.59:1 */
+            --laranja-claro: #fff3ee;
+            --verde: #367a28;     /* era #4C9F38 — branco sobre verde: 5.29:1 */
+            --texto: #333333;
+            --muted: #777777;
+            --fundo: #f4f7f6;
+            --card: #ffffff;
+        }
+
+        /* ── Dark Mode — ativado por JS via class html.tema-escuro ── */
+        html.tema-escuro {
+            --laranja: #e0693a;
+            --laranja-claro: #2a1a0e;
+            --verde: #4fb53e;
+            --texto: #e4e4e4;
+            --muted: #9e9e9e;
+            --fundo: #121212;
+            --card: #1e1e1e;
+        }
+        html.tema-escuro .filtros select,
+        html.tema-escuro .input-perfil { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
+        html.tema-escuro .empresa-row { background: #2a2a2a; border-color: #3a3a3a; }
+        html.tema-escuro .barra-bg { background: #3a3a3a; }
+        html.tema-escuro .rank-item,
+        html.tema-escuro .genero-row { border-color: #3a3a3a; }
+        html.tema-escuro .perfil-info-row { border-color: #3a3a3a; }
+        html.tema-escuro .bottom-nav { border-color: #2a2a2a; }
+
+        /* ── Botão de tema ───────────────────────────────────────── */
+        .btn-tema {
+            width: 100%; padding: 13px 16px; border-radius: 10px;
+            border: 2px solid #ddd; background: transparent;
+            color: var(--texto); font-size: 0.9rem; font-weight: bold;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-tema:hover { border-color: var(--laranja); color: var(--laranja); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; }
+
+        .app-container {
+            width: 100%; max-width: 400px; min-height: 100vh;
+            position: relative; padding-bottom: 80px;
+            background: var(--fundo);
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        header {
+            background-color: var(--laranja); color: white;
+            padding: 30px 20px 20px;
+            border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
+            text-align: center;
+        }
+        header h1 { font-size: 1.3rem; font-weight: bold; }
+        header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
+
+        .view { display: none; padding: 20px; animation: fadeIn 0.3s ease; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: var(--card); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .card h3 { color: var(--texto); font-size: 1rem; margin-bottom: 14px; }
+
+        /* KPIs */
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 15px; }
+        .kpi { background: var(--card); border-radius: 14px; padding: 22px 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .kpi .valor { font-size: 2rem; font-weight: bold; color: var(--laranja); line-height: 1; }
+        .kpi .label { font-size: 0.78rem; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+        /* Ranking */
+        .rank-item { display: flex; align-items: center; gap: 14px; padding: 14px 4px; border-bottom: 1px solid #f0f0f0; }
+        .rank-item:last-child { border-bottom: none; padding-bottom: 4px; }
+        .rank-num   { font-size: 0.8rem; font-weight: bold; color: var(--muted); min-width: 24px; flex-shrink: 0; text-align: center; }
+        .rank-label { flex: 1; font-size: 0.88rem; color: var(--texto); line-height: 1.4; }
+        .rank-val   { font-size: 0.88rem; font-weight: bold; color: var(--laranja); flex-shrink: 0; }
+
+        /* Barras */
+        .barra-wrap { margin-bottom: 14px; }
+        .barra-wrap .barra-label { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 4px; color: var(--texto); }
+        .barra-bg   { background: #eee; border-radius: 20px; height: 8px; overflow: hidden; }
+        .barra-fill { height: 100%; border-radius: 20px; background: var(--laranja); transition: width 0.6s ease; }
+
+        /* Filtros */
+        .filtros { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+        .filtros select {
+            width: 100%; padding: 10px 14px; border: 1px solid #ddd;
+            border-radius: 10px; background: #fafafa; font-size: 0.9rem;
+            outline: none; transition: 0.2s;
+        }
+        .filtros select:focus { border-color: var(--laranja); background: #fff; }
+        .btn-filtrar {
+            padding: 10px; border: none; border-radius: 10px;
+            background: var(--laranja); color: white; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-filtrar:hover { background: #a8461a; }
+
+        /* Perfil gestor */
+        .perfil-avatar-g {
+            width: 70px; height: 70px; border-radius: 50%;
+            background: var(--laranja); display: flex; align-items: center;
+            justify-content: center; font-size: 2rem; margin: 0 auto 12px;
+        }
+        .perfil-info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem;
+        }
+        .perfil-info-row:last-child { border-bottom: none; }
+        .perfil-info-row .label { color: var(--muted); }
+        .perfil-info-row .valor { font-weight: bold; color: var(--texto); }
+        .input-perfil {
+            width: 100%; padding: 12px 14px; border: 1px solid #ddd;
+            border-radius: 10px; background: #fafafa; font-size: 0.9rem;
+            outline: none; transition: 0.2s; margin-bottom: 10px; font-family: inherit;
+        }
+        .input-perfil:focus { border-color: var(--laranja); background: #fff; }
+        .btn-salvar-perfil {
+            width: 100%; padding: 13px; border: none; border-radius: 10px;
+            background: var(--laranja); color: white; font-size: 0.95rem;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-salvar-perfil:hover { background: #a8461a; }
+        .btn-sair-perfil {
+            width: 100%; padding: 14px; border: 1px solid #e74c3c; border-radius: 12px;
+            background: transparent; color: #e74c3c; font-size: 0.95rem;
+            font-weight: bold; cursor: pointer; transition: 0.2s; margin-top: 6px;
+        }
+        .btn-sair-perfil:hover { background: #e74c3c; color: white; }
+        .alerta-g { border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; margin: 8px 0; display: none; line-height: 1.4; }
+        .alerta-g.erro    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
+        .alerta-g.sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; max-width: 400px;
+            background: var(--card); display: flex; justify-content: space-around;
+            padding: 10px 0 15px; border-top: 1px solid #eee;
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--muted); background: none; border: none; cursor: pointer; transition: 0.2s; padding: 0 8px; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; transition: transform 0.2s; }
+        .nav-item.active { color: var(--laranja); font-weight: bold; }
+        .nav-item.active svg { transform: translateY(-2px); }
+
+        .loading { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 30px 0; }
+
+        /* ── Skeleton Loading ─────────────────────────────────── */
+        .skeleton {
+            display: block;
+            background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 50%, #ebebeb 75%);
+            background-size: 200% 100%;
+            animation: skeletonPulse 1.4s ease-in-out infinite;
+            border-radius: 4px;
+        }
+        @keyframes skeletonPulse {
+            0%   { background-position:  200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        html.tema-escuro .skeleton {
+            background: linear-gradient(90deg, #2a2a2a 25%, #383838 50%, #2a2a2a 75%);
+            background-size: 200% 100%;
+        }
+
+        .estrelas { color: #f39c12; letter-spacing: 2px; }
+
+        .empresa-row { background: #fafafa; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
+        .empresa-row .nome    { font-size: 0.88rem; font-weight: bold; color: var(--texto); margin-bottom: 8px; }
+        .empresa-row .detalhe { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+        .btn-detalhe {
+            width: 100%; margin-top: 10px; padding: 8px; border: 1px solid var(--laranja);
+            border-radius: 8px; background: transparent; color: var(--laranja);
+            font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-detalhe:hover { background: var(--laranja); color: white; }
+
+        /* Detalhe empresa */
+        .btn-voltar {
+            display: flex; align-items: center; gap: 6px;
+            background: none; border: none; color: var(--laranja);
+            font-size: 0.9rem; font-weight: bold; cursor: pointer; padding: 0;
+        }
+        .secao-titulo {
+            font-size: 0.82rem; font-weight: bold; text-transform: uppercase;
+            letter-spacing: 0.5px; color: var(--muted); margin-bottom: 10px;
+        }
+        .genero-row {
+            display: grid; grid-template-columns: 1fr auto auto auto;
+            gap: 6px; align-items: center; padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0; font-size: 0.82rem;
+        }
+        .genero-row:last-child { border-bottom: none; }
+        .genero-label { color: var(--texto); font-weight: 500; }
+        .badge {
+            border-radius: 20px; padding: 2px 8px; font-size: 0.72rem;
+            font-weight: bold; text-align: center; min-width: 36px;
+        }
+        .badge-sim    { background: #e8f5e9; color: #2e7d32; }
+        .badge-talvez { background: #fff8e1; color: #856404; }
+        .badge-nao    { background: #fdecea; color: #c0392b; }
+        .badge-total  { background: #f0f0f0; color: #555; }
+        .genero-header {
+            display: grid; grid-template-columns: 1fr auto auto auto;
+            gap: 6px; padding: 0 0 6px; font-size: 0.72rem; color: var(--muted);
+            font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #eee;
+            margin-bottom: 4px;
+        }
+        .ponto-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 7px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.82rem;
+        }
+        .ponto-item:last-child { border-bottom: none; }
+        .ponto-nome { color: var(--texto); flex: 1; }
+        .ponto-qtd  { font-weight: bold; color: var(--laranja); flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<div class="app-container">
+
+    <header>
+        <h1 id="saudacaoGestor">Painel de Gestão</h1>
+        <p>SoftSkills Hub — Visão Gerencial</p>
+    </header>
+
+    <!-- ── RESUMO ──────────────────────────────────────── -->
+    <main id="viewResumo" class="view active">
+        <div class="card" style="padding:15px 20px;">
+            <h3>🔍 Filtros</h3>
+            <div class="filtros">
+                <select id="filtroAno"><option value="">Todos os anos</option></select>
+                <select id="filtroEmpresa"><option value="">Todas as empresas</option></select>
+                <select id="filtroGenero">
+                    <option value="">Todos os gêneros</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="prefiro_nao_dizer">Pref. não dizer</option>
+                </select>
+                <select id="filtroFaixa">
+                    <option value="">Todas as faixas etárias</option>
+                    <option value="15-16">15–16 anos</option>
+                    <option value="17-18">17–18 anos</option>
+                    <option value="19-21">19–21 anos</option>
+                    <option value="22">22 anos</option>
+                </select>
+                <button class="btn-filtrar" onclick="carregarResumo()">Aplicar filtros</button>
+            </div>
+        </div>
+
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi"><div class="valor">—</div><div class="label">Total de respostas</div></div>
+            <div class="kpi"><div class="valor">—</div><div class="label">Média de satisfação</div></div>
+            <div class="kpi"><div class="valor">—</div><div class="label">Querem ser efetivados</div></div>
+            <div class="kpi"><div class="valor">—</div><div class="label">Empresas com dados</div></div>
+        </div>
+
+        <div class="card" id="cardEfetivacao" style="display:none;">
+            <h3>✅ Desejo de Efetivação</h3>
+            <div id="barrasEfetivacao"></div>
+        </div>
+    </main>
+
+    <!-- ── PROBLEMAS ────────────────────────────────────── -->
+    <main id="viewProblemas" class="view">
+        <div class="card" style="padding:15px 20px;">
+            <h3>🔍 Filtros</h3>
+            <div class="filtros">
+                <select id="filtroAnoProb"><option value="">Todos os anos</option></select>
+                <select id="filtroEmpresaProb"><option value="">Todas as empresas</option></select>
+                <select id="filtroGeneroProb">
+                    <option value="">Todos os gêneros</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="prefiro_nao_dizer">Pref. não dizer</option>
+                </select>
+                <select id="filtroFaixaProb">
+                    <option value="">Todas as faixas etárias</option>
+                    <option value="15-16">15–16 anos</option>
+                    <option value="17-18">17–18 anos</option>
+                    <option value="19-21">19–21 anos</option>
+                    <option value="22">22 anos</option>
+                </select>
+                <button class="btn-filtrar" onclick="carregarProblemas()">Aplicar filtros</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>⚠️ Problemas Mais Relatados</h3>
+            <div id="listaProblemas"><div class="loading">Carregando...</div></div>
+        </div>
+    </main>
+
+    <!-- ── EMPRESAS ─────────────────────────────────────── -->
+    <main id="viewEmpresas" class="view">
+        <div class="card" style="padding:15px 20px;">
+            <h3>🔍 Filtrar por ano</h3>
+            <div class="filtros">
+                <select id="filtroAnoEmpresas"><option value="">Todos os anos</option></select>
+                <button class="btn-filtrar" onclick="carregarSatisfacaoEmpresas()">Aplicar</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>🏭 Satisfação por Empresa</h3>
+            <div id="listaEmpresas"><div class="loading">Carregando...</div></div>
+        </div>
+    </main>
+
+    <!-- ── PERFIL GESTOR ─────────────────────────────────── -->
+    <main id="viewPerfilGestor" class="view">
+        <div class="card" style="text-align:center;padding:24px 20px;">
+            <div class="perfil-avatar-g">👤</div>
+            <h3 id="perfilGestorNome" style="font-size:1.1rem;"></h3>
+            <p id="perfilGestorUser" style="font-size:0.82rem;color:var(--muted);margin-top:4px;"></p>
+        </div>
+
+        <div class="card">
+            <h3>✏️ Alterar Nome de Exibição</h3>
+            <input class="input-perfil" id="gestorNovoNome" type="text" placeholder="Novo nome">
+            <input class="input-perfil" id="gestorSenhaNome" type="password" placeholder="Confirme sua senha atual">
+            <div id="erroNomeGestor" class="alerta-g erro"></div>
+            <div id="sucessoNomeGestor" class="alerta-g sucesso"></div>
+            <button class="btn-salvar-perfil" onclick="salvarNomeGestor()">Salvar nome</button>
+        </div>
+
+        <div class="card">
+            <h3>🔒 Alterar Senha</h3>
+            <input class="input-perfil" id="gestorSenhaAtual" type="password" placeholder="Senha atual">
+            <input class="input-perfil" id="gestorNovaSenha" type="password" placeholder="Nova senha (mín. 6 caracteres)">
+            <input class="input-perfil" id="gestorConfirmaSenha" type="password" placeholder="Confirme a nova senha">
+            <div id="erroSenhaGestor" class="alerta-g erro"></div>
+            <div id="sucessoSenhaGestor" class="alerta-g sucesso"></div>
+            <button class="btn-salvar-perfil" onclick="salvarSenhaGestor()">Salvar senha</button>
+        </div>
+
+        <div class="card">
+            <h3>🎨 Aparência</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">Escolha entre o tema claro e o escuro. A preferência é salva automaticamente.</p>
+            <button id="btnTema" class="btn-tema" onclick="alternarTema()">🌙 Mudar para Modo Escuro</button>
+        </div>
+
+        <div style="padding:0 20px 10px;">
+            <button class="btn-sair-perfil" onclick="sair()">🚪 Sair da conta</button>
+        </div>
+    </main>
+
+    <!-- ── DETALHE EMPRESA ───────────────────────────────── -->
+    <main id="viewDetalheEmpresa" class="view">
+        <div class="card" style="padding:14px 20px;margin-bottom:12px;">
+            <button class="btn-voltar" onclick="navegarApp('viewEmpresas')">← Voltar</button>
+            <h3 id="detalheNomeEmpresa" style="margin-top:10px;font-size:1rem;"></h3>
+            <p id="detalheTotalRespostas" style="font-size:0.8rem;color:var(--muted);margin-top:4px;"></p>
+        </div>
+
+        <div class="card" id="detalheEfetivacaoGenero">
+            <p class="secao-titulo">👥 Efetivação por Gênero</p>
+            <div class="genero-header">
+                <span>Grupo</span><span>✅ Sim</span><span>🤔 Talvez</span><span>❌ Não</span>
+            </div>
+            <div id="detalheGeneroLista"><div class="loading">Carregando...</div></div>
+        </div>
+
+        <div class="card" id="detalheProblemasCard">
+            <p class="secao-titulo">⚠️ Problemas Relatados</p>
+            <div id="detalheProblemasLista"><div class="loading">Carregando...</div></div>
+        </div>
+
+        <div class="card">
+            <p class="secao-titulo">✅ Pontos Positivos</p>
+            <div id="detalhePositivosLista"><div class="loading">Carregando...</div></div>
+        </div>
+
+        <div class="card">
+            <p class="secao-titulo">❌ Pontos Negativos</p>
+            <div id="detalheNegativosLista"><div class="loading">Carregando...</div></div>
+        </div>
+    </main>
+
+    <nav class="bottom-nav">
+        <button id="navResumo"       class="nav-item active" aria-label="Resumo geral"          onclick="navegarApp('viewResumo')">   <i data-lucide="bar-chart-2"></i><span>Resumo</span></button>
+        <button id="navProblemas"    class="nav-item"        aria-label="Ranking de problemas"   onclick="navegarApp('viewProblemas')"><i data-lucide="alert-triangle"></i><span>Problemas</span></button>
+        <button id="navEmpresas"     class="nav-item"        aria-label="Dados por empresa"      onclick="navegarApp('viewEmpresas')"> <i data-lucide="building-2"></i><span>Empresas</span></button>
+        <button id="navPerfilGestor" class="nav-item"        aria-label="Perfil do gestor"       onclick="navegarApp('viewPerfilGestor')"><i data-lucide="user"></i><span>Perfil</span></button>
+    </nav>
+</div>
+
+<script>
+    // ── Tema ──────────────────────────────────────────────────
+    function aplicarTema() {
+        const armazenado = localStorage.getItem('ssh_tema');
+        const sistemaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const escuro = armazenado === 'escuro' || (!armazenado && sistemaEscuro);
+        document.documentElement.classList.toggle('tema-escuro', escuro);
+        atualizarBtnTema();
+    }
+
+    function alternarTema() {
+        const agora = document.documentElement.classList.toggle('tema-escuro');
+        localStorage.setItem('ssh_tema', agora ? 'escuro' : 'claro');
+        atualizarBtnTema();
+    }
+
+    function atualizarBtnTema() {
+        const btn = document.getElementById('btnTema');
+        if (!btn) return;
+        const escuro = document.documentElement.classList.contains('tema-escuro');
+        btn.textContent = escuro ? '☀️  Mudar para Modo Claro' : '🌙  Mudar para Modo Escuro';
+    }
+
+    aplicarTema();
+    lucide.createIcons();
+
+    const API = 'http://localhost:8000';
+
+    function getToken() { return localStorage.getItem('ssh_token_gestor'); }
+
+    function sair() {
+        localStorage.removeItem('ssh_token_gestor');
+        localStorage.removeItem('ssh_gestor');
+        window.location.href = 'index.html';
+    }
+
+    (async function init() {
+        const token = getToken();
+        console.log('[gestor init] token no localStorage:', token ? 'EXISTE' : 'AUSENTE');
+        if (!token) { window.location.href = 'index.html'; return; }
+
+        const nomeLocal = localStorage.getItem('ssh_gestor') || 'Gestor';
+        document.getElementById('saudacaoGestor').textContent = `Olá, ${nomeLocal}!`;
+
+        try {
+            console.log('[gestor init] validando token com o servidor...');
+            const res = await fetch(`${API}/auth/gestor/me`, {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+            console.log('[gestor init] resposta do servidor:', res.status);
+            if (res.status === 401) {
+                console.warn('[gestor init] 401 — redirecionando para login');
+                sair();
+                return;
+            }
+            if (res.ok) {
+                const perfil = await res.json();
+                const nome = perfil.nome || perfil.username || nomeLocal;
+                localStorage.setItem('ssh_gestor', nome);
+                document.getElementById('saudacaoGestor').textContent = `Olá, ${nome}!`;
+            }
+        } catch (e) {
+            console.warn('[gestor init] servidor offline ou erro de rede:', e.message);
+        }
+
+        popularFiltroAnos();
+        carregarFiltroEmpresas();
+        carregarResumo();
+    })();
+
+    async function apiFetch(path, opts = {}) {
+        const headers = { 'Content-Type': 'application/json', ...opts.headers };
+        const token = getToken();
+        if (token) headers['Authorization'] = `Bearer ${token}`;
+        let res;
+        try {
+            res = await fetch(API + path, { ...opts, headers });
+        } catch {
+            throw new Error(`Servidor não encontrado em ${API}.`);
+        }
+        if (res.status === 401) { throw new Error('Sessão expirada. Faça login novamente.'); }
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: 'Erro desconhecido.' }));
+            const detail = Array.isArray(err.detail)
+                ? err.detail.map(e => e.msg || JSON.stringify(e)).join(' | ')
+                : (err.detail || 'Erro desconhecido');
+            throw new Error(detail);
+        }
+        return res.json();
+    }
+
+    function navegarApp(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if (id === 'viewResumo')         { document.getElementById('navResumo').classList.add('active');    carregarResumo(); }
+        if (id === 'viewProblemas')      { document.getElementById('navProblemas').classList.add('active'); carregarProblemas(); }
+        if (id === 'viewEmpresas')       { document.getElementById('navEmpresas').classList.add('active');  carregarSatisfacaoEmpresas(); }
+        if (id === 'viewDetalheEmpresa')  { document.getElementById('navEmpresas').classList.add('active'); }
+        if (id === 'viewPerfilGestor')   { document.getElementById('navPerfilGestor').classList.add('active'); carregarPerfilGestor(); atualizarBtnTema(); }
+    }
+
+    function filtrosQuery() {
+        const ano     = document.getElementById('filtroAno').value;
+        const empresa = document.getElementById('filtroEmpresa').value;
+        const genero  = document.getElementById('filtroGenero').value;
+        const faixa   = document.getElementById('filtroFaixa').value;
+        const params  = new URLSearchParams();
+        if (ano)     params.set('ano', ano);
+        if (empresa) params.set('empresa_id', empresa);
+        if (genero)  params.set('genero', genero);
+        if (faixa)   params.set('faixa_etaria', faixa);
+        return params.toString() ? '?' + params.toString() : '';
+    }
+
+    function popularFiltroAnos() {
+        const anoAtual = new Date().getFullYear();
+        ['filtroAno', 'filtroAnoEmpresas', 'filtroAnoProb'].forEach(id => {
+            const sel = document.getElementById(id);
+            for (let a = anoAtual; a >= 2024; a--) {
+                const opt = document.createElement('option');
+                opt.value = a; opt.textContent = a;
+                sel.appendChild(opt);
+            }
+        });
+    }
+
+    async function carregarFiltroEmpresas() {
+        try {
+            const lista = await apiFetch('/empresas');
+            ['filtroEmpresa', 'filtroEmpresaProb'].forEach(id => {
+                const sel = document.getElementById(id);
+                lista.forEach(e => {
+                    const opt = document.createElement('option');
+                    opt.value = e.id; opt.textContent = e.nome;
+                    sel.appendChild(opt);
+                });
+            });
+        } catch { /* silencioso */ }
+    }
+
+    // ── Skeleton helpers ──────────────────────────────────────────
+
+    function skeletonKpi(n = 4) {
+        return Array.from({ length: n }, () => `
+            <div class="kpi">
+                <span class="skeleton" style="height:36px;width:70px;margin:0 auto 10px;display:block;border-radius:6px;"></span>
+                <span class="skeleton" style="height:13px;width:90%;display:block;margin:0 auto;"></span>
+            </div>
+        `).join('');
+    }
+
+    function skeletonRank(n = 5) {
+        return Array.from({ length: n }, () => `
+            <div class="rank-item">
+                <span class="skeleton" style="height:14px;width:22px;flex-shrink:0;"></span>
+                <span class="skeleton" style="height:14px;flex:1;"></span>
+                <span class="skeleton" style="height:14px;width:60px;flex-shrink:0;"></span>
+            </div>
+        `).join('');
+    }
+
+    function skeletonEmpresa(n = 3) {
+        return Array.from({ length: n }, () => `
+            <div class="empresa-row">
+                <span class="skeleton" style="height:15px;width:55%;display:block;margin-bottom:10px;"></span>
+                <span class="skeleton" style="height:12px;width:75%;display:block;margin-bottom:8px;"></span>
+                <span class="skeleton" style="height:30px;width:100%;display:block;border-radius:8px;"></span>
+            </div>
+        `).join('');
+    }
+
+    async function carregarResumo() {
+        // Reseta estado visual antes de carregar
+        document.getElementById('kpiGrid').innerHTML = skeletonKpi(4);
+        document.getElementById('cardEfetivacao').style.display = 'none';
+
+        try {
+            const q = filtrosQuery();
+            const [resumo, efetivacao] = await Promise.all([
+                apiFetch('/dashboard/resumo' + q),
+                apiFetch('/dashboard/efetivacao-por-empresa' + q),
+            ]);
+
+            const anoSel = document.getElementById('filtroAno').value;
+            const labelAno = anoSel ? ` (${anoSel})` : '';
+
+            if (resumo.total_respostas === 0) {
+                document.getElementById('kpiGrid').innerHTML =
+                    `<div class="loading" style="grid-column:1/-1;">Nenhuma resposta encontrada para os filtros selecionados.</div>`;
+                return;
+            }
+
+            document.getElementById('kpiGrid').innerHTML = [
+                { valor: resumo.total_respostas,                    label: `Total de respostas${labelAno}` },
+                { valor: resumo.media_satisfacao.toFixed(1) + ' ★', label: 'Média de satisfação' },
+                { valor: resumo.perc_quer_efetivacao + '%',         label: 'Querem ser efetivados' },
+                { valor: efetivacao.length,                          label: 'Empresas com dados' },
+            ].map(k => `
+                <div class="kpi">
+                    <div class="valor">${k.valor}</div>
+                    <div class="label">${k.label}</div>
+                </div>
+            `).join('');
+
+            if (efetivacao.length > 0) {
+                let sim = 0, nao = 0, talvez = 0, total = 0;
+                efetivacao.forEach(e => {
+                    sim    += e.sim_perc    * e.total / 100;
+                    nao    += e.nao_perc    * e.total / 100;
+                    talvez += e.talvez_perc * e.total / 100;
+                    total  += e.total;
+                });
+                const pSim    = total ? Math.round(sim    / total * 100) : 0;
+                const pNao    = total ? Math.round(nao    / total * 100) : 0;
+                const pTalvez = total ? Math.round(talvez / total * 100) : 0;
+
+                document.getElementById('cardEfetivacao').style.display = 'block';
+                document.getElementById('barrasEfetivacao').innerHTML = [
+                    { label: '✅ Sim',           perc: pSim,    cor: '#367a28' },
+                    { label: '❌ Não',           perc: pNao,    cor: '#e74c3c' },
+                    { label: '🤔 Ainda não sei', perc: pTalvez, cor: '#f39c12' },
+                ].map(b => `
+                    <div class="barra-wrap">
+                        <div class="barra-label"><span>${b.label}</span><span>${b.perc}%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" style="width:${b.perc}%;background:${b.cor};"></div></div>
+                    </div>
+                `).join('');
+            }
+        } catch (e) {
+            document.getElementById('kpiGrid').innerHTML =
+                `<div class="loading" style="grid-column:1/-1;">Erro: ${e.message}</div>`;
+        }
+    }
+
+    const labelProblema = {
+        nenhum:'🟢 Nenhum problema', assedio_moral:'Assédio moral',
+        favorecimento:'Favorecimento indevido', machismo:'Machismo',
+        assedio_sexual:'Assédio sexual', desvio_funcao:'Desvio de função',
+        carga_excessiva:'Carga horária excessiva', falta_orientacao:'Falta de orientação',
+        sobrecarga:'Sobrecarga de tarefas', preconceito_etario:'Preconceito etário',
+        discriminacao_racial:'Discriminação racial', homofobia:'Homofobia / Transfobia',
+        intolerancia_religiosa:'Intolerância religiosa', atraso_pagamento:'Atraso no pagamento',
+        falta_feedback:'Falta de feedback', pressao_psicologica:'Pressão psicológica',
+        condicoes_inseguras:'Condições inseguras', exclusao_equipe:'Exclusão da equipe',
+        desvalorizacao_ideias:'Desvalorização de ideias', microgerenciamento:'Microgerenciamento',
+        tarefas_repetitivas:'Tarefas repetitivas', ameacas_demissao:'Ameaças de demissão',
+        falta_estrutura:'Falta de estrutura', desrespeito_direitos:'Desrespeito à Lei da Aprendizagem',
+        ausencia_intervalo:'Ausência de intervalo', proibicao_cursos:'Proibição de cursos',
+    };
+
+    function filtrosQueryProblemas() {
+        const ano     = document.getElementById('filtroAnoProb').value;
+        const empresa = document.getElementById('filtroEmpresaProb').value;
+        const genero  = document.getElementById('filtroGeneroProb').value;
+        const faixa   = document.getElementById('filtroFaixaProb').value;
+        const params  = new URLSearchParams();
+        if (ano)     params.set('ano', ano);
+        if (empresa) params.set('empresa_id', empresa);
+        if (genero)  params.set('genero', genero);
+        if (faixa)   params.set('faixa_etaria', faixa);
+        return params.toString() ? '?' + params.toString() : '';
+    }
+
+    async function carregarProblemas() {
+        const lista = document.getElementById('listaProblemas');
+        lista.innerHTML = skeletonRank(5);
+        try {
+            const dados = await apiFetch('/dashboard/problemas' + filtrosQueryProblemas());
+            if (!dados.length) { lista.innerHTML = '<div class="loading">Nenhuma resposta ainda.</div>'; return; }
+            lista.innerHTML = dados.map((p, i) => `
+                <div class="rank-item">
+                    <span class="rank-num">${i + 1}º</span>
+                    <span class="rank-label">${labelProblema[p.problema] || p.problema}</span>
+                    <span class="rank-val">${p.total} relato${p.total > 1 ? 's' : ''}</span>
+                </div>
+            `).join('');
+        } catch (e) {
+            lista.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
+        }
+    }
+
+    function estrelas(media) {
+        const n = Math.round(media);
+        return '★'.repeat(n) + '☆'.repeat(5 - n);
+    }
+
+    async function carregarSatisfacaoEmpresas() {
+        const lista = document.getElementById('listaEmpresas');
+        lista.innerHTML = skeletonEmpresa(3);
+        try {
+            const ano = document.getElementById('filtroAnoEmpresas').value;
+            const q   = ano ? `?ano=${ano}` : '';
+            const [dados, efetivacao] = await Promise.all([
+                apiFetch('/dashboard/satisfacao-por-empresa' + q),
+                apiFetch('/dashboard/efetivacao-por-empresa' + q),
+            ]);
+            const mapEfet = {};
+            efetivacao.forEach(e => { mapEfet[e.empresa] = e; });
+
+            if (!dados.length) { lista.innerHTML = '<div class="loading">Nenhuma resposta ainda.</div>'; return; }
+
+            dados.sort((a, b) => b.media_satisfacao - a.media_satisfacao);
+            lista.innerHTML = dados.map(e => {
+                const ef = mapEfet[e.empresa];
+                return `
+                    <div class="empresa-row">
+                        <div class="nome">${escapeHtml(e.empresa)}</div>
+                        <div class="detalhe">
+                            <span class="estrelas">${estrelas(e.media_satisfacao)}</span>
+                            <strong>${e.media_satisfacao.toFixed(1)}</strong>/5
+                            · ${e.total_respostas} resposta${e.total_respostas > 1 ? 's' : ''}
+                        </div>
+                        ${ef ? `<div class="detalhe">Efetivação: ✅ ${ef.sim_perc}% · ❌ ${ef.nao_perc}% · 🤔 ${ef.talvez_perc}%</div>` : ''}
+                        <button class="btn-detalhe" onclick="abrirDetalheEmpresa(${e.empresa_id}, '${escapeHtml(e.empresa).replace(/'/g, "\\'")}')">
+                            Ver detalhes →
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            lista.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
+        }
+    }
+
+    // ── Perfil Gestor ─────────────────────────────────────────────
+
+    async function carregarPerfilGestor() {
+        try {
+            const p = await apiFetch('/auth/gestor/me');
+            document.getElementById('perfilGestorNome').textContent = p.nome || p.username;
+            document.getElementById('perfilGestorUser').textContent = `@${p.username}`;
+            document.getElementById('gestorNovoNome').placeholder = p.nome || 'Nome de exibição';
+        } catch { /* silencioso */ }
+    }
+
+    function mostrarAlertaGestor(id, msg, tipo) {
+        const el = document.getElementById(id);
+        el.textContent = msg; el.className = `alerta-g ${tipo}`; el.style.display = 'block';
+    }
+
+    async function salvarNomeGestor() {
+        const novoNome  = document.getElementById('gestorNovoNome').value.trim();
+        const senhaAtual = document.getElementById('gestorSenhaNome').value;
+        document.getElementById('erroNomeGestor').style.display = 'none';
+        document.getElementById('sucessoNomeGestor').style.display = 'none';
+
+        if (!novoNome)   { mostrarAlertaGestor('erroNomeGestor', 'Informe o novo nome.', 'erro'); return; }
+        if (!senhaAtual) { mostrarAlertaGestor('erroNomeGestor', 'Confirme sua senha atual.', 'erro'); return; }
+
+        try {
+            await apiFetch('/auth/gestor/perfil', {
+                method: 'PUT',
+                body: JSON.stringify({ nome: novoNome, senha_atual: senhaAtual }),
+            });
+            localStorage.setItem('ssh_gestor', novoNome);
+            document.getElementById('saudacaoGestor').textContent = `Olá, ${novoNome}!`;
+            document.getElementById('perfilGestorNome').textContent = novoNome;
+            document.getElementById('gestorNovoNome').value = '';
+            document.getElementById('gestorSenhaNome').value = '';
+            mostrarAlertaGestor('sucessoNomeGestor', '✅ Nome atualizado com sucesso!', 'sucesso');
+            setTimeout(() => { document.getElementById('sucessoNomeGestor').style.display = 'none'; }, 3000);
+        } catch (e) {
+            mostrarAlertaGestor('erroNomeGestor', e.message, 'erro');
+        }
+    }
+
+    async function salvarSenhaGestor() {
+        const senhaAtual    = document.getElementById('gestorSenhaAtual').value;
+        const novaSenha     = document.getElementById('gestorNovaSenha').value;
+        const confirmaSenha = document.getElementById('gestorConfirmaSenha').value;
+        document.getElementById('erroSenhaGestor').style.display = 'none';
+        document.getElementById('sucessoSenhaGestor').style.display = 'none';
+
+        if (!senhaAtual) { mostrarAlertaGestor('erroSenhaGestor', 'Informe sua senha atual.', 'erro'); return; }
+        if (!novaSenha)  { mostrarAlertaGestor('erroSenhaGestor', 'Informe a nova senha.', 'erro'); return; }
+        if (novaSenha.length < 6) { mostrarAlertaGestor('erroSenhaGestor', 'Nova senha deve ter ao menos 6 caracteres.', 'erro'); return; }
+        if (novaSenha !== confirmaSenha) { mostrarAlertaGestor('erroSenhaGestor', 'As senhas não coincidem.', 'erro'); return; }
+
+        try {
+            await apiFetch('/auth/gestor/perfil', {
+                method: 'PUT',
+                body: JSON.stringify({ senha_atual: senhaAtual, nova_senha: novaSenha }),
+            });
+            document.getElementById('gestorSenhaAtual').value = '';
+            document.getElementById('gestorNovaSenha').value = '';
+            document.getElementById('gestorConfirmaSenha').value = '';
+            mostrarAlertaGestor('sucessoSenhaGestor', '✅ Senha alterada com sucesso!', 'sucesso');
+            setTimeout(() => { document.getElementById('sucessoSenhaGestor').style.display = 'none'; }, 3000);
+        } catch (e) {
+            mostrarAlertaGestor('erroSenhaGestor', e.message, 'erro');
+        }
+    }
+
+    function escapeHtml(str = '') {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    const LABEL_GENERO = {
+        feminino:         '♀ Mulheres',
+        masculino:        '♂ Homens',
+        prefiro_nao_dizer:'🔒 Pref. não dizer',
+    };
+
+    const LABEL_POSITIVO = {
+        aprendizado:     'Boa oportunidade de aprendizado',
+        clima_bom:       'Bom clima com a equipe',
+        lideranca_apoio: 'Liderança prestativa',
+        beneficios:      'Bons benefícios',
+        flexibilidade:   'Flexibilidade de horários',
+        nenhum_pos:      'Nenhum ponto positivo',
+    };
+
+    const LABEL_NEGATIVO = {
+        comunicacao_ruim:     'Falta de comunicação interna',
+        desorganizacao:       'Desorganização nos processos',
+        clima_tenso:          'Clima organizacional tenso',
+        falta_reconhecimento: 'Falta de reconhecimento',
+        distancia_lideranca:  'Liderança distante ou ausente',
+        nenhum_neg:           'Nenhum ponto negativo',
+    };
+
+    async function abrirDetalheEmpresa(id, nome) {
+        document.getElementById('detalheNomeEmpresa').textContent = nome;
+        document.getElementById('detalheTotalRespostas').textContent = 'Carregando...';
+        ['detalheGeneroLista','detalheProblemasLista','detalhePositivosLista','detalheNegativosLista']
+            .forEach(el => document.getElementById(el).innerHTML = '<div class="loading">Carregando...</div>');
+        navegarApp('viewDetalheEmpresa');
+
+        try {
+            const d = await apiFetch(`/dashboard/empresa/${id}/detalhes`);
+            document.getElementById('detalheTotalRespostas').textContent =
+                `${d.total_respostas} resposta${d.total_respostas !== 1 ? 's' : ''} registradas`;
+
+            // Efetivação por gênero
+            if (!d.efetivacao_genero.length) {
+                document.getElementById('detalheGeneroLista').innerHTML = '<div class="loading">Sem dados.</div>';
+            } else {
+                // Linha de total geral
+                const totSim    = d.efetivacao_genero.reduce((a,r) => a + r.sim, 0);
+                const totTalvez = d.efetivacao_genero.reduce((a,r) => a + r.talvez, 0);
+                const totNao    = d.efetivacao_genero.reduce((a,r) => a + r.nao, 0);
+                const totGeral  = totSim + totTalvez + totNao;
+
+                const linhas = d.efetivacao_genero
+                    .sort((a,b) => b.total - a.total)
+                    .map(g => `
+                        <div class="genero-row">
+                            <span class="genero-label">${LABEL_GENERO[g.genero] || g.genero}</span>
+                            <span class="badge badge-sim">${g.sim}</span>
+                            <span class="badge badge-talvez">${g.talvez}</span>
+                            <span class="badge badge-nao">${g.nao}</span>
+                        </div>
+                    `).join('');
+                const totalRow = `
+                    <div class="genero-row" style="font-weight:bold;margin-top:6px;border-top:2px solid #eee;padding-top:8px;">
+                        <span class="genero-label">Total (${totGeral})</span>
+                        <span class="badge badge-sim">${totSim}</span>
+                        <span class="badge badge-talvez">${totTalvez}</span>
+                        <span class="badge badge-nao">${totNao}</span>
+                    </div>`;
+                document.getElementById('detalheGeneroLista').innerHTML = linhas + totalRow;
+            }
+
+            // Problemas
+            const probSemNenhum = d.problemas.filter(p => p.problema !== 'nenhum');
+            document.getElementById('detalheProblemasLista').innerHTML = probSemNenhum.length
+                ? probSemNenhum.map((p, i) => `
+                    <div class="ponto-item">
+                        <span class="ponto-nome">${i+1}º ${labelProblema[p.problema] || p.problema}</span>
+                        <span class="ponto-qtd">${p.total}</span>
+                    </div>`).join('')
+                : '<div class="loading">Nenhum problema relatado. 🎉</div>';
+
+            // Positivos
+            document.getElementById('detalhePositivosLista').innerHTML = d.pontos_positivos.length
+                ? d.pontos_positivos.map(p => `
+                    <div class="ponto-item">
+                        <span class="ponto-nome">${LABEL_POSITIVO[p.valor] || p.valor}</span>
+                        <span class="ponto-qtd" style="color:var(--verde);">${p.total}</span>
+                    </div>`).join('')
+                : '<div class="loading">Sem dados.</div>';
+
+            // Negativos
+            document.getElementById('detalheNegativosLista').innerHTML = d.pontos_negativos.length
+                ? d.pontos_negativos.map(p => `
+                    <div class="ponto-item">
+                        <span class="ponto-nome">${LABEL_NEGATIVO[p.valor] || p.valor}</span>
+                        <span class="ponto-qtd" style="color:#e74c3c;">${p.total}</span>
+                    </div>`).join('')
+                : '<div class="loading">Sem dados.</div>';
+
+        } catch (e) {
+            document.getElementById('detalheTotalRespostas').textContent = 'Erro ao carregar dados.';
+        }
+    }
+</script>
+</body>
+</html>
