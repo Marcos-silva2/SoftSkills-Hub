@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftSkills Hub - Painel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
@@ -18,9 +21,9 @@
             --roxo: #8e44ad;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
-        body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; }
+        body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; line-height: 1.5; }
 
         .app-container {
             background-color: var(--fundo);
@@ -31,11 +34,15 @@
 
         /* Header */
         header {
-            background-color: var(--verde); color: white;
+            background: linear-gradient(135deg, #2a5e1e, #56c240); color: white;
             padding: 30px 20px 20px;
             border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
-            text-align: center;
+            text-align: center; transition: background 0.4s ease;
         }
+        header.tema-mural   { background: linear-gradient(135deg, #1a5276, #2e86c1) !important; }
+        header.tema-trilhas { background: linear-gradient(135deg, #4a235a, #8e44ad) !important; }
+        header.tema-perfil  { background: linear-gradient(135deg, #1b4f72, #2980b9) !important; }
+        header.tema-jogo    { background: linear-gradient(135deg, #6c3483, #9b59b6) !important; }
         header h1 { font-size: 1.4rem; font-weight: bold; }
         header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
 
@@ -78,12 +85,38 @@
 
         .escala-satisfacao { display: flex; justify-content: space-between; gap: 5px; margin-top: 10px; }
         .escala-btn {
-            flex: 1; padding: 10px 0; background: #fafafa;
+            flex: 1; padding: 10px 0; min-height: 44px; background: #fafafa;
             border: 1px solid #ddd; border-radius: 8px;
             font-weight: bold; cursor: pointer; transition: 0.2s; color: var(--muted);
         }
         .escala-btn:hover     { background: var(--verde-claro); border-color: var(--verde); color: var(--verde); }
         .escala-btn.selecionado { background: var(--verde); border-color: var(--verde); color: white; }
+
+        /* Escala 1–5 colorida */
+        .escala-btn:nth-child(1) { border-color:#e74c3c; color:#e74c3c; }
+        .escala-btn:nth-child(1):hover, .escala-btn:nth-child(1).selecionado { background:#e74c3c; border-color:#e74c3c; color:white; }
+        .escala-btn:nth-child(2) { border-color:#e67e22; color:#e67e22; }
+        .escala-btn:nth-child(2):hover, .escala-btn:nth-child(2).selecionado { background:#e67e22; border-color:#e67e22; color:white; }
+        .escala-btn:nth-child(3) { border-color:#f39c12; color:#f39c12; }
+        .escala-btn:nth-child(3):hover, .escala-btn:nth-child(3).selecionado { background:#f39c12; border-color:#f39c12; color:white; }
+        .escala-btn:nth-child(4) { border-color:#27ae60; color:#27ae60; }
+        .escala-btn:nth-child(4):hover, .escala-btn:nth-child(4).selecionado { background:#27ae60; border-color:#27ae60; color:white; }
+        .escala-btn:nth-child(5) { border-color:var(--verde); color:var(--verde); }
+        .escala-btn:nth-child(5):hover, .escala-btn:nth-child(5).selecionado { background:var(--verde); border-color:var(--verde); color:white; }
+
+        /* Progresso da enquete */
+        .enquete-progresso { margin-bottom: 20px; }
+        .enquete-progresso .prog-label { display:flex; justify-content:space-between; font-size:0.78rem; color:var(--muted); margin-bottom:6px; }
+        .enquete-progresso .prog-label strong { color:var(--verde); }
+        .prog-bg { background:#eee; border-radius:20px; height:6px; overflow:hidden; }
+        .prog-fill { height:100%; border-radius:20px; background:linear-gradient(90deg,var(--verde),#56c240); transition:width 0.4s ease; }
+        html.tema-escuro .prog-bg { background:#3a3a3a; }
+
+        /* Pill badges no perfil */
+        .badge-roxo        { background:#f3e8ff; color:#6b21a8; border-radius:20px; padding:2px 10px; font-size:0.78rem; font-weight:bold; display:inline-block; }
+        .badge-verde-perfil { background:#e8f5e9; color:#2e7d32; border-radius:20px; padding:2px 10px; font-size:0.78rem; font-weight:bold; display:inline-block; }
+        html.tema-escuro .badge-roxo        { background:#3b1e5e; color:#d8b4fe; }
+        html.tema-escuro .badge-verde-perfil { background:#1a3a1a; color:#86efac; }
 
         /* Botões */
         .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
@@ -115,14 +148,14 @@
             --fundo: #121212;
             --card: #1e1e1e;
         }
-        html.tema-escuro header { background-color: #1d401a; }
+        html.tema-escuro header { background: linear-gradient(135deg, #1a3a12, #2a5e1e); }
         html.tema-escuro .checkbox-item { background: #2a2a2a; border-color: #3a3a3a; }
         html.tema-escuro .scroll-box { background: #1a1a1a; border-color: #3a3a3a; }
         html.tema-escuro input,
         html.tema-escuro select,
         html.tema-escuro textarea { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
         html.tema-escuro .artigo-card,
-        html.tema-escuro .msg-card { border-color: #3a3a3a; }
+        html.tema-escuro .msg-card { border-color: #3a3a3a; background: #2a2a2a; }
         html.tema-escuro .bottom-nav { border-color: #2a2a2a; }
         html.tema-escuro .perfil-info-row { border-color: #3a3a3a; }
         html.tema-escuro .input-perfil { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
@@ -148,7 +181,10 @@
             background: #fafafa; font-size: 0.9rem; font-family: inherit;
             resize: none; outline: none; transition: 0.3s;
         }
-        .mural-box textarea:focus { border-color: var(--verde); background: #fff; }
+        .mural-box textarea:focus { border-color: var(--verde); background: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
+        .input-perfil:focus { border-color: var(--verde); background: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
+        html.tema-escuro .mural-box textarea:focus,
+        html.tema-escuro .input-perfil:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
 
         .msg-card { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
         .msg-card p     { font-size: 0.9rem; color: var(--texto); line-height: 1.4; margin: 0 0 4px; }
@@ -156,7 +192,7 @@
 
         /* Artigos */
         .artigo-card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
-        .artigo-card:hover { border-color: var(--verde); box-shadow: 0 4px 12px rgba(54,122,40,0.12); }
+        .artigo-card:hover { border-color: var(--verde); box-shadow: 0 8px 20px rgba(54,122,40,0.15); transform: translateY(-2px); }
         .artigo-card h4 { font-size: 0.95rem; color: var(--texto); margin-bottom: 6px; }
         .artigo-card .resumo { font-size: 0.82rem; color: var(--muted); margin: 0; line-height: 1.4; }
         .artigo-meta { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
@@ -175,7 +211,7 @@
         /* Filtros de categoria — Trilhas */
         .categoria-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; padding: 0 20px; }
         .btn-categoria {
-            padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd;
+            padding: 5px 12px; min-height: 36px; border-radius: 20px; border: 1px solid #ddd;
             background: #f5f5f5; color: var(--muted); font-size: 0.78rem;
             font-weight: bold; cursor: pointer; transition: 0.2s;
         }
@@ -204,6 +240,35 @@
             background-size: 200% 100%;
         }
 
+        /* ── Labels de input ─────────────────────────────────── */
+        .input-label {
+            display: block; font-size: 0.78rem; font-weight: 600;
+            color: var(--muted); margin-bottom: 5px; letter-spacing: 0.3px;
+        }
+
+        /* ── Estados vazios ──────────────────────────────────── */
+        .estado-vazio { text-align: center; padding: 40px 20px; }
+        .estado-vazio svg { margin: 0 auto 14px; display: block; opacity: 0.35; color: var(--muted); }
+        .estado-vazio .ev-titulo { font-size: 0.92rem; font-weight: 600; color: var(--texto); margin-bottom: 4px; }
+        .estado-vazio .ev-sub { font-size: 0.82rem; color: var(--muted); }
+
+        /* ── Toast ───────────────────────────────────────────── */
+        .toast-container {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 999; display: flex; flex-direction: column-reverse; align-items: center;
+            gap: 8px; width: calc(100% - 40px); max-width: 360px; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: 12px; font-size: 0.85rem; line-height: 1.4;
+            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.25); pointer-events: auto;
+            animation: toastIn 0.3s ease; width: 100%; font-weight: 500;
+        }
+        .toast-sucesso { background: #2e7d32; color: white; }
+        .toast-erro    { background: #c0392b; color: white; }
+        .toast-info    { background: #1a1a2e; color: white; }
+        @keyframes toastIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes toastOut { from { opacity:1; transform:translateY(0); }    to { opacity:0; transform:translateY(12px); } }
+
         /* Perfil */
         .perfil-avatar {
             width: 70px; height: 70px; border-radius: 50%;
@@ -223,7 +288,6 @@
             outline: none; transition: 0.2s; margin-bottom: 10px;
             font-family: inherit;
         }
-        .input-perfil:focus { border-color: var(--verde); background: #fff; }
         .btn-sair-perfil {
             width: 100%; padding: 14px; border: 1px solid #e74c3c; border-radius: 12px;
             background: transparent; color: #e74c3c; font-size: 0.95rem;
@@ -315,7 +379,7 @@
     <!-- ── INÍCIO ──────────────────────────────────── -->
     <main id="viewInicio" class="view active">
         <div id="cardEnquete" class="card" style="border:1px solid #e8f5e9;">
-            <h3>📢 Pesquisa de Clima</h3>
+            <h3><img src="emoji/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Pesquisa de Clima</h3>
             <p id="cardEnqueteDesc">Quais desafios você enfrentou essa semana? Seu voto ajuda a melhorar o ambiente e é <strong>100% anônimo</strong>.</p>
             <button id="btnIrEnquete" class="btn btn-verde" onclick="navegarApp('viewEnquete')">Responder Enquete</button>
         </div>
@@ -340,6 +404,12 @@
             <p style="font-size:0.85rem;margin-bottom:20px;">Marque as opções que refletem a sua realidade. Ninguém saberá quem enviou as respostas.</p>
 
             <form id="formEnquete" onsubmit="return false;">
+
+                <!-- Progresso -->
+                <div class="enquete-progresso">
+                    <div class="prog-label"><span>Progresso</span><strong id="progTexto">0 de 3 perguntas</strong></div>
+                    <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+                </div>
 
                 <!-- P1 -->
                 <div class="pergunta-box">
@@ -482,7 +552,7 @@
     <!-- ── MURAL ───────────────────────────────────── -->
     <main id="viewMural" class="view">
         <div class="card">
-            <h3>👥 Mural da Comunidade</h3>
+            <h3><img src="emoji/Mural-da-comunidade.png" alt="" style="width:44px;height:44px;vertical-align:middle;margin-right:8px;"> Mural da Comunidade</h3>
             <p>Compartilhe uma mensagem de apoio. Nenhum nome será exibido.</p>
             <div class="mural-box">
                 <textarea id="txtMensagem" rows="3" maxlength="500" placeholder="Escreva algo positivo para a comunidade..." oninput="atualizarContadorMural()"></textarea>
@@ -497,7 +567,7 @@
     <!-- ── TRILHAS ─────────────────────────────────── -->
     <main id="viewTrilhas" class="view">
         <div class="card" style="padding:15px 20px;margin-bottom:5px;">
-            <h3>📚 Trilhas de Soft Skills</h3>
+            <h3><img src="emoji/conhecimento.png" alt="" style="width:44px;height:44px;vertical-align:middle;margin-right:8px;"> Trilhas de Soft Skills</h3>
             <p style="margin:0;">Toque em um artigo para expandir e ler.</p>
         </div>
         <div class="categoria-filtros">
@@ -513,7 +583,9 @@
     <!-- ── PERFIL ────────────────────────────────────── -->
     <main id="viewPerfil" class="view">
         <div class="card" style="text-align:center;padding:24px 20px;">
-            <div class="perfil-avatar">👤</div>
+            <div class="perfil-avatar" style="background:transparent;box-shadow:none;width:90px;height:90px;">
+                <img src="emoji/perfil-aprendiz.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
+            </div>
             <h3 id="perfilNome" style="font-size:1.1rem;"></h3>
             <p style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Membro desde <span id="perfilDesde">—</span></p>
         </div>
@@ -525,20 +597,23 @@
 
         <div class="card">
             <h3>✏️ Alterar Nome de Usuário</h3>
-            <input class="input-perfil" id="perfilNovoUsername" type="text" placeholder="Novo nome de usuário">
-            <input class="input-perfil" id="perfilSenhaUsername" type="password" placeholder="Confirme sua senha atual">
+            <label class="input-label" for="perfilNovoUsername">Novo nome de usuário</label>
+            <input class="input-perfil" id="perfilNovoUsername" type="text" placeholder="Ex: aprendiz_dev">
+            <label class="input-label" for="perfilSenhaUsername">Senha atual</label>
+            <input class="input-perfil" id="perfilSenhaUsername" type="password" placeholder="Confirme sua senha">
             <div id="erroUsername" class="alerta alerta-erro"></div>
-            <div id="sucessoUsername" class="alerta alerta-sucesso"></div>
             <button class="btn btn-verde" onclick="salvarUsername()">Salvar nome</button>
         </div>
 
         <div class="card">
             <h3>🔒 Alterar Senha</h3>
-            <input class="input-perfil" id="perfilSenhaAtual" type="password" placeholder="Senha atual">
-            <input class="input-perfil" id="perfilNovaSenha" type="password" placeholder="Nova senha (mín. 6 caracteres)">
-            <input class="input-perfil" id="perfilConfirmaSenha" type="password" placeholder="Confirme a nova senha">
+            <label class="input-label" for="perfilSenhaAtual">Senha atual</label>
+            <input class="input-perfil" id="perfilSenhaAtual" type="password" placeholder="••••••">
+            <label class="input-label" for="perfilNovaSenha">Nova senha</label>
+            <input class="input-perfil" id="perfilNovaSenha" type="password" placeholder="Mínimo 6 caracteres">
+            <label class="input-label" for="perfilConfirmaSenha">Confirmar nova senha</label>
+            <input class="input-perfil" id="perfilConfirmaSenha" type="password" placeholder="Repita a nova senha">
             <div id="erroSenha" class="alerta alerta-erro"></div>
-            <div id="sucessoSenha" class="alerta alerta-sucesso"></div>
             <button class="btn btn-verde" onclick="salvarSenha()">Salvar senha</button>
         </div>
 
@@ -762,10 +837,22 @@
 
     let notaSelecionada = null;
 
+    function atualizarProgresso() {
+        const p1 = document.querySelectorAll('input[name="p1"]:checked').length > 0;
+        const p3 = document.querySelector('input[name="efetivacao"]:checked') !== null;
+        const p4 = notaSelecionada !== null;
+        const total = [p1, p3, p4].filter(Boolean).length;
+        document.getElementById('progFill').style.width = Math.round(total / 3 * 100) + '%';
+        document.getElementById('progTexto').textContent = `${total} de 3 perguntas`;
+    }
+
+    document.getElementById('formEnquete').addEventListener('change', atualizarProgresso);
+
     function selecionarNota(btn) {
         document.querySelectorAll('.escala-btn').forEach(b => b.classList.remove('selecionado'));
         btn.classList.add('selecionado');
         notaSelecionada = parseInt(btn.textContent);
+        atualizarProgresso();
     }
 
     async function enviarEnquete() {
@@ -801,10 +888,11 @@
                     nota_satisfacao: notaSelecionada,
                 }),
             });
-            mostrar('sucessoEnquete', '✅ Respostas enviadas com sucesso de forma totalmente anônima!', 'sucesso');
+            mostrarToast('✅ Respostas enviadas de forma totalmente anônima!', 'sucesso');
             document.getElementById('formEnquete').reset();
             notaSelecionada = null;
             document.querySelectorAll('.escala-btn').forEach(b => b.classList.remove('selecionado'));
+            atualizarProgresso();
             setTimeout(() => navegarApp('viewInicio'), 2000);
         } catch (e) {
             mostrar('erroEnquete', e.message, 'erro');
@@ -812,6 +900,39 @@
             btn.disabled = false; btn.textContent = 'Enviar Respostas Anônimas';
         }
     }
+
+    // ── Toast ─────────────────────────────────────────────────────
+
+    function mostrarToast(msg, tipo = 'info', duracao = 3500) {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const el = document.createElement('div');
+        el.className = `toast toast-${tipo}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => {
+            el.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => el.remove(), 300);
+        }, duracao);
+    }
+
+    // ── Estados vazios ────────────────────────────────────────────
+
+    function emptyState(svgInner, titulo, sub = '') {
+        return `<div class="estado-vazio">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${svgInner}</svg>
+            <p class="ev-titulo">${titulo}</p>
+            ${sub ? `<p class="ev-sub">${sub}</p>` : ''}
+        </div>`;
+    }
+
+    const SVG_MENSAGEM = '<path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>';
+    const SVG_ARTIGO   = '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>';
 
     // ── Skeleton helpers ──────────────────────────────────────────
 
@@ -855,7 +976,7 @@
         try {
             const msgs = await apiFetch('/mural');
             if (!msgs?.length) {
-                lista.innerHTML = '<div class="loading">Nenhuma mensagem ainda. Seja o primeiro!</div>';
+                lista.innerHTML = emptyState(SVG_MENSAGEM, 'Nenhuma mensagem ainda', 'Seja o primeiro a compartilhar algo com a comunidade!');
                 return;
             }
             lista.innerHTML = msgs.map(m => `
@@ -885,6 +1006,7 @@
             await apiFetch('/mural', { method: 'POST', body: JSON.stringify({ conteudo }) });
             txt.value = '';
             atualizarContadorMural();
+            mostrarToast('Mensagem publicada! 🎉', 'sucesso');
             carregarMural();
         } catch (e) {
             mostrar('erroMural', e.message, 'erro');
@@ -911,7 +1033,7 @@
             const qs = _categoriaAtiva ? `?categoria=${_categoriaAtiva}` : '';
             const artigos = await apiFetch('/artigos' + qs);
             if (!artigos?.length) {
-                lista.innerHTML = '<div class="loading">Nenhum artigo disponível nesta categoria.</div>';
+                lista.innerHTML = emptyState(SVG_ARTIGO, 'Nenhum artigo aqui', 'Tente selecionar outra categoria.');
                 return;
             }
             lista.innerHTML = artigos.map(a => `
@@ -957,15 +1079,21 @@
             document.getElementById('perfilNovoUsername').placeholder = p.username;
             const desde = new Date(p.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
             document.getElementById('perfilDesde').textContent = desde;
-            document.getElementById('perfilInfos').innerHTML = [
-                { label: 'Usuário',      valor: p.username },
-                { label: 'Gênero',       valor: LABEL_GENERO_PERFIL[p.genero] || p.genero },
-                { label: 'Faixa etária', valor: p.faixa_etaria ? p.faixa_etaria + ' anos' : '—' },
-            ].map(r => `
+            const generoLabel = LABEL_GENERO_PERFIL[p.genero] || p.genero || '—';
+            const faixaLabel  = p.faixa_etaria ? p.faixa_etaria + ' anos' : '—';
+            document.getElementById('perfilInfos').innerHTML = `
                 <div class="perfil-info-row">
-                    <span class="label">${r.label}</span>
-                    <span class="valor">${escapeHtml(String(r.valor))}</span>
-                </div>`).join('');
+                    <span class="label">Usuário</span>
+                    <span class="valor">${escapeHtml(p.username)}</span>
+                </div>
+                <div class="perfil-info-row">
+                    <span class="label">Gênero</span>
+                    <span class="valor"><span class="badge-roxo">${escapeHtml(generoLabel)}</span></span>
+                </div>
+                <div class="perfil-info-row">
+                    <span class="label">Faixa etária</span>
+                    <span class="valor"><span class="badge-verde-perfil">${escapeHtml(faixaLabel)}</span></span>
+                </div>`;
         } catch { /* mantém o que foi carregado no init */ }
     }
 
@@ -990,9 +1118,7 @@
             document.getElementById('perfilNome').textContent = novoUsername;
             document.getElementById('perfilNovoUsername').value = '';
             document.getElementById('perfilSenhaUsername').value = '';
-            sucessoEl.textContent = '✅ Nome atualizado com sucesso!';
-            sucessoEl.style.display = 'block';
-            setTimeout(() => { sucessoEl.style.display = 'none'; }, 3000);
+            mostrarToast('✅ Nome atualizado com sucesso!', 'sucesso');
             carregarPerfil();
         } catch (e) {
             erroEl.textContent = e.message;
@@ -1022,9 +1148,7 @@
             document.getElementById('perfilSenhaAtual').value = '';
             document.getElementById('perfilNovaSenha').value = '';
             document.getElementById('perfilConfirmaSenha').value = '';
-            sucessoEl.textContent = '✅ Senha alterada com sucesso!';
-            sucessoEl.style.display = 'block';
-            setTimeout(() => { sucessoEl.style.display = 'none'; }, 3000);
+            mostrarToast('✅ Senha alterada com sucesso!', 'sucesso');
         } catch (e) {
             erroEl.textContent = e.message;
             erroEl.style.display = 'block';

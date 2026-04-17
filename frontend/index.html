@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftSkills Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             /* Cores WCAG AA: contraste ≥ 4.5:1 com texto branco */
@@ -29,7 +32,7 @@
         html.tema-escuro .app-container { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         html.tema-escuro .tabs { background-color: #2a2a2a; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
         body {
             background-color: var(--fundo);
@@ -38,6 +41,7 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            line-height: 1.5;
         }
 
         .app-container {
@@ -62,7 +66,7 @@
         header p  { color: var(--muted); font-size: 0.9rem; }
 
         .tabs { display: flex; background-color: #f0f0f0; border-radius: 30px; margin-bottom: 30px; overflow: hidden; }
-        .tab-btn { flex: 1; padding: 10px 0; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .tab-btn { flex: 1; padding: 10px 0; min-height: 44px; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
         .tab-btn.active-jovem  { background-color: var(--verde);   color: white; border-radius: 30px; }
         .tab-btn.active-gestor { background-color: var(--laranja); color: white; border-radius: 30px; }
 
@@ -75,7 +79,9 @@
             background-color: #fafafa; font-size: 1rem;
             outline: none; transition: 0.3s; margin-bottom: 5px;
         }
-        input:focus, select:focus { border-color: var(--verde); background-color: #fff; }
+        input:focus, select:focus { border-color: var(--verde); background-color: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
+        html.tema-escuro input:focus,
+        html.tema-escuro select:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
 
         .btn {
             width: 100%; padding: 15px; border: none; border-radius: 12px;
@@ -121,6 +127,20 @@
     <!-- ── LOGIN ──────────────────────────────────── -->
     <div id="telaLogin" class="view active">
         <header>
+            <div style="margin:0 auto 14px;width:72px;height:72px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72">
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2a5e1e"/>
+                            <stop offset="100%" stop-color="#56c240"/>
+                        </linearGradient>
+                    </defs>
+                    <circle cx="36" cy="36" r="36" fill="url(#logoGrad)"/>
+                    <circle cx="36" cy="25" r="10" fill="rgba(255,255,255,0.95)"/>
+                    <path d="M12 62 Q12 46 36 46 Q60 46 60 62" fill="rgba(255,255,255,0.95)"/>
+                    <text x="54" y="20" font-size="13" text-anchor="middle" fill="#ffd700">★</text>
+                </svg>
+            </div>
             <h1>SoftSkills Hub</h1>
             <p>Seu espaço seguro de desenvolvimento.</p>
         </header>

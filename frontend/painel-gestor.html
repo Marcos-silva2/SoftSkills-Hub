@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoftSkills Hub — Painel Gestor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <style>
         :root {
@@ -27,6 +30,7 @@
             --fundo: #121212;
             --card: #1e1e1e;
         }
+        html.tema-escuro header { background: linear-gradient(135deg, #3a1a08, #6b2e0e); }
         html.tema-escuro .filtros select,
         html.tema-escuro .input-perfil { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
         html.tema-escuro .empresa-row { background: #2a2a2a; border-color: #3a3a3a; }
@@ -45,9 +49,9 @@
         }
         .btn-tema:hover { border-color: var(--laranja); color: var(--laranja); }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
 
-        body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; }
+        body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; line-height: 1.5; }
 
         .app-container {
             width: 100%; max-width: 400px; min-height: 100vh;
@@ -57,8 +61,8 @@
         }
 
         header {
-            background-color: var(--laranja); color: white;
-            padding: 30px 20px 20px;
+            background: linear-gradient(135deg, #a8461a, #e87c40); color: white;
+            padding: 30px 20px 20px; transition: background 0.4s ease;
             border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
             text-align: center;
         }
@@ -98,9 +102,12 @@
             border-radius: 10px; background: #fafafa; font-size: 0.9rem;
             outline: none; transition: 0.2s;
         }
-        .filtros select:focus { border-color: var(--laranja); background: #fff; }
+        .filtros select:focus { border-color: var(--laranja); background: #fff; box-shadow: 0 0 0 3px rgba(196,82,26,0.15); }
+        .input-perfil:focus   { border-color: var(--laranja); background: #fff; box-shadow: 0 0 0 3px rgba(196,82,26,0.15); }
+        html.tema-escuro .filtros select:focus,
+        html.tema-escuro .input-perfil:focus { box-shadow: 0 0 0 3px rgba(224,105,58,0.2); }
         .btn-filtrar {
-            padding: 10px; border: none; border-radius: 10px;
+            padding: 10px; min-height: 44px; border: none; border-radius: 10px;
             background: var(--laranja); color: white; font-weight: bold;
             font-size: 0.9rem; cursor: pointer; transition: 0.2s;
         }
@@ -124,7 +131,6 @@
             border-radius: 10px; background: #fafafa; font-size: 0.9rem;
             outline: none; transition: 0.2s; margin-bottom: 10px; font-family: inherit;
         }
-        .input-perfil:focus { border-color: var(--laranja); background: #fff; }
         .btn-salvar-perfil {
             width: 100%; padding: 13px; border: none; border-radius: 10px;
             background: var(--laranja); color: white; font-size: 0.95rem;
@@ -155,6 +161,35 @@
 
         .loading { text-align: center; color: var(--muted); font-size: 0.9rem; padding: 30px 0; }
 
+        /* ── Labels de input ─────────────────────────────────── */
+        .input-label {
+            display: block; font-size: 0.78rem; font-weight: 600;
+            color: var(--muted); margin-bottom: 5px; letter-spacing: 0.3px;
+        }
+
+        /* ── Estados vazios ──────────────────────────────────── */
+        .estado-vazio { text-align: center; padding: 40px 20px; }
+        .estado-vazio svg { margin: 0 auto 14px; display: block; opacity: 0.35; color: var(--muted); }
+        .estado-vazio .ev-titulo { font-size: 0.92rem; font-weight: 600; color: var(--texto); margin-bottom: 4px; }
+        .estado-vazio .ev-sub { font-size: 0.82rem; color: var(--muted); }
+
+        /* ── Toast ───────────────────────────────────────────── */
+        .toast-container {
+            position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 999; display: flex; flex-direction: column-reverse; align-items: center;
+            gap: 8px; width: calc(100% - 40px); max-width: 360px; pointer-events: none;
+        }
+        .toast {
+            padding: 12px 18px; border-radius: 12px; font-size: 0.85rem; line-height: 1.4;
+            text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.25); pointer-events: auto;
+            animation: toastIn 0.3s ease; width: 100%; font-weight: 500;
+        }
+        .toast-sucesso { background: #2e7d32; color: white; }
+        .toast-erro    { background: #c0392b; color: white; }
+        .toast-info    { background: #1a1a2e; color: white; }
+        @keyframes toastIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes toastOut { from { opacity:1; transform:translateY(0); }    to { opacity:0; transform:translateY(12px); } }
+
         /* ── Skeleton Loading ─────────────────────────────────── */
         .skeleton {
             display: block;
@@ -174,11 +209,12 @@
 
         .estrelas { color: #f39c12; letter-spacing: 2px; }
 
-        .empresa-row { background: #fafafa; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
+        .empresa-row { background: #fafafa; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
+        .empresa-row:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(196,82,26,0.12); border-color: var(--laranja); }
         .empresa-row .nome    { font-size: 0.88rem; font-weight: bold; color: var(--texto); margin-bottom: 8px; }
         .empresa-row .detalhe { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
         .btn-detalhe {
-            width: 100%; margin-top: 10px; padding: 8px; border: 1px solid var(--laranja);
+            width: 100%; margin-top: 10px; padding: 8px; min-height: 44px; border: 1px solid var(--laranja);
             border-radius: 8px; background: transparent; color: var(--laranja);
             font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
@@ -308,7 +344,7 @@
             </div>
         </div>
         <div class="card">
-            <h3>🏭 Satisfação por Empresa</h3>
+            <h3><img src="emoji/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Satisfação por Empresa</h3>
             <div id="listaEmpresas"><div class="loading">Carregando...</div></div>
         </div>
     </main>
@@ -316,27 +352,32 @@
     <!-- ── PERFIL GESTOR ─────────────────────────────────── -->
     <main id="viewPerfilGestor" class="view">
         <div class="card" style="text-align:center;padding:24px 20px;">
-            <div class="perfil-avatar-g">👤</div>
+            <div class="perfil-avatar-g" style="background:transparent;box-shadow:none;width:90px;height:90px;">
+                <img src="emoji/perfil gestor.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
+            </div>
             <h3 id="perfilGestorNome" style="font-size:1.1rem;"></h3>
             <p id="perfilGestorUser" style="font-size:0.82rem;color:var(--muted);margin-top:4px;"></p>
         </div>
 
         <div class="card">
             <h3>✏️ Alterar Nome de Exibição</h3>
-            <input class="input-perfil" id="gestorNovoNome" type="text" placeholder="Novo nome">
-            <input class="input-perfil" id="gestorSenhaNome" type="password" placeholder="Confirme sua senha atual">
+            <label class="input-label" for="gestorNovoNome">Novo nome de exibição</label>
+            <input class="input-perfil" id="gestorNovoNome" type="text" placeholder="Ex: Ana Coordenadora">
+            <label class="input-label" for="gestorSenhaNome">Senha atual</label>
+            <input class="input-perfil" id="gestorSenhaNome" type="password" placeholder="Confirme sua senha">
             <div id="erroNomeGestor" class="alerta-g erro"></div>
-            <div id="sucessoNomeGestor" class="alerta-g sucesso"></div>
             <button class="btn-salvar-perfil" onclick="salvarNomeGestor()">Salvar nome</button>
         </div>
 
         <div class="card">
             <h3>🔒 Alterar Senha</h3>
-            <input class="input-perfil" id="gestorSenhaAtual" type="password" placeholder="Senha atual">
-            <input class="input-perfil" id="gestorNovaSenha" type="password" placeholder="Nova senha (mín. 6 caracteres)">
-            <input class="input-perfil" id="gestorConfirmaSenha" type="password" placeholder="Confirme a nova senha">
+            <label class="input-label" for="gestorSenhaAtual">Senha atual</label>
+            <input class="input-perfil" id="gestorSenhaAtual" type="password" placeholder="••••••">
+            <label class="input-label" for="gestorNovaSenha">Nova senha</label>
+            <input class="input-perfil" id="gestorNovaSenha" type="password" placeholder="Mínimo 6 caracteres">
+            <label class="input-label" for="gestorConfirmaSenha">Confirmar nova senha</label>
+            <input class="input-perfil" id="gestorConfirmaSenha" type="password" placeholder="Repita a nova senha">
             <div id="erroSenhaGestor" class="alerta-g erro"></div>
-            <div id="sucessoSenhaGestor" class="alerta-g sucesso"></div>
             <button class="btn-salvar-perfil" onclick="salvarSenhaGestor()">Salvar senha</button>
         </div>
 
@@ -532,6 +573,39 @@
         } catch { /* silencioso */ }
     }
 
+    // ── Toast ─────────────────────────────────────────────────────
+
+    function mostrarToast(msg, tipo = 'info', duracao = 3500) {
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const el = document.createElement('div');
+        el.className = `toast toast-${tipo}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => {
+            el.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => el.remove(), 300);
+        }, duracao);
+    }
+
+    // ── Estados vazios ────────────────────────────────────────────
+
+    function emptyState(svgInner, titulo, sub = '') {
+        return `<div class="estado-vazio">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${svgInner}</svg>
+            <p class="ev-titulo">${titulo}</p>
+            ${sub ? `<p class="ev-sub">${sub}</p>` : ''}
+        </div>`;
+    }
+
+    const SVG_GRAFICO = '<line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>';
+    const SVG_EMPRESA = '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>';
+
     // ── Skeleton helpers ──────────────────────────────────────────
 
     function skeletonKpi(n = 4) {
@@ -580,21 +654,25 @@
 
             if (resumo.total_respostas === 0) {
                 document.getElementById('kpiGrid').innerHTML =
-                    `<div class="loading" style="grid-column:1/-1;">Nenhuma resposta encontrada para os filtros selecionados.</div>`;
+                    `<div style="grid-column:1/-1;">${emptyState(SVG_GRAFICO, 'Nenhuma resposta encontrada', 'Tente ajustar os filtros acima.')}</div>`;
                 return;
             }
 
-            document.getElementById('kpiGrid').innerHTML = [
-                { valor: resumo.total_respostas,                    label: `Total de respostas${labelAno}` },
-                { valor: resumo.media_satisfacao.toFixed(1) + ' ★', label: 'Média de satisfação' },
-                { valor: resumo.perc_quer_efetivacao + '%',         label: 'Querem ser efetivados' },
-                { valor: efetivacao.length,                          label: 'Empresas com dados' },
-            ].map(k => `
+            const kpiDados = [
+                { alvo: resumo.total_respostas,      sufixo: '',   decimais: 0, label: `Total de respostas${labelAno}` },
+                { alvo: resumo.media_satisfacao,     sufixo: ' ★', decimais: 1, label: 'Média de satisfação' },
+                { alvo: resumo.perc_quer_efetivacao, sufixo: '%',  decimais: 0, label: 'Querem ser efetivados' },
+                { alvo: efetivacao.length,           sufixo: '',   decimais: 0, label: 'Empresas com dados' },
+            ];
+            document.getElementById('kpiGrid').innerHTML = kpiDados.map(k => `
                 <div class="kpi">
-                    <div class="valor">${k.valor}</div>
+                    <div class="valor" data-alvo="${k.alvo}" data-sufixo="${k.sufixo}" data-decimais="${k.decimais}">0${k.sufixo}</div>
                     <div class="label">${k.label}</div>
                 </div>
             `).join('');
+            document.querySelectorAll('#kpiGrid .valor[data-alvo]').forEach(el => {
+                animarContagem(el, +el.dataset.alvo, el.dataset.sufixo, +el.dataset.decimais, 800);
+            });
 
             if (efetivacao.length > 0) {
                 let sim = 0, nao = 0, talvez = 0, total = 0;
@@ -660,7 +738,7 @@
         lista.innerHTML = skeletonRank(5);
         try {
             const dados = await apiFetch('/dashboard/problemas' + filtrosQueryProblemas());
-            if (!dados.length) { lista.innerHTML = '<div class="loading">Nenhuma resposta ainda.</div>'; return; }
+            if (!dados.length) { lista.innerHTML = emptyState(SVG_GRAFICO, 'Nenhum dado encontrado', 'Ajuste os filtros ou aguarde novas respostas.'); return; }
             lista.innerHTML = dados.map((p, i) => `
                 <div class="rank-item">
                     <span class="rank-num">${i + 1}º</span>
@@ -673,9 +751,22 @@
         }
     }
 
+    function animarContagem(el, alvo, sufixo = '', decimais = 0, duracao = 800) {
+        const inicio = performance.now();
+        function step(ts) {
+            const t = Math.min((ts - inicio) / duracao, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            const val = eased * alvo;
+            el.textContent = (decimais ? val.toFixed(decimais) : Math.round(val)) + sufixo;
+            if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
     function estrelas(media) {
         const n = Math.round(media);
-        return '★'.repeat(n) + '☆'.repeat(5 - n);
+        const cor = media <= 2 ? '#e74c3c' : media <= 3 ? '#f39c12' : '#27ae60';
+        return `<span style="color:${cor}">${'★'.repeat(n)}</span><span style="color:#ccc">${'☆'.repeat(5 - n)}</span>`;
     }
 
     async function carregarSatisfacaoEmpresas() {
@@ -691,7 +782,7 @@
             const mapEfet = {};
             efetivacao.forEach(e => { mapEfet[e.empresa] = e; });
 
-            if (!dados.length) { lista.innerHTML = '<div class="loading">Nenhuma resposta ainda.</div>'; return; }
+            if (!dados.length) { lista.innerHTML = emptyState(SVG_EMPRESA, 'Nenhuma empresa com dados', 'As empresas aparecerão aqui após receberem respostas.'); return; }
 
             dados.sort((a, b) => b.media_satisfacao - a.media_satisfacao);
             lista.innerHTML = dados.map(e => {
@@ -736,7 +827,6 @@
         const novoNome  = document.getElementById('gestorNovoNome').value.trim();
         const senhaAtual = document.getElementById('gestorSenhaNome').value;
         document.getElementById('erroNomeGestor').style.display = 'none';
-        document.getElementById('sucessoNomeGestor').style.display = 'none';
 
         if (!novoNome)   { mostrarAlertaGestor('erroNomeGestor', 'Informe o novo nome.', 'erro'); return; }
         if (!senhaAtual) { mostrarAlertaGestor('erroNomeGestor', 'Confirme sua senha atual.', 'erro'); return; }
@@ -751,8 +841,7 @@
             document.getElementById('perfilGestorNome').textContent = novoNome;
             document.getElementById('gestorNovoNome').value = '';
             document.getElementById('gestorSenhaNome').value = '';
-            mostrarAlertaGestor('sucessoNomeGestor', '✅ Nome atualizado com sucesso!', 'sucesso');
-            setTimeout(() => { document.getElementById('sucessoNomeGestor').style.display = 'none'; }, 3000);
+            mostrarToast('✅ Nome atualizado com sucesso!', 'sucesso');
         } catch (e) {
             mostrarAlertaGestor('erroNomeGestor', e.message, 'erro');
         }
@@ -763,7 +852,6 @@
         const novaSenha     = document.getElementById('gestorNovaSenha').value;
         const confirmaSenha = document.getElementById('gestorConfirmaSenha').value;
         document.getElementById('erroSenhaGestor').style.display = 'none';
-        document.getElementById('sucessoSenhaGestor').style.display = 'none';
 
         if (!senhaAtual) { mostrarAlertaGestor('erroSenhaGestor', 'Informe sua senha atual.', 'erro'); return; }
         if (!novaSenha)  { mostrarAlertaGestor('erroSenhaGestor', 'Informe a nova senha.', 'erro'); return; }
@@ -778,8 +866,7 @@
             document.getElementById('gestorSenhaAtual').value = '';
             document.getElementById('gestorNovaSenha').value = '';
             document.getElementById('gestorConfirmaSenha').value = '';
-            mostrarAlertaGestor('sucessoSenhaGestor', '✅ Senha alterada com sucesso!', 'sucesso');
-            setTimeout(() => { document.getElementById('sucessoSenhaGestor').style.display = 'none'; }, 3000);
+            mostrarToast('✅ Senha alterada com sucesso!', 'sucesso');
         } catch (e) {
             mostrarAlertaGestor('erroSenhaGestor', e.message, 'erro');
         }
