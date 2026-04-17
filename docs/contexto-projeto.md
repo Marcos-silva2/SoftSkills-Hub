@@ -1,7 +1,7 @@
 # SoftSkills Hub — Contexto e Memória do Projeto
 
 > Documento de referência para todas as sessões de desenvolvimento.
-> Atualizado em: 2026-04-14
+> Atualizado em: 2026-04-17
 
 ---
 
@@ -10,26 +10,29 @@
 Plataforma **mobile-first** (max-width 400px) que conecta jovens aprendizes e gestores educacionais. Atua na intersecção dos ODS 3 (Saúde e Bem-Estar) e ODS 9 (Indústria e Inovação).
 
 **Dois perfis com interfaces separadas:**
-- **Aprendiz:** cadastro anônimo, enquete de clima, mural, trilhas de soft skills
-- **Gestor:** dashboard analítico com KPIs, ranking de problemas e satisfação por empresa
+- **Aprendiz:** cadastro anônimo, enquete de clima, mural da comunidade, trilhas de soft skills, jogo de memória corporativa
+- **Gestor:** dashboard analítico com KPIs, ranking de problemas, satisfação por empresa e **gerenciamento de artigos das trilhas**
 
 ---
 
 ## Identidade Visual
 
-| Variável CSS | Valor | Uso |
-|---|---|---|
-| `--verde` / `--ods3-verde` | `#4C9F38` | Cor primária do aprendiz (ODS 3) |
-| `--laranja` / `--ods9-laranja` | `#FD6925` | Cor primária do gestor (ODS 9) |
-| `--roxo` / `--cor-jogo` | `#8e44ad` | Seção de descompressão/jogos |
-| `--fundo` / `--fundo-tela` | `#f4f7f6` | Background geral |
-| `--card` / `--fundo-card` | `#ffffff` | Cards e painéis |
-| `--texto` / `--texto-escuro` | `#333333` | Texto principal |
-| `--muted` / `--texto-claro` | `#777777` | Texto secundário |
+As cores passam no critério **WCAG AA (≥ 4.5:1)** com texto branco.
 
-**Fonte:** Segoe UI → Tahoma → Verdana (sans-serif)
-**Animação padrão:** `fadeIn` — `translateY(5–10px → 0)`, `0.3–0.4s ease`
-**Nota:** os arquivos do frontend usam nomes curtos (`--verde`, `--laranja`). O `contexto-projeto.md` antigo usava nomes longos — ambos são equivalentes.
+| Variável CSS     | Hex (light) | Hex (dark) | Uso                                         |
+|------------------|-------------|------------|---------------------------------------------|
+| `--verde`        | `#367a28`   | `#4fb53e`  | Cor primária do aprendiz                    |
+| `--laranja`      | `#c4521a`   | `#e0693a`  | Cor primária do gestor                      |
+| `--roxo`         | `#8e44ad`   | `#b06ccc`  | Seção de jogos                              |
+| `--fundo`        | `#f4f7f6`   | `#121212`  | Background geral                            |
+| `--card`         | `#ffffff`   | `#1e1e1e`  | Cards e painéis                             |
+| `--texto`        | `#333333`   | `#e4e4e4`  | Texto principal                             |
+| `--muted`        | `#777777`   | `#9e9e9e`  | Texto secundário                            |
+
+**Fonte:** Inter (Google Fonts) → Segoe UI → sans-serif
+**Headers:** `linear-gradient(135deg, ...)` — cor muda por aba no painel do aprendiz
+**Dark mode:** classe `tema-escuro` no `<html>`, salvo em `localStorage` como `ssh_tema`
+**Transição de tema:** classe temporária `tema-transition` aplicada via JS durante a alternância
 
 ---
 
@@ -40,7 +43,7 @@ SoftSkills-Hub/
 ├── frontend/
 │   ├── index.html               ← Login (aprendiz + gestor) e cadastro
 │   ├── painel.aprendiz.html     ← Painel SPA do aprendiz
-│   └── painel-gestor.html       ← Painel SPA do gestor (dashboard)
+│   └── painel-gestor.html       ← Painel SPA do gestor (dashboard + trilhas)
 │
 ├── backend/
 │   ├── main.py                  ← FastAPI + todas as rotas
@@ -52,18 +55,14 @@ SoftSkills-Hub/
 │   ├── requirements.txt         ← Dependências Python
 │   └── softskills.db            ← Banco SQLite (gerado automaticamente)
 │
-├── docs/
-│   ├── contexto-projeto.md      ← Este arquivo
-│   ├── ideia-geral.md           ← Documento de visão e requisitos
-│   ├── empresas.md              ← Lista das 61 empresas parceiras
-│   ├── jogo.md                  ← Especificação do jogo de memória
-│   ├── DATABASE_SCHEMA.md       ← Documentação completa das 8 tabelas
-│   └── STYLEGUIDE.md            ← Design system: cores, componentes, convenções JS
-│
-└── index.html / painel.aprendiz.html  ← PROTÓTIPOS ANTIGOS (não usar)
+└── docs/
+    ├── contexto-projeto.md      ← Este arquivo
+    ├── ideia-geral.md           ← Documento de visão e requisitos
+    ├── empresas.md              ← Lista das 61 empresas parceiras
+    ├── jogo.md                  ← Especificação do jogo de memória
+    ├── DATABASE_SCHEMA.md       ← Documentação completa das 8 tabelas
+    └── STYLEGUIDE.md            ← Design system: cores, componentes, convenções JS
 ```
-
-**Importante:** usar sempre os arquivos dentro de `frontend/`. Os arquivos na raiz são protótipos sem integração com o backend.
 
 ---
 
@@ -84,33 +83,47 @@ uvicorn main:app --reload
 ### Endpoints
 
 | Método | Rota | Acesso | Descrição |
-|---|---|---|---|
+|--------|------|--------|-----------|
 | GET | `/empresas` | Público | Lista as 61 empresas |
 | POST | `/auth/aprendiz/register` | Público | Cadastro do aprendiz |
 | POST | `/auth/aprendiz/login` | Público | Login (form-urlencoded) → JWT |
-| GET | `/auth/aprendiz/me` | Aprendiz | Perfil do usuário logado |
+| GET | `/auth/aprendiz/me` | Aprendiz | Perfil do usuário logado (inclui `is_admin`) |
 | PUT | `/auth/aprendiz/perfil` | Aprendiz | Altera username e/ou senha |
 | POST | `/auth/gestor/login` | Público | Login gestor (JSON) → JWT |
 | GET | `/auth/gestor/me` | Gestor | Valida token e retorna dados do gestor |
 | PUT | `/auth/gestor/perfil` | Gestor | Altera nome de exibição e/ou senha |
-| POST | `/enquete/responder` | Aprendiz | Envia respostas anônimas |
+| POST | `/enquete/responder` | Aprendiz | Envia respostas anônimas (cooldown 7 dias) |
 | GET | `/mural` | Público | Lista últimas 50 mensagens |
-| POST | `/mural` | Aprendiz | Posta mensagem anônima |
-| GET | `/artigos` | Público | Lista artigos (filtro por `categoria`) |
+| POST | `/mural` | Aprendiz | Posta mensagem anônima (**rate limit: 1 post / 2 min por usuário**) |
+| DELETE | `/mural/{id}` | Aprendiz admin | Apaga mensagem (requer `is_admin=True`, HTTP 403 caso contrário) |
+| GET | `/artigos` | Público | Lista artigos (filtro por `?categoria=`) |
 | GET | `/artigos/{id}` | Público | Artigo específico |
-| GET | `/dashboard/resumo` | Gestor | KPIs — filtros: `empresa_id`, `genero`, `faixa_etaria` |
-| GET | `/dashboard/problemas` | Gestor | Ranking de problemas — filtros: `empresa_id`, `genero`, `faixa_etaria` |
+| POST | `/artigos` | Gestor | Cria novo artigo |
+| PUT | `/artigos/{id}` | Gestor | Atualiza artigo existente |
+| DELETE | `/artigos/{id}` | Gestor | Remove artigo |
+| GET | `/dashboard/resumo` | Gestor | KPIs — filtros: `empresa_id`, `genero`, `faixa_etaria`, `ano` |
+| GET | `/dashboard/problemas` | Gestor | Ranking de problemas — filtros acima |
 | GET | `/dashboard/satisfacao-por-empresa` | Gestor | Média de satisfação por empresa |
-| GET | `/dashboard/efetivacao-por-empresa` | Gestor | % efetivação — filtros: `empresa_id`, `genero`, `faixa_etaria` |
-| GET | `/dashboard/empresa/{id}/detalhes` | Gestor | Efetivação por gênero, problemas e avaliações de uma empresa |
+| GET | `/dashboard/efetivacao-por-empresa` | Gestor | % efetivação por empresa |
+| GET | `/dashboard/empresa/{id}/detalhes` | Gestor | Efetivação por gênero, problemas e avaliações |
 
 ### Autenticação
 
 - **Aprendiz:** JWT salvo em `localStorage` como `ssh_token`
   - Login usa `application/x-www-form-urlencoded` (padrão OAuth2)
-  - Token carregado via header `Authorization: Bearer <token>`
+  - Token enviado via header `Authorization: Bearer <token>`
 - **Gestor:** JWT salvo como `ssh_token_gestor`
   - Login usa `application/json` com `{ username, senha }`
+
+### Migrações automáticas no startup
+
+O backend executa `ALTER TABLE` idempotentes no startup para colunas adicionadas após a criação inicial do banco:
+
+```python
+# Colunas adicionadas via migração (try/except — ignoram se já existirem):
+ALTER TABLE aprendizes ADD COLUMN last_enquete_at DATETIME
+ALTER TABLE aprendizes ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0
+```
 
 ---
 
@@ -122,92 +135,98 @@ uvicorn main:app --reload
 ### Tabelas
 
 | Tabela | Descrição |
-|---|---|
+|--------|-----------|
 | `empresas` | 61 empresas parceiras |
-| `aprendizes` | Usuários aprendizes (username anônimo) |
-| `gestores` | Usuários gestores/admin |
-| `respostas_enquete` | Cabeçalho anônimo de cada resposta |
-| `respostas_problemas` | Itens da pergunta 1 (checkboxes) |
-| `respostas_avaliacao` | Itens da pergunta 2 (positivos/negativos) |
+| `aprendizes` | Usuários aprendizes — inclui `is_admin` e `last_enquete_at` |
+| `gestores` | Usuários gestores |
+| `respostas_enquete` | Cabeçalho anônimo de cada resposta de clima |
+| `respostas_problemas` | Itens da pergunta 1 (checkboxes de problemas) |
+| `respostas_avaliacao` | Itens da pergunta 2 (pontos positivos/negativos) |
 | `mensagens_mural` | Mensagens anônimas do mural |
 | `artigos` | Conteúdo das trilhas de soft skills |
 
 ### Faixas etárias (privacidade)
 Idade exata nunca é gravada nas respostas — convertida em faixa:
-`14–16` | `17–18` | `19–21` | `22–24`
+`15-16` | `17-18` | `19-21` | `22`
 
 ---
 
 ## Credenciais de Teste
 
-| Perfil | Usuário | Senha |
-|---|---|---|
-| Aprendiz de teste | `teste` | `123456` |
-| Gestor / Admin | `admin` | `123456` |
+| Perfil | Usuário | Senha | Observação |
+|--------|---------|-------|------------|
+| Aprendiz de teste | `teste` | `123456` | Conta padrão do seed |
+| Gestor / Admin | `admin` | `123456` | Criado pelo seed.py |
+| Aprendiz admin | `aprendiz-adm` | `admin` | Criado no startup — pode apagar mensagens do mural |
 
 ---
 
 ## Frontend — Telas
 
 ### `index.html` — Autenticação
-- Aba **Sou Aprendiz** (verde): login com usuário + senha → redireciona para `painel.aprendiz.html`
-- Aba **Sou Gestor** (laranja): login com usuário + senha → redireciona para `painel-gestor.html`
-- Tela de cadastro: carrega empresas dinamicamente da API, valida todos os campos antes de enviar
-- Banner de aviso automático se o backend não estiver rodando
+- Aba **Sou Aprendiz** (verde): login → redireciona para `painel.aprendiz.html`
+- Aba **Sou Gestor** (laranja): login → redireciona para `painel-gestor.html`
+- Cadastro de aprendiz: carrega empresas dinamicamente, medidor de força de senha
+- Inputs com ícones SVG inline (usuário e cadeado)
+- Logo SVG inline no header (sem arquivo externo)
 
 ### `painel.aprendiz.html` — Painel do Aprendiz (SPA)
-Saudação com nome real buscado via `GET /auth/aprendiz/me`.
 
-| Aba (bottom-nav) | Conteúdo |
-|---|---|
-| 🏠 Início | Cards: Enquete, Descompressão (jogo), Dica do Dia (artigo mais recente) |
-| 👥 Mural | Post + listagem de mensagens anônimas da comunidade |
-| 📚 Leitura | Trilhas de Soft Skills — artigos expansíveis por categoria |
-| 👤 Perfil | Troca de username e senha; botão Sair |
+| Aba (bottom-nav) | Cor do header | Conteúdo |
+|------------------|---------------|----------|
+| 🏠 Início | Verde | Cards: Enquete, Jogo, Dica do Dia |
+| 💬 Mural | Azul | Post + listagem com rate limit de 2 min; admin vê botão apagar |
+| 📚 Trilhas | Laranja | Artigos expansíveis por categoria com filtros |
+| 👤 Perfil | Roxo | Username/senha; badges de gênero e faixa etária; "Tempo aqui" |
 
-**Enquete (4 perguntas):**
-1. Problemas na empresa — 26 opções, checkbox com scroll
-2. Avaliação — pontos positivos (6) e negativos (6) separados
+**Enquete (4 perguntas com barra de progresso):**
+1. Problemas — 26 opções em scroll-box com fade gradient
+2. Avaliação — pontos positivos (5) e negativos (5)
 3. Desejo de efetivação — radio (sim / não / talvez)
-4. Satisfação geral — escala 1–5
+4. Satisfação geral — escala 1–5 colorida (vermelho→verde) com rótulos
 
-**Jogo — Memória Corporativa:**
-Grid 4×3 de cartas com flip 3D. 6 termos sorteados de um pool de 14 (Networking, Proatividade, Resiliência, Mindset, etc.). Inclui glossário pós-jogo.
+**Jogo — Memória Corporativa:** grid 4×3, flip 3D, sparkle ao acertar par, 6 termos de 14 possíveis
+
+**Micro-interações:**
+- Confetti ao enviar enquete com sucesso
+- Animação de entrada escalonada (stagger) nos cards do mural e artigos
+- KPIs do início com contagem animada
 
 ### `painel-gestor.html` — Painel do Gestor (SPA)
-Filtros por empresa, gênero e faixa etária disponíveis em todas as abas.
 
 | Aba | Conteúdo |
-|---|---|
-| 📊 Resumo | 4 KPIs + barras de efetivação geral (com filtros) |
-| ⚠️ Problemas | Ranking dos problemas mais relatados (com filtros próprios) |
-| 🏭 Empresas | Satisfação (estrelas + média), % efetivação; botão "Ver detalhes" por empresa |
-| 👤 Perfil | Troca de nome de exibição e senha; botão Sair |
+|-----|----------|
+| 📊 Resumo | 4 KPIs animados + donut chart de efetivação com badge de interpretação |
+| ⚠️ Problemas | Ranking com medalhas 🥇🥈🥉 no pódio; filtros por empresa/gênero/faixa/ano |
+| 🏭 Empresas | Estrelas coloridas + barra de avaliação + % efetivação; detalhe por empresa |
+| 📚 Trilhas | **CRUD de artigos:** listar, criar, editar, apagar com modal bottom sheet |
+| 👤 Perfil | Nome de exibição, senha, tema claro/escuro |
 
-**Detalhe de empresa:** efetivação cruzada por gênero (tabela), ranking de problemas, pontos positivos e negativos.
+**Detalhe de empresa:** efetivação cruzada por gênero, ranking de problemas, pontos positivos e negativos.
 
 ---
 
 ## Decisões Técnicas Importantes
 
 | Decisão | Motivo |
-|---|---|
+|---------|--------|
 | SQLite no backend | Simplicidade para desenvolvimento local — sem necessidade de servidor de banco |
 | `default=_now` nos models | `server_default=func.now()` do SQLite não preenche o campo em memória, causando falha no Pydantic |
 | `bcrypt==4.0.1` fixado | Versão 4.x+ do bcrypt quebra a integração com `passlib` no Python 3.14 |
-| `allow_credentials=False` no CORS | JWT é enviado via header Authorization, não via cookie — `credentials=True` com `allow_origins=["*"]` é bloqueado pelo browser |
-| `"null"` removido das origens CORS | Substituído por `allow_origins=["*"]` que é mais simples e correto para JWT |
-| Agregação SQL no dashboard | `dashboard_resumo` usa SQL `AVG`/`COUNT`/`CASE` — evita carregar todas as linhas em memória |
-| `efetivacao_por_empresa` com GROUP BY | Substituiu loop N+1 (uma query por empresa) por uma única query agrupada |
+| `allow_credentials=False` no CORS | JWT é enviado via header Authorization, não via cookie |
+| Agregação SQL no dashboard | `dashboard_resumo` usa `AVG`/`COUNT`/`CASE` — evita N+1 queries |
+| `substr(data, 1, 4)` para filtro de ano | `strftime('%Y', ...)` falha com microsegundos no SQLite |
+| Rate limiting em memória | Sem dependências extras; reiniciado com o servidor — suficiente para o volume atual |
+| `is_admin` criado por startup | Sem endpoint de promoção — a conta `aprendiz-adm` é criada automaticamente se não existir |
+| CRUD de artigos restrito ao gestor | Conteúdo educacional é curatorial — aprendizes não devem criar/editar artigos |
 
 ---
 
 ## Funcionalidades Pendentes
 
 | Área | Status |
-|---|---|
-| Gráficos no dashboard do gestor | Barras em HTML puro — Chart.js ainda não integrado |
-| Mais artigos nas trilhas | Apenas 4 artigos (1 por categoria) |
+|------|--------|
 | Segundo minijogo de descompressão | Apenas o jogo de memória implementado |
-| Rate limiting nas rotas de login | Não implementado |
 | Troca da `SECRET_KEY` do JWT | Hardcoded em `auth.py` — necessário para produção |
+| Rate limiting nas rotas de login | Não implementado (apenas no mural) |
+| Persistência do rate limiting do mural | Reinicia com o servidor; para produção usar Redis ou SQLite |

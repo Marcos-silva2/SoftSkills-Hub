@@ -258,6 +258,80 @@
         .ponto-item:last-child { border-bottom: none; }
         .ponto-nome { color: var(--texto); flex: 1; }
         .ponto-qtd  { font-weight: bold; color: var(--laranja); flex-shrink: 0; }
+
+        /* Transição suave de tema */
+        html.tema-transition * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; }
+
+        /* Donut chart animado */
+        .donut-arco { transition: stroke-dasharray 0.8s cubic-bezier(.4,0,.2,1); }
+
+        /* ── Trilhas / Artigos ───────────────────────────────── */
+        .artigo-item {
+            background: #fafafa; border: 1px solid #eee; border-radius: 10px;
+            padding: 12px 14px; margin-bottom: 10px; transition: 0.2s;
+        }
+        html.tema-escuro .artigo-item { background: #2a2a2a; border-color: #3a3a3a; }
+        .artigo-item-titulo { font-size: 0.9rem; font-weight: 700; color: var(--texto); margin-bottom: 4px; }
+        .artigo-item-meta   { font-size: 0.75rem; color: var(--muted); }
+        .artigo-item-acoes  { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-artigo {
+            flex: 1; padding: 7px 10px; min-height: 36px; border-radius: 8px;
+            font-size: 0.78rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-artigo-editar { border: 1px solid var(--laranja); background: transparent; color: var(--laranja); }
+        .btn-artigo-editar:hover { background: var(--laranja); color: white; }
+        .btn-artigo-apagar { border: 1px solid #e74c3c; background: transparent; color: #e74c3c; }
+        .btn-artigo-apagar:hover { background: #e74c3c; color: white; }
+
+        /* Modal de criação/edição */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5); z-index: 1000;
+            align-items: flex-end; justify-content: center;
+        }
+        .modal-overlay.aberto { display: flex; }
+        .modal-sheet {
+            background: var(--card); border-radius: 20px 20px 0 0;
+            padding: 24px 20px; width: 100%; max-width: 400px;
+            max-height: 90vh; overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-titulo { font-size: 1rem; font-weight: 700; color: var(--texto); margin-bottom: 16px; }
+        .input-label-modal {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: var(--muted); margin-bottom: 4px; margin-top: 10px;
+        }
+        .input-modal {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+            border-radius: 8px; background: #fafafa; font-size: 0.88rem;
+            outline: none; transition: 0.2s; font-family: inherit;
+        }
+        .input-modal:focus { border-color: var(--laranja); background: #fff; box-shadow: 0 0 0 3px rgba(196,82,26,0.15); }
+        html.tema-escuro .input-modal { background: #2a2a2a; border-color: #3a3a3a; color: var(--texto); }
+        html.tema-escuro .input-modal:focus { background: #333; }
+        textarea.input-modal { resize: vertical; min-height: 130px; line-height: 1.5; }
+        .modal-acoes { display: flex; gap: 10px; margin-top: 16px; }
+        .btn-modal-salvar {
+            flex: 1; padding: 12px; border: none; border-radius: 10px;
+            background: var(--laranja); color: white; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-modal-salvar:hover { background: #a8461a; }
+        .btn-modal-cancelar {
+            padding: 12px 20px; border: 1px solid #ddd; border-radius: 10px;
+            background: transparent; color: var(--muted); font-weight: bold;
+            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+        }
+        .btn-modal-cancelar:hover { border-color: #bbb; }
+        .cat-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 12px;
+            font-size: 0.7rem; font-weight: 700; margin-left: 6px;
+        }
+        .cat-inteligencia_emocional { background: #f3e5f5; color: #7b1fa2; }
+        .cat-comunicacao            { background: #e3f2fd; color: #1565c0; }
+        .cat-postura_profissional   { background: #e8f5e9; color: #2e7d32; }
+        .cat-saude_mental           { background: #fff3e0; color: #e65100; }
     </style>
 </head>
 <body>
@@ -424,10 +498,63 @@
         </div>
     </main>
 
+    <!-- ── TRILHAS ────────────────────────────────────── -->
+    <main id="viewTrilhas" class="view">
+        <div class="card" style="padding:15px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <h3 style="margin:0;">📚 Trilhas de Soft Skills</h3>
+            <button class="btn-filtrar" style="width:auto;padding:8px 14px;font-size:0.82rem;" onclick="abrirModalArtigo()">+ Novo artigo</button>
+        </div>
+        <div class="card" style="padding:10px 20px;">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="filtroCatTrilhas">
+                <button class="btn-filtrar" style="width:auto;padding:5px 12px;font-size:0.75rem;background:#666;" data-cat="" onclick="filtrarTrilhas('')">Todos</button>
+                <button class="btn-filtrar" style="width:auto;padding:5px 12px;font-size:0.75rem;background:#7b1fa2;" data-cat="inteligencia_emocional" onclick="filtrarTrilhas('inteligencia_emocional')">Int. Emocional</button>
+                <button class="btn-filtrar" style="width:auto;padding:5px 12px;font-size:0.75rem;background:#1565c0;" data-cat="comunicacao" onclick="filtrarTrilhas('comunicacao')">Comunicação</button>
+                <button class="btn-filtrar" style="width:auto;padding:5px 12px;font-size:0.75rem;background:#2e7d32;" data-cat="postura_profissional" onclick="filtrarTrilhas('postura_profissional')">Postura</button>
+                <button class="btn-filtrar" style="width:auto;padding:5px 12px;font-size:0.75rem;background:#e65100;" data-cat="saude_mental" onclick="filtrarTrilhas('saude_mental')">Saúde Mental</button>
+            </div>
+        </div>
+        <div id="listaTrilhas"><div class="loading" style="padding:30px 20px;text-align:center;">Carregando...</div></div>
+    </main>
+
+    <!-- ── MODAL ARTIGO ─────────────────────────────── -->
+    <div class="modal-overlay" id="modalArtigo" onclick="fecharModalSeClicouFora(event)">
+        <div class="modal-sheet">
+            <p class="modal-titulo" id="modalArtigoTitulo">Novo artigo</p>
+            <input type="hidden" id="modalArtigoId">
+
+            <label class="input-label-modal" for="artigoTitulo">Título *</label>
+            <input class="input-modal" id="artigoTitulo" type="text" maxlength="200" placeholder="Título do artigo">
+
+            <label class="input-label-modal" for="artigoResumo">Resumo * <span style="font-size:0.7rem;">(máx 300 chars)</span></label>
+            <input class="input-modal" id="artigoResumo" type="text" maxlength="300" placeholder="Breve descrição exibida no card">
+
+            <label class="input-label-modal" for="artigoCategoria">Categoria *</label>
+            <select class="input-modal" id="artigoCategoria">
+                <option value="inteligencia_emocional">Inteligência Emocional</option>
+                <option value="comunicacao">Comunicação</option>
+                <option value="postura_profissional">Postura Profissional</option>
+                <option value="saude_mental">Saúde Mental</option>
+            </select>
+
+            <label class="input-label-modal" for="artigoTempo">Tempo de leitura (min)</label>
+            <input class="input-modal" id="artigoTempo" type="number" min="1" max="60" placeholder="Ex: 5">
+
+            <label class="input-label-modal" for="artigoConteudo">Conteúdo * <span style="font-size:0.7rem;">(Markdown)</span></label>
+            <textarea class="input-modal" id="artigoConteudo" placeholder="## Título&#10;&#10;Texto em **Markdown**..."></textarea>
+
+            <div id="erroModalArtigo" class="alerta-g erro" style="margin-top:10px;"></div>
+            <div class="modal-acoes">
+                <button class="btn-modal-cancelar" onclick="fecharModalArtigo()">Cancelar</button>
+                <button class="btn-modal-salvar" onclick="salvarArtigo()">Salvar artigo</button>
+            </div>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <button id="navResumo"       class="nav-item active" aria-label="Resumo geral"          onclick="navegarApp('viewResumo')">   <i data-lucide="bar-chart-2"></i><span>Resumo</span></button>
         <button id="navProblemas"    class="nav-item"        aria-label="Ranking de problemas"   onclick="navegarApp('viewProblemas')"><i data-lucide="alert-triangle"></i><span>Problemas</span></button>
         <button id="navEmpresas"     class="nav-item"        aria-label="Dados por empresa"      onclick="navegarApp('viewEmpresas')"> <i data-lucide="building-2"></i><span>Empresas</span></button>
+        <button id="navTrilhas"      class="nav-item"        aria-label="Trilhas de conteúdo"    onclick="navegarApp('viewTrilhas')">  <i data-lucide="book-open"></i><span>Trilhas</span></button>
         <button id="navPerfilGestor" class="nav-item"        aria-label="Perfil do gestor"       onclick="navegarApp('viewPerfilGestor')"><i data-lucide="user"></i><span>Perfil</span></button>
     </nav>
 </div>
@@ -443,9 +570,11 @@
     }
 
     function alternarTema() {
+        document.documentElement.classList.add('tema-transition');
         const agora = document.documentElement.classList.toggle('tema-escuro');
         localStorage.setItem('ssh_tema', agora ? 'escuro' : 'claro');
         atualizarBtnTema();
+        setTimeout(() => document.documentElement.classList.remove('tema-transition'), 400);
     }
 
     function atualizarBtnTema() {
@@ -527,11 +656,12 @@
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if (id === 'viewResumo')         { document.getElementById('navResumo').classList.add('active');    carregarResumo(); }
-        if (id === 'viewProblemas')      { document.getElementById('navProblemas').classList.add('active'); carregarProblemas(); }
-        if (id === 'viewEmpresas')       { document.getElementById('navEmpresas').classList.add('active');  carregarSatisfacaoEmpresas(); }
+        if (id === 'viewResumo')          { document.getElementById('navResumo').classList.add('active');       carregarResumo(); }
+        if (id === 'viewProblemas')       { document.getElementById('navProblemas').classList.add('active');    carregarProblemas(); }
+        if (id === 'viewEmpresas')        { document.getElementById('navEmpresas').classList.add('active');     carregarSatisfacaoEmpresas(); }
         if (id === 'viewDetalheEmpresa')  { document.getElementById('navEmpresas').classList.add('active'); }
-        if (id === 'viewPerfilGestor')   { document.getElementById('navPerfilGestor').classList.add('active'); carregarPerfilGestor(); atualizarBtnTema(); }
+        if (id === 'viewTrilhas')         { document.getElementById('navTrilhas').classList.add('active');      carregarTrilhas(); }
+        if (id === 'viewPerfilGestor')    { document.getElementById('navPerfilGestor').classList.add('active'); carregarPerfilGestor(); atualizarBtnTema(); }
     }
 
     function filtrosQuery() {
@@ -687,16 +817,13 @@
                 const pTalvez = total ? Math.round(talvez / total * 100) : 0;
 
                 document.getElementById('cardEfetivacao').style.display = 'block';
-                document.getElementById('barrasEfetivacao').innerHTML = [
-                    { label: '✅ Sim',           perc: pSim,    cor: '#367a28' },
-                    { label: '❌ Não',           perc: pNao,    cor: '#e74c3c' },
-                    { label: '🤔 Ainda não sei', perc: pTalvez, cor: '#f39c12' },
-                ].map(b => `
-                    <div class="barra-wrap">
-                        <div class="barra-label"><span>${b.label}</span><span>${b.perc}%</span></div>
-                        <div class="barra-bg"><div class="barra-fill" style="width:${b.perc}%;background:${b.cor};"></div></div>
-                    </div>
-                `).join('');
+                document.getElementById('barrasEfetivacao').innerHTML = donutChart(pSim, pNao, pTalvez, Math.round(total));
+                setTimeout(() => {
+                    document.querySelectorAll('#barrasEfetivacao .donut-arco[data-len]').forEach(el => {
+                        const len = +el.dataset.len, circ = +el.dataset.circ;
+                        el.setAttribute('stroke-dasharray', `${len} ${circ - len}`);
+                    });
+                }, 60);
             }
         } catch (e) {
             document.getElementById('kpiGrid').innerHTML =
@@ -739,16 +866,75 @@
         try {
             const dados = await apiFetch('/dashboard/problemas' + filtrosQueryProblemas());
             if (!dados.length) { lista.innerHTML = emptyState(SVG_GRAFICO, 'Nenhum dado encontrado', 'Ajuste os filtros ou aguarde novas respostas.'); return; }
+            const medalhas  = ['🥇','🥈','🥉'];
+            const bgPodio   = ['#fffbea','#f5f5f5','#fff4ee'];
             lista.innerHTML = dados.map((p, i) => `
-                <div class="rank-item">
-                    <span class="rank-num">${i + 1}º</span>
-                    <span class="rank-label">${labelProblema[p.problema] || p.problema}</span>
+                <div class="rank-item" style="${i < 3 ? `background:${bgPodio[i]};border-radius:10px;padding:12px 4px;` : ''}">
+                    <span class="rank-num" style="${i < 3 ? 'font-size:1.3rem;' : ''}">${i < 3 ? medalhas[i] : (i+1)+'º'}</span>
+                    <span class="rank-label" style="${i === 0 ? 'font-weight:700;' : ''}">${labelProblema[p.problema] || p.problema}</span>
                     <span class="rank-val">${p.total} relato${p.total > 1 ? 's' : ''}</span>
                 </div>
             `).join('');
         } catch (e) {
             lista.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
         }
+    }
+
+    function donutChart(sim, nao, talvez, total) {
+        const r = 44, cx = 62, cy = 62;
+        const circ = 2 * Math.PI * r;
+        const gap  = circ * 0.012; // pequeno espaço entre segmentos
+
+        const nSim    = Math.round(sim    / 100 * total);
+        const nNao    = Math.round(nao    / 100 * total);
+        const nTalvez = Math.round(talvez / 100 * total);
+
+        const segs = [
+            { perc: sim,    cor: '#27ae60', n: nSim,    emoji: '✅', label: 'Sim'    },
+            { perc: talvez, cor: '#f39c12', n: nTalvez, emoji: '🤔', label: 'Talvez' },
+            { perc: nao,    cor: '#e74c3c', n: nNao,    emoji: '❌', label: 'Não'    },
+        ];
+
+        let cum = 0;
+        const arcos = segs.map(s => {
+            const len = Math.max(0, s.perc / 100 * circ - gap);
+            const arc = `<circle class="donut-arco"
+                data-len="${len.toFixed(2)}" data-circ="${circ.toFixed(2)}"
+                cx="${cx}" cy="${cy}" r="${r}" fill="none"
+                stroke="${s.cor}" stroke-width="15"
+                stroke-dasharray="0 ${circ.toFixed(2)}"
+                stroke-dashoffset="${(-cum).toFixed(2)}"/>`;
+            cum += len + gap;
+            return arc;
+        });
+
+        let badge, badgeColor, badgeBg;
+        if (sim >= 60)      { badge = '🎯 Boa retenção de talentos'; badgeColor = '#2e7d32'; badgeBg = '#e8f5e9'; }
+        else if (sim >= 35) { badge = '📊 Retenção moderada';         badgeColor = '#856404'; badgeBg = '#fff8e1'; }
+        else                { badge = '⚠️ Atenção: baixa retenção';  badgeColor = '#c0392b'; badgeBg = '#fdecea'; }
+
+        const legenda = segs.map(s => `
+            <div style="display:flex;align-items:flex-start;gap:8px;">
+                <div style="width:11px;height:11px;border-radius:50%;background:${s.cor};flex-shrink:0;margin-top:3px;"></div>
+                <div>
+                    <div style="font-size:0.83rem;font-weight:600;color:var(--texto);">${s.emoji} ${s.label} — <span style="color:${s.cor};">${s.perc}%</span></div>
+                    <div style="font-size:0.72rem;color:var(--muted);">${s.n} pessoa${s.n !== 1 ? 's' : ''}</div>
+                </div>
+            </div>`).join('');
+
+        return `
+            <div style="display:flex;flex-direction:column;gap:16px;">
+                <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+                    <svg width="124" height="124" viewBox="0 0 124 124" style="flex-shrink:0;">
+                        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f0f0f0" stroke-width="15"/>
+                        <g transform="rotate(-90 ${cx} ${cy})">${arcos.join('')}</g>
+                        <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="currentColor">${total}</text>
+                        <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".5">respostas</text>
+                    </svg>
+                    <div style="display:flex;flex-direction:column;gap:12px;flex:1;">${legenda}</div>
+                </div>
+                <div style="background:${badgeBg};color:${badgeColor};border-radius:10px;padding:9px 14px;font-size:0.8rem;font-weight:600;text-align:center;border:1px solid ${badgeColor}22;">${badge}</div>
+            </div>`;
     }
 
     function animarContagem(el, alvo, sufixo = '', decimais = 0, duracao = 800) {
@@ -787,6 +973,8 @@
             dados.sort((a, b) => b.media_satisfacao - a.media_satisfacao);
             lista.innerHTML = dados.map(e => {
                 const ef = mapEfet[e.empresa];
+                const ratingCor = e.media_satisfacao >= 4 ? '#27ae60' : e.media_satisfacao >= 3 ? '#f39c12' : '#e74c3c';
+                const ratingPct = (e.media_satisfacao / 5 * 100).toFixed(1);
                 return `
                     <div class="empresa-row">
                         <div class="nome">${escapeHtml(e.empresa)}</div>
@@ -794,6 +982,9 @@
                             <span class="estrelas">${estrelas(e.media_satisfacao)}</span>
                             <strong>${e.media_satisfacao.toFixed(1)}</strong>/5
                             · ${e.total_respostas} resposta${e.total_respostas > 1 ? 's' : ''}
+                        </div>
+                        <div style="height:5px;border-radius:5px;background:#eee;margin:6px 0 2px;overflow:hidden;">
+                            <div style="width:${ratingPct}%;height:100%;background:${ratingCor};border-radius:5px;transition:width 0.7s ease;"></div>
                         </div>
                         ${ef ? `<div class="detalhe">Efetivação: ✅ ${ef.sim_perc}% · ❌ ${ef.nao_perc}% · 🤔 ${ef.talvez_perc}%</div>` : ''}
                         <button class="btn-detalhe" onclick="abrirDetalheEmpresa(${e.empresa_id}, '${escapeHtml(e.empresa).replace(/'/g, "\\'")}')">
@@ -874,6 +1065,137 @@
 
     function escapeHtml(str = '') {
         return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Trilhas — CRUD de artigos ─────────────────────────────────
+
+    const CAT_LABEL = {
+        inteligencia_emocional: 'Int. Emocional',
+        comunicacao:            'Comunicação',
+        postura_profissional:   'Postura Profissional',
+        saude_mental:           'Saúde Mental',
+    };
+
+    let _artigosFiltro = '';
+
+    async function carregarTrilhas() {
+        const container = document.getElementById('listaTrilhas');
+        container.innerHTML = '<div class="loading" style="padding:30px 20px;text-align:center;">Carregando...</div>';
+        try {
+            const q = _artigosFiltro ? `?categoria=${_artigosFiltro}` : '';
+            const artigos = await apiFetch('/artigos' + q);
+            if (!artigos.length) {
+                container.innerHTML = emptyState(
+                    '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+                    'Nenhum artigo encontrado',
+                    'Clique em "+ Novo artigo" para criar o primeiro.'
+                );
+                return;
+            }
+            container.innerHTML = artigos.map(a => `
+                <div class="card" style="padding:0;overflow:hidden;">
+                    <div class="artigo-item" style="border:none;margin:0;border-radius:0;">
+                        <div class="artigo-item-titulo">
+                            ${escapeHtml(a.titulo)}
+                            <span class="cat-badge cat-${a.categoria}">${CAT_LABEL[a.categoria] || a.categoria}</span>
+                        </div>
+                        <div class="artigo-item-meta">${escapeHtml(a.resumo)}</div>
+                        <div class="artigo-item-meta" style="margin-top:4px;">
+                            ${a.tempo_leitura ? `⏱ ${a.tempo_leitura} min · ` : ''}
+                            📅 ${new Date(a.created_at).toLocaleDateString('pt-BR')}
+                        </div>
+                        <div class="artigo-item-acoes">
+                            <button class="btn-artigo btn-artigo-editar" onclick='abrirModalArtigo(${JSON.stringify(a)})'>✏️ Editar</button>
+                            <button class="btn-artigo btn-artigo-apagar" onclick="confirmarApagarArtigo(${a.id}, '${escapeHtml(a.titulo).replace(/'/g,"\\'")}')">🗑️ Apagar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            container.innerHTML = `<div class="loading" style="padding:20px;text-align:center;">Erro: ${e.message}</div>`;
+        }
+    }
+
+    function filtrarTrilhas(cat) {
+        _artigosFiltro = cat;
+        document.querySelectorAll('#filtroCatTrilhas button').forEach(btn => {
+            btn.style.opacity = btn.dataset.cat === cat ? '1' : '0.55';
+        });
+        carregarTrilhas();
+    }
+
+    function abrirModalArtigo(artigo = null) {
+        document.getElementById('erroModalArtigo').style.display = 'none';
+        if (artigo) {
+            document.getElementById('modalArtigoTitulo').textContent = 'Editar artigo';
+            document.getElementById('modalArtigoId').value    = artigo.id;
+            document.getElementById('artigoTitulo').value     = artigo.titulo;
+            document.getElementById('artigoResumo').value     = artigo.resumo;
+            document.getElementById('artigoCategoria').value  = artigo.categoria;
+            document.getElementById('artigoTempo').value      = artigo.tempo_leitura || '';
+            document.getElementById('artigoConteudo').value   = artigo.conteudo;
+        } else {
+            document.getElementById('modalArtigoTitulo').textContent = 'Novo artigo';
+            document.getElementById('modalArtigoId').value    = '';
+            document.getElementById('artigoTitulo').value     = '';
+            document.getElementById('artigoResumo').value     = '';
+            document.getElementById('artigoCategoria').value  = 'inteligencia_emocional';
+            document.getElementById('artigoTempo').value      = '';
+            document.getElementById('artigoConteudo').value   = '';
+        }
+        document.getElementById('modalArtigo').classList.add('aberto');
+    }
+
+    function fecharModalArtigo() {
+        document.getElementById('modalArtigo').classList.remove('aberto');
+    }
+
+    function fecharModalSeClicouFora(e) {
+        if (e.target === document.getElementById('modalArtigo')) fecharModalArtigo();
+    }
+
+    async function salvarArtigo() {
+        const id       = document.getElementById('modalArtigoId').value;
+        const titulo   = document.getElementById('artigoTitulo').value.trim();
+        const resumo   = document.getElementById('artigoResumo').value.trim();
+        const cat      = document.getElementById('artigoCategoria').value;
+        const tempo    = document.getElementById('artigoTempo').value;
+        const conteudo = document.getElementById('artigoConteudo').value.trim();
+        const erroEl   = document.getElementById('erroModalArtigo');
+        erroEl.style.display = 'none';
+
+        if (!titulo)   { erroEl.textContent = 'Informe o título.';    erroEl.style.display = 'block'; return; }
+        if (!resumo)   { erroEl.textContent = 'Informe o resumo.';    erroEl.style.display = 'block'; return; }
+        if (!conteudo) { erroEl.textContent = 'Informe o conteúdo.';  erroEl.style.display = 'block'; return; }
+
+        const payload = { titulo, resumo, conteudo, categoria: cat };
+        if (tempo) payload.tempo_leitura = parseInt(tempo);
+
+        try {
+            if (id) {
+                await apiFetch(`/artigos/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                mostrarToast('✅ Artigo atualizado!', 'sucesso');
+            } else {
+                await apiFetch('/artigos', { method: 'POST', body: JSON.stringify(payload) });
+                mostrarToast('✅ Artigo criado!', 'sucesso');
+            }
+            fecharModalArtigo();
+            carregarTrilhas();
+        } catch (e) {
+            erroEl.textContent = e.message;
+            erroEl.style.display = 'block';
+        }
+    }
+
+    async function confirmarApagarArtigo(id, titulo) {
+        if (!confirm(`Apagar o artigo "${titulo}"? Essa ação não pode ser desfeita.`)) return;
+        try {
+            await apiFetch(`/artigos/${id}`, { method: 'DELETE' });
+            mostrarToast('🗑️ Artigo removido.', 'info');
+            carregarTrilhas();
+        } catch (e) {
+            mostrarToast(`Erro: ${e.message}`, 'erro');
+        }
     }
 
     const LABEL_GENERO = {

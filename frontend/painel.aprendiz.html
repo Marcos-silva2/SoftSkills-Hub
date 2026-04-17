@@ -64,6 +64,15 @@
             max-height: 220px; overflow-y: auto;
             border: 1px solid #eee; border-radius: 10px;
             background-color: #fdfdfd; padding: 10px;
+            background-image: linear-gradient(#fdfdfd 30%, transparent), linear-gradient(transparent, #fdfdfd 70%);
+            background-attachment: local, local;
+            background-size: 100% 32px, 100% 32px;
+            background-repeat: no-repeat;
+            background-position: top, bottom;
+        }
+        html.tema-escuro .scroll-box {
+            background-color: #1a1a1a;
+            background-image: linear-gradient(#1a1a1a 30%, transparent), linear-gradient(transparent, #1a1a1a 70%);
         }
         .scroll-box::-webkit-scrollbar { width: 6px; }
         .scroll-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
@@ -133,7 +142,9 @@
             border-top: 1px solid #eee;
             border-top-left-radius: 20px; border-top-right-radius: 20px;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--muted); cursor: pointer; background: none; border: none; transition: 0.3s; padding: 0 8px; }
+        .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--muted); cursor: pointer; background: none; border: none; transition: 0.3s; padding: 0 8px; }
+        .nav-badge { position:absolute; top:1px; right:2px; min-width:16px; height:16px; border-radius:10px; background:#e74c3c; color:white; font-size:0.58rem; font-weight:bold; display:none; align-items:center; justify-content:center; padding:0 4px; line-height:1; }
+        .nav-badge.visivel { display:flex; }
         .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; transition: transform 0.2s; }
         .nav-item.active { color: var(--verde); font-weight: bold; }
         .nav-item.active svg { transform: translateY(-2px); }
@@ -186,9 +197,16 @@
         html.tema-escuro .mural-box textarea:focus,
         html.tema-escuro .input-perfil:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
 
-        .msg-card { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+        .msg-card { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; position: relative; }
         .msg-card p     { font-size: 0.9rem; color: var(--texto); line-height: 1.4; margin: 0 0 4px; }
         .msg-card small { font-size: 0.75rem; color: var(--muted); }
+        .btn-apagar-msg {
+            position: absolute; top: 8px; right: 8px;
+            background: none; border: none; cursor: pointer;
+            color: #ccc; font-size: 1rem; line-height: 1;
+            padding: 2px 5px; border-radius: 4px; transition: 0.2s;
+        }
+        .btn-apagar-msg:hover { color: #e74c3c; background: #fdecea; }
 
         /* Artigos */
         .artigo-card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
@@ -366,6 +384,20 @@
         .def-item:last-child { border-bottom: none; padding-bottom: 0; }
         .def-header { font-size: 0.85rem; margin-bottom: 3px; }
         .def-texto  { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+        /* Animação de entrada escalonada */
+        @keyframes cardEnter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Confetti */
+        @keyframes confettiFall { 0% { transform:translateY(0) rotate(0deg); opacity:1; } 100% { transform:translateY(90vh) rotate(720deg); opacity:0; } }
+        .confetti-piece { position:fixed; pointer-events:none; z-index:9999; border-radius:2px; }
+
+        /* Transição suave de tema */
+        html.tema-transition * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; }
+
+        /* Sparkle no jogo */
+        @keyframes sparkleOut { 0% { transform:translate(-50%,-50%) scale(0); opacity:1; } 70% { opacity:1; } 100% { transform:translate(-50%,-50%) scale(2.2); opacity:0; } }
+        .sparkle-dot { position:fixed; width:7px; height:7px; border-radius:50%; pointer-events:none; z-index:9998; animation:sparkleOut 0.55s ease forwards; }
     </style>
 </head>
 <body>
@@ -487,15 +519,19 @@
                 <!-- P4 -->
                 <div class="pergunta-box">
                     <label class="titulo-pergunta">4. Qual seu nível de satisfação geral na empresa hoje?</label>
-                    <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);">
-                        <span>1 (Muito Baixo)</span><span>5 (Muito Alto)</span>
-                    </div>
                     <div class="escala-satisfacao">
                         <button type="button" class="escala-btn" onclick="selecionarNota(this)">1</button>
                         <button type="button" class="escala-btn" onclick="selecionarNota(this)">2</button>
                         <button type="button" class="escala-btn" onclick="selecionarNota(this)">3</button>
                         <button type="button" class="escala-btn" onclick="selecionarNota(this)">4</button>
                         <button type="button" class="escala-btn" onclick="selecionarNota(this)">5</button>
+                    </div>
+                    <div style="display:flex;margin-top:5px;padding:0 1px;">
+                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Baixo</span>
+                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Baixo</span>
+                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Regular</span>
+                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Alto</span>
+                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Alto</span>
                     </div>
                 </div>
 
@@ -631,7 +667,7 @@
     <!-- ── BOTTOM NAV ──────────────────────────────── -->
     <nav class="bottom-nav">
         <button id="navInicio"  class="nav-item active" aria-label="Tela inicial"        onclick="navegarApp('viewInicio')">  <i data-lucide="home"></i><span>Início</span></button>
-        <button id="navMural"   class="nav-item"        aria-label="Mural da comunidade" onclick="navegarApp('viewMural')">   <i data-lucide="message-circle"></i><span>Mural</span></button>
+        <button id="navMural"   class="nav-item"        aria-label="Mural da comunidade" onclick="navegarApp('viewMural')">   <i data-lucide="message-circle"></i><span>Mural</span><span id="muralBadge" class="nav-badge"></span></button>
         <button id="navLeitura" class="nav-item"        aria-label="Trilhas de leitura"  onclick="navegarApp('viewTrilhas')"> <i data-lucide="book-open"></i><span>Leitura</span></button>
         <button id="navPerfil"  class="nav-item"        aria-label="Meu perfil"          onclick="navegarApp('viewPerfil')">  <i data-lucide="user"></i><span>Perfil</span></button>
     </nav>
@@ -648,9 +684,11 @@
     }
 
     function alternarTema() {
+        document.documentElement.classList.add('tema-transition');
         const agora = document.documentElement.classList.toggle('tema-escuro');
         localStorage.setItem('ssh_tema', agora ? 'escuro' : 'claro');
         atualizarBtnTema();
+        setTimeout(() => document.documentElement.classList.remove('tema-transition'), 400);
     }
 
     function atualizarBtnTema() {
@@ -664,6 +702,7 @@
     lucide.createIcons();
 
     const API = 'http://localhost:8000';
+    let _isAdmin = false;
 
     // ── Auth guard ────────────────────────────────────────────────
 
@@ -699,6 +738,7 @@
                 localStorage.setItem('ssh_username', perfil.username);
                 document.getElementById('saudacao').textContent = `Olá, ${perfil.username}!`;
                 atualizarCardEnquete(perfil.last_enquete_at);
+                _isAdmin = perfil.is_admin === true;
             }
         } catch (e) {
             console.warn('[init] servidor offline ou erro de rede:', e.message);
@@ -773,6 +813,11 @@
 
     // ── Navegação ─────────────────────────────────────────────────
 
+    const _headerTema = {
+        viewInicio: '', viewEnquete: '', viewJogo: 'tema-jogo',
+        viewMural: 'tema-mural', viewTrilhas: 'tema-trilhas', viewPerfil: 'tema-perfil',
+    };
+
     function navegarApp(id) {
         if (id === 'viewEnquete' && enqueteBloqueada) return;
 
@@ -780,11 +825,19 @@
         document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
 
+        const h = document.querySelector('header');
+        h.className = _headerTema[id] || '';
+
         if (id === 'viewInicio' || id === 'viewEnquete' || id === 'viewJogo') {
             document.getElementById('navInicio').classList.add('active');
         }
         if (id === 'viewJogo')    { iniciarJogo(); }
-        if (id === 'viewMural')   { document.getElementById('navMural').classList.add('active');   carregarMural();   }
+        if (id === 'viewMural')   {
+            document.getElementById('navMural').classList.add('active');
+            const badge = document.getElementById('muralBadge');
+            if (badge) { badge.classList.remove('visivel'); }
+            carregarMural();
+        }
         if (id === 'viewTrilhas') { document.getElementById('navLeitura').classList.add('active'); carregarArtigos(); }
         if (id === 'viewPerfil')  { document.getElementById('navPerfil').classList.add('active');  carregarPerfil(); atualizarBtnTema(); }
     }
@@ -888,6 +941,7 @@
                     nota_satisfacao: notaSelecionada,
                 }),
             });
+            dispararConfetti();
             mostrarToast('✅ Respostas enviadas de forma totalmente anônima!', 'sucesso');
             document.getElementById('formEnquete').reset();
             notaSelecionada = null;
@@ -899,6 +953,54 @@
         } finally {
             btn.disabled = false; btn.textContent = 'Enviar Respostas Anônimas';
         }
+    }
+
+    // ── Sparkle no jogo ───────────────────────────────────────────
+
+    function sparkleEmCarta(el) {
+        const rect = el.getBoundingClientRect();
+        const cx = rect.left + rect.width  / 2;
+        const cy = rect.top  + rect.height / 2;
+        const cores = ['#ffd700','#ff9f43','#6c5ce7','#00b894','#fd79a8','#74b9ff'];
+        for (let i = 0; i < 6; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'sparkle-dot';
+            const angle = (i / 6) * 2 * Math.PI;
+            const dist  = 18 + Math.random() * 14;
+            dot.style.cssText = `
+                left:${cx + Math.cos(angle) * dist}px;
+                top:${cy  + Math.sin(angle) * dist}px;
+                background:${cores[i]};
+                animation-delay:${i * 0.035}s;
+            `;
+            document.body.appendChild(dot);
+            setTimeout(() => dot.remove(), 700);
+        }
+    }
+
+    // ── Confetti ──────────────────────────────────────────────────
+
+    function dispararConfetti() {
+        const cores = ['#367a28','#56c240','#f39c12','#e74c3c','#3498db','#9b59b6','#ffd700','#e67e22'];
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;';
+        document.body.appendChild(wrap);
+        for (let i = 0; i < 48; i++) {
+            const p = document.createElement('div');
+            const size = 6 + Math.random() * 7;
+            p.className = 'confetti-piece';
+            p.style.cssText = `
+                left:${Math.random()*100}%;
+                top:-${10 + Math.random()*20}px;
+                width:${size}px; height:${size}px;
+                background:${cores[Math.floor(Math.random()*cores.length)]};
+                border-radius:${Math.random()>0.5?'50%':'2px'};
+                animation:confettiFall ${0.8+Math.random()*0.9}s ease-in forwards;
+                animation-delay:${Math.random()*0.6}s;
+            `;
+            wrap.appendChild(p);
+        }
+        setTimeout(() => wrap.remove(), 2200);
     }
 
     // ── Toast ─────────────────────────────────────────────────────
@@ -979,14 +1081,33 @@
                 lista.innerHTML = emptyState(SVG_MENSAGEM, 'Nenhuma mensagem ainda', 'Seja o primeiro a compartilhar algo com a comunidade!');
                 return;
             }
-            lista.innerHTML = msgs.map(m => `
-                <div class="msg-card">
+            lista.innerHTML = msgs.map((m, i) => `
+                <div class="msg-card" style="animation:cardEnter 0.3s ease both;animation-delay:${i*0.05}s;">
+                    ${_isAdmin ? `<button class="btn-apagar-msg" onclick="apagarMensagem(${m.id}, this)" title="Apagar mensagem">✕</button>` : ''}
                     <p>${escapeHtml(m.conteudo)}</p>
                     <small>${tempoRelativo(m.created_at)}</small>
                 </div>
             `).join('');
+            const badge = document.getElementById('muralBadge');
+            const navMural = document.getElementById('navMural');
+            if (badge && !navMural.classList.contains('active')) {
+                badge.textContent = msgs.length > 99 ? '99+' : msgs.length;
+                badge.classList.add('visivel');
+            }
         } catch {
             lista.innerHTML = '<div class="loading">Erro ao carregar mensagens.</div>';
+        }
+    }
+
+    async function apagarMensagem(id, btn) {
+        btn.disabled = true;
+        try {
+            await apiFetch(`/mural/${id}`, { method: 'DELETE' });
+            btn.closest('.msg-card').style.animation = 'toastOut 0.25s ease forwards';
+            setTimeout(() => btn.closest('.msg-card').remove(), 250);
+        } catch (e) {
+            mostrarToast('Erro ao apagar: ' + e.message, 'erro');
+            btn.disabled = false;
         }
     }
 
@@ -1036,8 +1157,8 @@
                 lista.innerHTML = emptyState(SVG_ARTIGO, 'Nenhum artigo aqui', 'Tente selecionar outra categoria.');
                 return;
             }
-            lista.innerHTML = artigos.map(a => `
-                <div class="artigo-card" onclick="toggleArtigo(this)">
+            lista.innerHTML = artigos.map((a, i) => `
+                <div class="artigo-card" onclick="toggleArtigo(this)" style="animation:cardEnter 0.3s ease both;animation-delay:${i*0.06}s;">
                     <div class="artigo-meta">
                         <span class="tag">${escapeHtml(categoriaLabel[a.categoria] || a.categoria)}</span>
                         ${a.tempo_leitura ? `<span class="tag tag-cinza">⏱ ${a.tempo_leitura} min</span>` : ''}
@@ -1081,6 +1202,8 @@
             document.getElementById('perfilDesde').textContent = desde;
             const generoLabel = LABEL_GENERO_PERFIL[p.genero] || p.genero || '—';
             const faixaLabel  = p.faixa_etaria ? p.faixa_etaria + ' anos' : '—';
+            const diasMembro  = Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000);
+            const tempoAqui   = diasMembro === 0 ? 'Hoje mesmo! 🎉' : diasMembro === 1 ? '1 dia' : `${diasMembro} dias`;
             document.getElementById('perfilInfos').innerHTML = `
                 <div class="perfil-info-row">
                     <span class="label">Usuário</span>
@@ -1093,6 +1216,10 @@
                 <div class="perfil-info-row">
                     <span class="label">Faixa etária</span>
                     <span class="valor"><span class="badge-verde-perfil">${escapeHtml(faixaLabel)}</span></span>
+                </div>
+                <div class="perfil-info-row">
+                    <span class="label">Tempo aqui</span>
+                    <span class="valor"><span class="badge-verde-perfil">🗓 ${escapeHtml(tempoAqui)}</span></span>
                 </div>`;
         } catch { /* mantém o que foi carregado no init */ }
     }
@@ -1226,6 +1353,7 @@
             jogoAcertados.add(a.dataset.termo);
             jogoPares++;
             document.getElementById('jogoPares').textContent = `${jogoPares}/6`;
+            sparkleEmCarta(a); sparkleEmCarta(b);
             jogoViradas = [];
             jogoTravado = false;
             if (jogoPares === 6) jogoVitoria();

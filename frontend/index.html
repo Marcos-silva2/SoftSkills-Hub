@@ -104,6 +104,16 @@
         .alerta-sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
         .alerta-info    { background: #fff8e1; color: #856404; border: 1px solid #ffeeba; }
 
+        /* Inputs com ícone */
+        .input-wrap { position: relative; margin-bottom: 5px; }
+        .input-wrap input { padding-left: 42px; margin-bottom: 0; }
+        .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
+        /* Força de senha */
+        .senha-strength { display:flex; gap:3px; margin-top:6px; height:5px; }
+        .strength-bar   { flex:1; border-radius:5px; background:#eee; transition:background 0.3s ease; }
+        .strength-label { display:block; font-size:0.75rem; margin-top:4px; min-height:16px; font-weight:600; transition:color 0.3s; }
+
         /* banner de status do servidor */
         #statusServidor {
             font-size: 0.78rem; text-align: center; padding: 6px 10px;
@@ -154,8 +164,14 @@
 
         <!-- Aprendiz -->
         <div id="formJovem">
-            <input id="loginUsername" type="text"     placeholder="Nome de Usuário" autocomplete="username">
-            <input id="loginSenha"    type="password" placeholder="Senha"           autocomplete="current-password">
+            <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input id="loginUsername" type="text" placeholder="Nome de Usuário" autocomplete="username">
+            </div>
+            <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password">
+            </div>
             <div id="erroLogin" class="alerta alerta-erro"></div>
             <button id="btnEntrar" class="btn btn-verde" onclick="loginAprendiz()">Entrar</button>
             <p class="link-text">Primeiro acesso? <span onclick="irParaCadastro()">Criar meu perfil anônimo</span></p>
@@ -163,8 +179,14 @@
 
         <!-- Gestor -->
         <div id="formGestor" style="display:none;">
-            <input id="gestorUsername" type="text"     placeholder="Usuário (ex: admin)">
-            <input id="gestorSenha"    type="password" placeholder="Senha">
+            <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input id="gestorUsername" type="text" placeholder="Usuário (ex: admin)">
+            </div>
+            <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="gestorSenha" type="password" placeholder="Senha">
+            </div>
             <div id="erroGestor" class="alerta alerta-erro"></div>
             <button id="btnEntrarGestor" class="btn btn-laranja" onclick="loginGestor()">Acessar Painel de Dados</button>
         </div>
@@ -211,7 +233,14 @@
 
         <div class="form-group">
             <label>Crie uma Senha</label>
-            <input id="cadSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+            <input id="cadSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="avaliarSenha(this.value)">
+            <div class="senha-strength">
+                <div class="strength-bar" id="sb1"></div>
+                <div class="strength-bar" id="sb2"></div>
+                <div class="strength-bar" id="sb3"></div>
+                <div class="strength-bar" id="sb4"></div>
+            </div>
+            <small class="strength-label" id="senhaStrengthLabel"></small>
         </div>
 
         <div id="erroCadastro"   class="alerta alerta-erro"></div>
@@ -450,6 +479,26 @@
             cadastrarAprendiz();
         }
     });
+
+    // ── Força de senha ────────────────────────────────────────────
+
+    function avaliarSenha(v) {
+        const bars  = ['sb1','sb2','sb3','sb4'].map(id => document.getElementById(id));
+        const label = document.getElementById('senhaStrengthLabel');
+        if (!bars[0] || !label) return;
+        if (!v) { bars.forEach(b => b.style.background = '#eee'); label.textContent = ''; return; }
+        let score = 0;
+        if (v.length >= 6)  score++;
+        if (v.length >= 10) score++;
+        if (/[0-9]/.test(v) && /[a-zA-Z]/.test(v)) score++;
+        if (/[^a-zA-Z0-9]/.test(v) || v.length >= 14) score++;
+        const cores  = ['#e74c3c','#e67e22','#f39c12','#27ae60'];
+        const textos = ['Muito fraca','Fraca','Boa','Forte 💪'];
+        const cor = cores[score - 1] || '#eee';
+        bars.forEach((b, i) => { b.style.background = i < score ? cor : '#eee'; });
+        label.textContent = score > 0 ? textos[score - 1] : '';
+        label.style.color = cor;
+    }
 
     // ── Init ──────────────────────────────────────────────────────
 

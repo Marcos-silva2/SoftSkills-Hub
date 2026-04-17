@@ -35,14 +35,18 @@ Focada em **Inteligência de Dados** para professores e diretores, atuando como 
 - [x] Cadastro com coleta de dados demográficos (Idade, Gênero, Empresa).
 - [x] Sistema segregado de Login (Aprendiz vs. Gestão).
 - [x] Formulários de enquetes de múltipla escolha e escala Likert (1 a 5).
-- [ ] Mural interativo de mensagens da comunidade.
-- [ ] Módulo de leitura de artigos educativos (Soft Skills).
-- [ ] Dashboard gerencial de consolidação de respostas.
+- [x] Mural interativo de mensagens da comunidade (com rate limiting e moderação admin).
+- [x] Módulo de leitura de artigos educativos (Soft Skills) com CRUD pelo gestor.
+- [x] Dashboard gerencial de consolidação de respostas (KPIs, ranking, satisfação por empresa).
+- [x] Jogo de memória corporativa (Memória Corporativa) para descompressão.
+- [x] Dark mode com transição suave e persistência em `localStorage`.
+- [x] Conta de admin para moderação do mural (`aprendiz-adm`).
 
 ### Requisitos Não Funcionais (Como o sistema se comporta)
 * **Privacidade (LGPD):** A arquitetura do banco de dados não cria relacionamentos diretos entre a tabela de usuários e a tabela de respostas, garantindo o anonimato absoluto das enquetes.
 * **Desempenho (SPA):** Construído como uma *Single Page Application* (SPA) com HTML, CSS e JavaScript, garantindo navegação instantânea e fluida sem recarregamento de página.
 * **Modelagem Dimensional:** Preparado para estruturação em esquema estrela (*Star Schema*), facilitando a futura integração com ferramentas de Business Intelligence (como Power BI) e bancos de dados relacionais (PostgreSQL).
+* **Acessibilidade:** Cores seguem WCAG AA (≥ 4.5:1 com texto branco); touch targets mínimos de 44px; `aria-label` em todos os botões de navegação.
 
 ---
 

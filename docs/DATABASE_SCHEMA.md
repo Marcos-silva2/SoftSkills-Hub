@@ -35,12 +35,16 @@ Usuários do tipo aprendiz. Autenticados via JWT (tipo `"aprendiz"`).
 | `empresa_id`      | INTEGER      | NOT NULL, FK → `empresas.id`                                    |
 | `created_at`      | DATETIME     | default: `datetime.now(UTC)`                                    |
 | `last_enquete_at` | DATETIME     | nullable — registra quando o aprendiz enviou a última enquete   |
+| `is_admin`        | BOOLEAN      | NOT NULL, default `0` — indica conta com permissão de admin     |
 
 **Relacionamentos:**
 - `empresa` → muitos-para-um com `empresas`
 
 **Cooldown de enquete:**
 `last_enquete_at` é atualizado no momento do envio de cada resposta. O backend verifica se `agora - last_enquete_at < 7 dias` e retorna HTTP 429 com os dias restantes caso o cooldown não tenha expirado. A coluna foi adicionada via `ALTER TABLE` na inicialização do servidor (migração idempotente com `try/except`).
+
+**Campo `is_admin`:**
+Identifica contas com permissão especial (ex: apagar mensagens do mural). A conta padrão `aprendiz-adm` é criada automaticamente no startup do backend com `is_admin=True`. Adicionado via migração idempotente junto com `last_enquete_at`.
 
 ---
 
@@ -181,6 +185,9 @@ Mensagens anônimas do Mural da Comunidade. Qualquer aprendiz autenticado pode p
 | `id`        | INTEGER  | PK, autoincrement               |
 | `conteudo`  | TEXT     | NOT NULL — 5 a 500 caracteres   |
 | `created_at`| DATETIME | default: `datetime.now(UTC)`    |
+
+**Rate limiting de posts:**
+O endpoint `POST /mural` limita cada aprendiz a **1 post a cada 2 minutos** (120 segundos) via dict em memória `_mural_rate: dict[int, datetime]` no backend. Se tentar antes do cooldown, retorna HTTP 429 com os segundos restantes. O controle é reiniciado quando o servidor é reiniciado.
 
 ---
 
