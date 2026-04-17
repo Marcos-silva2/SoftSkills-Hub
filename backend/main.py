@@ -23,10 +23,33 @@ with engine.connect() as _conn:
     except Exception:
         pass  # coluna já existe
 
+    try:
+        _conn.execute(_text("ALTER TABLE aprendizes ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0"))
+        _conn.commit()
+    except Exception:
+        pass  # coluna já existe
+
     # Remove nao_binario: converte para prefiro_nao_dizer em todas as tabelas
     _conn.execute(_text("UPDATE aprendizes SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
     _conn.execute(_text("UPDATE respostas_enquete SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
     _conn.commit()
+
+# Cria conta admin "aprendiz-adm" se ainda não existir
+from database import SessionLocal as _SessionLocal
+with _SessionLocal() as _sess:
+    if not _sess.query(models.Aprendiz).filter(models.Aprendiz.username == "aprendiz-adm").first():
+        _primeira_empresa = _sess.query(models.Empresa).first()
+        if _primeira_empresa:
+            _admin = models.Aprendiz(
+                username="aprendiz-adm",
+                senha_hash=auth.hash_senha("admin"),
+                idade=18,
+                genero="prefiro_nao_dizer",
+                empresa_id=_primeira_empresa.id,
+                is_admin=True,
+            )
+            _sess.add(_admin)
+            _sess.commit()
 
 # ─── Aplicação ────────────────────────────────────────────────────────────────
 
@@ -579,6 +602,10 @@ def listar_mensagens(db: Session = Depends(get_db)):
     )
 
 
+_mural_rate: dict[int, datetime] = {}
+MURAL_COOLDOWN_SEGUNDOS = 120  # 2 minutos entre posts por usuário
+
+
 @app.post(
     "/mural",
     response_model=schemas.MensagemOut,
@@ -588,14 +615,45 @@ def listar_mensagens(db: Session = Depends(get_db)):
 )
 def postar_mensagem(
     dados: schemas.MensagemCreate,
-    _: models.Aprendiz = Depends(get_aprendiz_atual),
+    aprendiz: models.Aprendiz = Depends(get_aprendiz_atual),
     db: Session = Depends(get_db),
 ):
+    agora = datetime.now(timezone.utc)
+    ultima = _mural_rate.get(aprendiz.id)
+    if ultima:
+        diff = (agora - ultima).total_seconds()
+        if diff < MURAL_COOLDOWN_SEGUNDOS:
+            restante = int(MURAL_COOLDOWN_SEGUNDOS - diff)
+            raise HTTPException(
+                status_code=429,
+                detail=f"Aguarde {restante}s antes de postar novamente.",
+            )
+    _mural_rate[aprendiz.id] = agora
     msg = models.MensagemMural(conteudo=dados.conteudo)
     db.add(msg)
     db.commit()
     db.refresh(msg)
     return msg
+
+
+@app.delete(
+    "/mural/{mensagem_id}",
+    status_code=204,
+    tags=["Mural"],
+    summary="Apaga uma mensagem do mural (requer conta admin)",
+)
+def apagar_mensagem(
+    mensagem_id: int,
+    aprendiz: models.Aprendiz = Depends(get_aprendiz_atual),
+    db: Session = Depends(get_db),
+):
+    if not aprendiz.is_admin:
+        raise HTTPException(status_code=403, detail="Sem permissão para apagar mensagens")
+    msg = db.query(models.MensagemMural).filter(models.MensagemMural.id == mensagem_id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+    db.delete(msg)
+    db.commit()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -629,3 +687,76 @@ def obter_artigo(artigo_id: int, db: Session = Depends(get_db)):
     if not artigo:
         raise HTTPException(status_code=404, detail="Artigo não encontrado")
     return artigo
+
+
+@app.post(
+    "/artigos",
+    response_model=schemas.ArtigoOut,
+    status_code=201,
+    tags=["Trilhas"],
+    summary="Cria novo artigo (requer login de gestor)",
+)
+def criar_artigo(
+    dados: schemas.ArtigoCreate,
+    _: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    artigo = models.Artigo(
+        titulo=dados.titulo,
+        resumo=dados.resumo,
+        conteudo=dados.conteudo,
+        categoria=dados.categoria,
+        tempo_leitura=dados.tempo_leitura,
+    )
+    db.add(artigo)
+    db.commit()
+    db.refresh(artigo)
+    return artigo
+
+
+@app.put(
+    "/artigos/{artigo_id}",
+    response_model=schemas.ArtigoOut,
+    tags=["Trilhas"],
+    summary="Atualiza um artigo existente (requer login de gestor)",
+)
+def atualizar_artigo(
+    artigo_id: int,
+    dados: schemas.ArtigoUpdate,
+    _: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    artigo = db.query(models.Artigo).filter(models.Artigo.id == artigo_id).first()
+    if not artigo:
+        raise HTTPException(status_code=404, detail="Artigo não encontrado")
+    if dados.titulo is not None:
+        artigo.titulo = dados.titulo
+    if dados.resumo is not None:
+        artigo.resumo = dados.resumo
+    if dados.conteudo is not None:
+        artigo.conteudo = dados.conteudo
+    if dados.categoria is not None:
+        artigo.categoria = dados.categoria
+    if dados.tempo_leitura is not None:
+        artigo.tempo_leitura = dados.tempo_leitura
+    db.commit()
+    db.refresh(artigo)
+    return artigo
+
+
+@app.delete(
+    "/artigos/{artigo_id}",
+    status_code=204,
+    tags=["Trilhas"],
+    summary="Remove um artigo (requer login de gestor)",
+)
+def deletar_artigo(
+    artigo_id: int,
+    _: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    artigo = db.query(models.Artigo).filter(models.Artigo.id == artigo_id).first()
+    if not artigo:
+        raise HTTPException(status_code=404, detail="Artigo não encontrado")
+    db.delete(artigo)
+    db.commit()

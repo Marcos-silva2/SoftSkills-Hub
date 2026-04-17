@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from sqlalchemy import Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 
@@ -31,6 +31,7 @@ class Aprendiz(Base):
     empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     last_enquete_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
 
     empresa: Mapped["Empresa"] = relationship(back_populates="aprendizes")
 

@@ -60,6 +60,7 @@ class AprendizOut(BaseModel):
     empresa_id: int
     created_at: datetime
     last_enquete_at: Optional[datetime] = None
+    is_admin: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -233,6 +234,78 @@ class MensagemOut(BaseModel):
 
 
 # ─── Artigos ──────────────────────────────────────────────────────────────────
+
+_CATEGORIAS_VALIDAS = {
+    "inteligencia_emocional", "comunicacao", "postura_profissional", "saude_mental"
+}
+
+
+class ArtigoCreate(BaseModel):
+    titulo: str
+    resumo: str
+    conteudo: str
+    categoria: str
+    tempo_leitura: Optional[int] = None
+
+    @field_validator("titulo")
+    @classmethod
+    def titulo_valido(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 3:
+            raise ValueError("Título deve ter ao menos 3 caracteres")
+        if len(v) > 200:
+            raise ValueError("Título deve ter no máximo 200 caracteres")
+        return v
+
+    @field_validator("resumo")
+    @classmethod
+    def resumo_valido(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 10:
+            raise ValueError("Resumo deve ter ao menos 10 caracteres")
+        if len(v) > 300:
+            raise ValueError("Resumo deve ter no máximo 300 caracteres")
+        return v
+
+    @field_validator("conteudo")
+    @classmethod
+    def conteudo_valido(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 20:
+            raise ValueError("Conteúdo deve ter ao menos 20 caracteres")
+        return v
+
+    @field_validator("categoria")
+    @classmethod
+    def categoria_valida(cls, v: str) -> str:
+        if v not in _CATEGORIAS_VALIDAS:
+            raise ValueError(f"Categoria inválida. Opções: {_CATEGORIAS_VALIDAS}")
+        return v
+
+
+class ArtigoUpdate(BaseModel):
+    titulo: Optional[str] = None
+    resumo: Optional[str] = None
+    conteudo: Optional[str] = None
+    categoria: Optional[str] = None
+    tempo_leitura: Optional[int] = None
+
+    @field_validator("titulo")
+    @classmethod
+    def titulo_valido(cls, v):
+        if v is not None:
+            v = v.strip()
+            if len(v) < 3:
+                raise ValueError("Título deve ter ao menos 3 caracteres")
+        return v
+
+    @field_validator("categoria")
+    @classmethod
+    def categoria_valida(cls, v):
+        if v is not None and v not in _CATEGORIAS_VALIDAS:
+            raise ValueError(f"Categoria inválida. Opções: {_CATEGORIAS_VALIDAS}")
+        return v
+
 
 class ArtigoOut(BaseModel):
     id: int
