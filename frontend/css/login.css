@@ -1,0 +1,54 @@
+body {
+    align-items: center;
+    padding: 20px;
+}
+
+.app-container {
+    min-height: auto;
+    padding-bottom: 40px;
+    border-radius: 20px;
+    padding: 40px 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+html.tema-escuro .app-container { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+
+header { text-align: center; margin-bottom: 30px; }
+header h1 { color: var(--verde); font-size: 1.8rem; margin-bottom: 5px; }
+header p  { color: var(--muted); font-size: 0.9rem; }
+
+.tabs { display: flex; background-color: #f0f0f0; border-radius: 30px; margin-bottom: 30px; overflow: hidden; }
+html.tema-escuro .tabs { background-color: #2a2a2a; }
+.tab-btn { flex: 1; padding: 10px 0; min-height: 44px; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
+.tab-btn.active-jovem  { background-color: var(--verde);   color: white; border-radius: 30px; }
+.tab-btn.active-gestor { background-color: var(--laranja); color: white; border-radius: 30px; }
+
+.form-group { margin-bottom: 15px; text-align: left; }
+.form-group label { display: block; font-size: 0.9rem; color: var(--texto); margin-bottom: 5px; font-weight: bold; }
+
+input, select {
+    width: 100%; padding: 15px;
+    border: 1px solid #ddd; border-radius: 12px;
+    background-color: #fafafa; font-size: 1rem;
+    outline: none; transition: 0.3s; margin-bottom: 5px;
+}
+input:focus, select:focus { border-color: var(--verde); background-color: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
+html.tema-escuro input, html.tema-escuro select { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
+html.tema-escuro input:focus, html.tema-escuro select:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
+
+.input-wrap { position: relative; margin-bottom: 5px; }
+.input-wrap input { padding-left: 42px; margin-bottom: 0; }
+.input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
+.senha-strength { display: flex; gap: 3px; margin-top: 6px; height: 5px; }
+.strength-bar   { flex: 1; border-radius: 5px; background: #eee; transition: background 0.3s ease; }
+.strength-label { display: block; font-size: 0.75rem; margin-top: 4px; min-height: 16px; font-weight: 600; transition: color 0.3s; }
+
+#statusServidor {
+    font-size: 0.78rem; text-align: center; padding: 6px 10px;
+    border-radius: 8px; margin-bottom: 16px; display: none;
+}
+
+.link-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--muted); }
+.link-text span { color: var(--verde); font-weight: bold; cursor: pointer; }
+
+.btn { margin-top: 10px; }

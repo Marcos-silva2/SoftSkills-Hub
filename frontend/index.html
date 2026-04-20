@@ -7,121 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Cores WCAG AA: contraste ≥ 4.5:1 com texto branco */
-            --verde: #367a28;   /* era #4C9F38 — branco sobre verde: 5.29:1 */
-            --laranja: #c4521a; /* era #FD6925 — branco sobre laranja: 4.59:1 */
-            --texto: #333333;
-            --muted: #777777;
-            --fundo: #f4f7f6;
-            --card: #ffffff;
-        }
-
-        /* ── Dark Mode — ativado por JS via class html.tema-escuro ── */
-        html.tema-escuro {
-            --verde: #4fb53e;
-            --laranja: #e0693a;
-            --texto: #e4e4e4;
-            --muted: #9e9e9e;
-            --fundo: #121212;
-            --card: #1e1e1e;
-        }
-        html.tema-escuro input,
-        html.tema-escuro select { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
-        html.tema-escuro .app-container { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-        html.tema-escuro .tabs { background-color: #2a2a2a; }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
-
-        body {
-            background-color: var(--fundo);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.5;
-        }
-
-        .app-container {
-            background-color: var(--card);
-            width: 100%;
-            max-width: 400px;
-            border-radius: 20px;
-            padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s ease-in-out; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { color: var(--verde); font-size: 1.8rem; margin-bottom: 5px; }
-        header p  { color: var(--muted); font-size: 0.9rem; }
-
-        .tabs { display: flex; background-color: #f0f0f0; border-radius: 30px; margin-bottom: 30px; overflow: hidden; }
-        .tab-btn { flex: 1; padding: 10px 0; min-height: 44px; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .tab-btn.active-jovem  { background-color: var(--verde);   color: white; border-radius: 30px; }
-        .tab-btn.active-gestor { background-color: var(--laranja); color: white; border-radius: 30px; }
-
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; font-size: 0.9rem; color: var(--texto); margin-bottom: 5px; font-weight: bold; }
-
-        input, select {
-            width: 100%; padding: 15px;
-            border: 1px solid #ddd; border-radius: 12px;
-            background-color: #fafafa; font-size: 1rem;
-            outline: none; transition: 0.3s; margin-bottom: 5px;
-        }
-        input:focus, select:focus { border-color: var(--verde); background-color: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
-        html.tema-escuro input:focus,
-        html.tema-escuro select:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
-
-        .btn {
-            width: 100%; padding: 15px; border: none; border-radius: 12px;
-            font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;
-        }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-verde   { background-color: var(--verde);   color: white; }
-        .btn-verde:hover:not(:disabled)   { background-color: #2a5e1e; }
-        .btn-laranja { background-color: var(--laranja); color: white; }
-        .btn-laranja:hover:not(:disabled) { background-color: #a8461a; }
-
-        .link-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--muted); }
-        .link-text span { color: var(--verde); font-weight: bold; cursor: pointer; }
-
-        .alerta {
-            border-radius: 10px; padding: 10px 14px;
-            font-size: 0.85rem; margin-top: 12px; display: none; line-height: 1.4;
-        }
-        .alerta-erro    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
-        .alerta-sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-        .alerta-info    { background: #fff8e1; color: #856404; border: 1px solid #ffeeba; }
-
-        /* Inputs com ícone */
-        .input-wrap { position: relative; margin-bottom: 5px; }
-        .input-wrap input { padding-left: 42px; margin-bottom: 0; }
-        .input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-
-        /* Força de senha */
-        .senha-strength { display:flex; gap:3px; margin-top:6px; height:5px; }
-        .strength-bar   { flex:1; border-radius:5px; background:#eee; transition:background 0.3s ease; }
-        .strength-label { display:block; font-size:0.75rem; margin-top:4px; min-height:16px; font-weight:600; transition:color 0.3s; }
-
-        /* banner de status do servidor */
-        #statusServidor {
-            font-size: 0.78rem; text-align: center; padding: 6px 10px;
-            border-radius: 8px; margin-bottom: 16px; display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/login.css">
     <script>
-        // Aplica tema antes de renderizar para evitar flash
         (function () {
             const armazenado = localStorage.getItem('ssh_tema');
             const sistemaEscuro = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -243,7 +131,7 @@
             <small class="strength-label" id="senhaStrengthLabel"></small>
         </div>
 
-        <div id="erroCadastro"   class="alerta alerta-erro"></div>
+        <div id="erroCadastro"    class="alerta alerta-erro"></div>
         <div id="sucessoCadastro" class="alerta alerta-sucesso"></div>
 
         <button id="btnCadastrar" class="btn btn-verde" onclick="cadastrarAprendiz()">Finalizar Cadastro</button>
@@ -252,46 +140,24 @@
 
 </div>
 
+<script src="js/utils.js"></script>
 <script>
     const API = 'http://localhost:8000';
 
-    // ── Helpers ───────────────────────────────────────────────────
-
-    function mostrar(id, texto, tipo) {
-        const el = document.getElementById(id);
-        // remove classes anteriores
-        el.classList.remove('alerta-erro', 'alerta-sucesso', 'alerta-info');
-        if (tipo) el.classList.add('alerta-' + tipo);
-        el.textContent = texto;
-        el.style.display = 'block';
-    }
-
-    function ocultar(id) {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    }
-
-    function setBotao(id, carregando, textoOriginal) {
-        const btn = document.getElementById(id);
-        btn.disabled = carregando;
-        btn.textContent = carregando ? 'Aguarde...' : textoOriginal;
-    }
+    function getToken() { return localStorage.getItem('ssh_token'); }
 
     async function apiFetch(path, opts = {}) {
         const headers = { 'Content-Type': 'application/json', ...opts.headers };
-        const token = localStorage.getItem('ssh_token');
+        const token = getToken();
         if (token) headers['Authorization'] = `Bearer ${token}`;
-
         let res;
         try {
             res = await fetch(API + path, { ...opts, headers });
         } catch {
             throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando: uvicorn main:app --reload`);
         }
-
         if (!res.ok) {
             const err = await res.json().catch(() => ({ detail: 'Erro ao comunicar com o servidor.' }));
-            // Pydantic v2 retorna detail como lista em erros de validação
             const detail = Array.isArray(err.detail)
                 ? err.detail.map(e => e.msg || JSON.stringify(e)).join(' | ')
                 : (err.detail || 'Erro desconhecido');
@@ -300,13 +166,10 @@
         return res.json();
     }
 
-    // ── Verificação do servidor ao abrir ─────────────────────────
-
     async function verificarServidor() {
         const el = document.getElementById('statusServidor');
         try {
             await fetch(`${API}/empresas`, { signal: AbortSignal.timeout(3000) });
-            // servidor ok — não exibe nada
         } catch {
             el.style.display = 'block';
             el.style.background = '#fdecea';
@@ -315,8 +178,6 @@
             el.textContent = '⚠️ Servidor offline. Inicie o backend com: uvicorn main:app --reload';
         }
     }
-
-    // ── Navegação ─────────────────────────────────────────────────
 
     function navegarPara(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -342,11 +203,8 @@
         }
     }
 
-    // ── Empresas ──────────────────────────────────────────────────
-
     async function carregarEmpresas() {
         const sel = document.getElementById('cadEmpresa');
-        sel.innerHTML = '<option value="" disabled selected>Carregando...</option>';
         ocultar('avisoEmpresa');
         try {
             const lista = await apiFetch('/empresas');
@@ -363,29 +221,19 @@
         }
     }
 
-    // ── Login Aprendiz ────────────────────────────────────────────
-
     async function loginAprendiz() {
         ocultar('erroLogin');
         const username = document.getElementById('loginUsername').value.trim();
         const senha    = document.getElementById('loginSenha').value;
-
-        if (!username || !senha) {
-            mostrar('erroLogin', 'Preencha usuário e senha.', 'erro');
-            return;
-        }
-
+        if (!username || !senha) { mostrar('erroLogin', 'Preencha usuário e senha.', 'erro'); return; }
         setBotao('btnEntrar', true, 'Entrar');
         try {
-            // FastAPI OAuth2 exige form-urlencoded
             const body = new URLSearchParams({ username, password: senha });
             const res  = await fetch(`${API}/auth/aprendiz/login`, { method: 'POST', body });
-
             if (!res.ok) {
                 const err = await res.json().catch(() => ({ detail: 'Usuário ou senha incorretos.' }));
                 throw new Error(err.detail);
             }
-
             const { access_token } = await res.json();
             localStorage.setItem('ssh_token', access_token);
             localStorage.setItem('ssh_username', username);
@@ -397,18 +245,11 @@
         }
     }
 
-    // ── Login Gestor ──────────────────────────────────────────────
-
     async function loginGestor() {
         ocultar('erroGestor');
         const username = document.getElementById('gestorUsername').value.trim();
         const senha    = document.getElementById('gestorSenha').value;
-
-        if (!username || !senha) {
-            mostrar('erroGestor', 'Preencha usuário e senha.', 'erro');
-            return;
-        }
-
+        if (!username || !senha) { mostrar('erroGestor', 'Preencha usuário e senha.', 'erro'); return; }
         setBotao('btnEntrarGestor', true, 'Acessar Painel de Dados');
         try {
             const dados = await apiFetch('/auth/gestor/login', {
@@ -425,33 +266,26 @@
         }
     }
 
-    // ── Cadastro Aprendiz ─────────────────────────────────────────
-
     async function cadastrarAprendiz() {
         ocultar('erroCadastro');
         ocultar('sucessoCadastro');
-
         const username   = document.getElementById('cadUsername').value.trim();
         const idadeStr   = document.getElementById('cadIdade').value.trim();
         const genero     = document.getElementById('cadGenero').value;
         const empresaStr = document.getElementById('cadEmpresa').value;
         const senha      = document.getElementById('cadSenha').value;
 
-        // Validações no front antes de chamar a API
-        if (!username)             { mostrar('erroCadastro', 'Informe um nome de usuário.',        'erro'); return; }
-        if (username.length < 3)   { mostrar('erroCadastro', 'Usuário deve ter ao menos 3 letras.', 'erro'); return; }
-        if (!idadeStr)             { mostrar('erroCadastro', 'Informe sua idade.',                  'erro'); return; }
+        if (!username)           { mostrar('erroCadastro', 'Informe um nome de usuário.',        'erro'); return; }
+        if (username.length < 3) { mostrar('erroCadastro', 'Usuário deve ter ao menos 3 letras.', 'erro'); return; }
+        if (!idadeStr)           { mostrar('erroCadastro', 'Informe sua idade.',                  'erro'); return; }
         const idade = parseInt(idadeStr);
-        if (isNaN(idade) || idade < 15 || idade > 22) {
-            mostrar('erroCadastro', 'Idade deve estar entre 15 e 22 anos.', 'erro'); return;
-        }
-        if (!genero)               { mostrar('erroCadastro', 'Selecione seu gênero.',               'erro'); return; }
-        if (!empresaStr)           { mostrar('erroCadastro', 'Selecione a empresa onde trabalha.',  'erro'); return; }
-        if (!senha)                { mostrar('erroCadastro', 'Crie uma senha.',                     'erro'); return; }
-        if (senha.length < 6)      { mostrar('erroCadastro', 'Senha deve ter ao menos 6 caracteres.', 'erro'); return; }
+        if (isNaN(idade) || idade < 15 || idade > 22) { mostrar('erroCadastro', 'Idade deve estar entre 15 e 22 anos.', 'erro'); return; }
+        if (!genero)             { mostrar('erroCadastro', 'Selecione seu gênero.',               'erro'); return; }
+        if (!empresaStr)         { mostrar('erroCadastro', 'Selecione a empresa onde trabalha.',  'erro'); return; }
+        if (!senha)              { mostrar('erroCadastro', 'Crie uma senha.',                     'erro'); return; }
+        if (senha.length < 6)    { mostrar('erroCadastro', 'Senha deve ter ao menos 6 caracteres.', 'erro'); return; }
 
         const empresa_id = parseInt(empresaStr);
-
         setBotao('btnCadastrar', true, 'Finalizar Cadastro');
         try {
             await apiFetch('/auth/aprendiz/register', {
@@ -467,8 +301,6 @@
         }
     }
 
-    // ── Enter para submeter ───────────────────────────────────────
-
     document.addEventListener('keydown', e => {
         if (e.key !== 'Enter') return;
         const tela = document.querySelector('.view.active')?.id;
@@ -479,8 +311,6 @@
             cadastrarAprendiz();
         }
     });
-
-    // ── Força de senha ────────────────────────────────────────────
 
     function avaliarSenha(v) {
         const bars  = ['sb1','sb2','sb3','sb4'].map(id => document.getElementById(id));
@@ -500,11 +330,8 @@
         label.style.color = cor;
     }
 
-    // ── Init ──────────────────────────────────────────────────────
-
     verificarServidor();
 
-    // Se já está logado, redireciona para o painel correto
     if (localStorage.getItem('ssh_token_gestor')) {
         window.location.href = 'painel-gestor.html';
     } else if (localStorage.getItem('ssh_token')) {
