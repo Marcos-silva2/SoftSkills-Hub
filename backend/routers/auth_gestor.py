@@ -1,0 +1,40 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+import auth
+import models
+import schemas
+from database import get_db
+from dependencies import get_gestor_atual
+
+router = APIRouter(prefix="/auth/gestor", tags=["Auth"])
+
+
+@router.post("/login", response_model=schemas.Token, summary="Login do gestor — retorna JWT")
+def login_gestor(dados: schemas.GestorLogin, db: Session = Depends(get_db)):
+    gestor = db.query(models.Gestor).filter(models.Gestor.username == dados.username).first()
+    if not gestor or not auth.verificar_senha(dados.senha, gestor.senha_hash):
+        raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")
+    token = auth.criar_token({"sub": str(gestor.id), "tipo": "gestor"})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.put("/perfil", summary="Atualiza nome e/ou senha do gestor")
+def atualizar_perfil(
+    dados: schemas.GestorPerfilUpdate,
+    gestor: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    if not auth.verificar_senha(dados.senha_atual, gestor.senha_hash):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta")
+    if dados.nome is not None:
+        gestor.nome = dados.nome.strip()
+    if dados.nova_senha:
+        gestor.senha_hash = auth.hash_senha(dados.nova_senha)
+    db.commit()
+    return {"mensagem": "Perfil atualizado com sucesso"}
+
+
+@router.get("/me", summary="Valida token do gestor e retorna seus dados")
+def perfil_gestor(gestor: models.Gestor = Depends(get_gestor_atual)):
+    return {"id": gestor.id, "username": gestor.username, "nome": gestor.nome}
