@@ -1,7 +1,7 @@
 # SoftSkills Hub — Contexto e Memória do Projeto
 
 > Documento de referência para todas as sessões de desenvolvimento.
-> Atualizado em: 2026-04-17
+> Atualizado em: 2026-04-20
 
 ---
 
@@ -43,7 +43,31 @@ SoftSkills-Hub/
 ├── frontend/
 │   ├── index.html               ← Login (aprendiz + gestor) e cadastro
 │   ├── painel.aprendiz.html     ← Painel SPA do aprendiz
-│   └── painel-gestor.html       ← Painel SPA do gestor (dashboard + trilhas)
+│   ├── painel-gestor.html       ← Painel SPA do gestor (dashboard + trilhas)
+│   ├── css/
+│   │   ├── global.css           ← Variáveis, reset, componentes compartilhados
+│   │   ├── login.css            ← Estilos da tela de autenticação
+│   │   ├── aprendiz.css         ← Estilos exclusivos do painel do aprendiz
+│   │   └── gestor.css           ← Estilos exclusivos do painel do gestor
+│   ├── js/
+│   │   ├── theme.js             ← aplicarTema / alternarTema / atualizarBtnTema
+│   │   ├── utils.js             ← Helpers compartilhados (mostrar, escapeHtml, toast…)
+│   │   ├── api.js               ← apiFetch — wrapper autenticado para o backend
+│   │   ├── aprendiz/
+│   │   │   ├── app.js           ← Init, getToken, sair, navegarApp (aprendiz)
+│   │   │   ├── enquete.js       ← Lógica da enquete de clima
+│   │   │   ├── mural.js         ← Mural da comunidade
+│   │   │   ├── trilhas.js       ← Artigos e dica do dia
+│   │   │   ├── jogo.js          ← Jogo de memória corporativa
+│   │   │   └── perfil.js        ← Perfil do aprendiz
+│   │   └── gestor/
+│   │       ├── app.js           ← Init, getToken, sair, navegarApp (gestor)
+│   │       ├── dashboard.js     ← KPIs, donut chart, filtros do resumo
+│   │       ├── problemas.js     ← Ranking de problemas
+│   │       ├── empresas.js      ← Satisfação por empresa e detalhe
+│   │       ├── trilhas.js       ← CRUD de artigos
+│   │       └── perfil.js        ← Perfil do gestor
+│   └── emoji/                   ← Imagens decorativas dos cards
 │
 ├── backend/
 │   ├── main.py                  ← FastAPI + todas as rotas
@@ -219,6 +243,8 @@ Idade exata nunca é gravada nas respostas — convertida em faixa:
 | Rate limiting em memória | Sem dependências extras; reiniciado com o servidor — suficiente para o volume atual |
 | `is_admin` criado por startup | Sem endpoint de promoção — a conta `aprendiz-adm` é criada automaticamente se não existir |
 | CRUD de artigos restrito ao gestor | Conteúdo educacional é curatorial — aprendizes não devem criar/editar artigos |
+| Arquitetura em camadas no frontend | CSS e JS separados por domínio em `css/` e `js/aprendiz/` / `js/gestor/`; `app.js` carregado por último para garantir que todas as funções de domínio já existam no escopo global quando o `init()` é executado |
+| `getToken()` definida em `app.js`, usada em `api.js` | `api.js` carrega antes de `app.js`, mas `getToken()` só é chamada em runtime dentro de `apiFetch()` — sem problema de ordem de carregamento |
 
 ---
 

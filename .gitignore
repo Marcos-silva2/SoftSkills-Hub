@@ -1,0 +1,25 @@
+# Banco de dados
+backend/softskills.db
+
+# Variáveis de ambiente (nunca commitar)
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

@@ -1258,15 +1258,72 @@ function escapeHtml(str = '') {
 
 ## Estrutura de arquivos frontend
 
+O frontend segue uma **arquitetura em camadas** sem bundler: cada arquivo tem responsabilidade única e o escopo global é compartilhado pela ordem de carregamento dos `<script>` tags.
+
 ```
 frontend/
-├── index.html            # Landing page + login/cadastro (aprendiz e gestor)
-├── painel.aprendiz.html  # SPA do aprendiz (enquete, mural, trilhas, jogo, perfil)
-├── painel-gestor.html    # SPA do gestor (dashboard, problemas, empresas, perfil)
-└── emoji/                # Imagens decorativas dos cards
+├── index.html               # Landing page + login/cadastro (aprendiz e gestor)
+├── painel.aprendiz.html     # SPA do aprendiz
+├── painel-gestor.html       # SPA do gestor
+├── css/
+│   ├── global.css           # Variáveis CSS, reset, componentes compartilhados
+│   ├── login.css            # Estilos exclusivos da tela de autenticação
+│   ├── aprendiz.css         # Estilos exclusivos do painel do aprendiz
+│   └── gestor.css           # Estilos exclusivos do painel do gestor
+├── js/
+│   ├── theme.js             # aplicarTema / alternarTema / atualizarBtnTema
+│   ├── utils.js             # Helpers: mostrar, escapeHtml, formatarData, toast, emptyState
+│   ├── api.js               # apiFetch — wrapper autenticado (usa getToken de app.js)
+│   ├── aprendiz/
+│   │   ├── app.js           # getToken, sair, navegarApp, init() — carregado por último
+│   │   ├── enquete.js       # enqueteBloqueada, enviarEnquete, progresso
+│   │   ├── mural.js         # carregarMural, postarMensagem, apagarMensagem
+│   │   ├── trilhas.js       # carregarArtigos, filtrarCategoria, carregarDicaDia
+│   │   ├── jogo.js          # iniciarJogo, jogoClicar, jogoVitoria, confetti
+│   │   └── perfil.js        # carregarPerfil, salvarUsername, salvarSenha
+│   └── gestor/
+│       ├── app.js           # getToken, sair, navegarApp, init() — carregado por último
+│       ├── dashboard.js     # carregarResumo, KPIs, donut chart, filtros
+│       ├── problemas.js     # carregarProblemas, ranking
+│       ├── empresas.js      # carregarSatisfacaoEmpresas, abrirDetalheEmpresa
+│       ├── trilhas.js       # carregarTrilhas, CRUD de artigos, modal
+│       └── perfil.js        # carregarPerfilGestor, salvarNomeGestor, salvarSenhaGestor
+└── emoji/                   # Imagens decorativas dos cards
     ├── satisfacao-do-aprendiz.png
     ├── Mural-da-comunidade.png
     ├── conhecimento.png
     ├── perfil-aprendiz.png
     └── perfil gestor.png
 ```
+
+### Ordem de carregamento dos scripts
+
+Cada painel carrega os scripts na seguinte ordem (garante que `app.js` — que chama `init()` — seja o último):
+
+**`painel.aprendiz.html`**
+```html
+<script src="js/theme.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/aprendiz/enquete.js"></script>
+<script src="js/aprendiz/mural.js"></script>
+<script src="js/aprendiz/trilhas.js"></script>
+<script src="js/aprendiz/jogo.js"></script>
+<script src="js/aprendiz/perfil.js"></script>
+<script src="js/aprendiz/app.js"></script>
+```
+
+**`painel-gestor.html`**
+```html
+<script src="js/theme.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/gestor/dashboard.js"></script>
+<script src="js/gestor/problemas.js"></script>
+<script src="js/gestor/empresas.js"></script>
+<script src="js/gestor/trilhas.js"></script>
+<script src="js/gestor/perfil.js"></script>
+<script src="js/gestor/app.js"></script>
+```
+
+> **Nota:** `api.js` usa `getToken()` definida em `app.js`. Isso funciona porque `getToken()` só é invocada em runtime dentro de `apiFetch()`, nunca no momento do carregamento do script.

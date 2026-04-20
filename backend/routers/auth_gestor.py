@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 import auth
@@ -6,12 +6,18 @@ import models
 import schemas
 from database import get_db
 from dependencies import get_gestor_atual
+from limiter import limiter
 
 router = APIRouter(prefix="/auth/gestor", tags=["Auth"])
 
 
 @router.post("/login", response_model=schemas.Token, summary="Login do gestor — retorna JWT")
-def login_gestor(dados: schemas.GestorLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login_gestor(
+    request: Request,
+    dados: schemas.GestorLogin,
+    db: Session = Depends(get_db),
+):
     gestor = db.query(models.Gestor).filter(models.Gestor.username == dados.username).first()
     if not gestor or not auth.verificar_senha(dados.senha, gestor.senha_hash):
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")

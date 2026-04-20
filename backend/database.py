@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
-DATABASE_URL = "sqlite:///./softskills.db"
+load_dotenv()
+
+DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./softskills.db")
 
 engine = create_engine(
     DATABASE_URL,

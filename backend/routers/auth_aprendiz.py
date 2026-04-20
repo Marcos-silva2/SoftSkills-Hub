@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -7,6 +7,7 @@ import models
 import schemas
 from database import get_db
 from dependencies import get_aprendiz_atual
+from limiter import limiter
 
 router = APIRouter(prefix="/auth/aprendiz", tags=["Auth"])
 
@@ -37,7 +38,9 @@ def cadastrar_aprendiz(dados: schemas.AprendizCreate, db: Session = Depends(get_
 
 
 @router.post("/login", response_model=schemas.Token, summary="Login do aprendiz — retorna JWT")
+@limiter.limit("5/minute")
 def login_aprendiz(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
