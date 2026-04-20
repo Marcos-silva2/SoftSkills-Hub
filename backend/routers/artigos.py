@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,15 +9,21 @@ import schemas
 from database import get_db
 from dependencies import get_gestor_atual
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/artigos", tags=["Trilhas"])
 
 
-@router.get("", response_model=list[schemas.ArtigoOut], summary="Lista artigos, com filtro opcional por categoria")
-def listar_artigos(categoria: Optional[str] = None, db: Session = Depends(get_db)):
+@router.get("", response_model=list[schemas.ArtigoOut], summary="Lista artigos com filtro e paginação")
+def listar_artigos(
+    categoria: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     query = db.query(models.Artigo)
     if categoria:
         query = query.filter(models.Artigo.categoria == categoria)
-    return query.order_by(models.Artigo.created_at.desc()).all()
+    return query.order_by(models.Artigo.created_at.desc()).offset(skip).limit(limit).all()
 
 
 @router.get("/{artigo_id}", response_model=schemas.ArtigoOut, summary="Retorna um artigo específico pelo ID")
@@ -30,7 +37,7 @@ def obter_artigo(artigo_id: int, db: Session = Depends(get_db)):
 @router.post("", response_model=schemas.ArtigoOut, status_code=201, summary="Cria novo artigo (requer login de gestor)")
 def criar_artigo(
     dados: schemas.ArtigoCreate,
-    _: models.Gestor = Depends(get_gestor_atual),
+    gestor: models.Gestor = Depends(get_gestor_atual),
     db: Session = Depends(get_db),
 ):
     artigo = models.Artigo(
@@ -43,6 +50,7 @@ def criar_artigo(
     db.add(artigo)
     db.commit()
     db.refresh(artigo)
+    logger.info("artigo_criado id=%s gestor_id=%s titulo=%r", artigo.id, gestor.id, artigo.titulo[:40])
     return artigo
 
 
@@ -50,7 +58,7 @@ def criar_artigo(
 def atualizar_artigo(
     artigo_id: int,
     dados: schemas.ArtigoUpdate,
-    _: models.Gestor = Depends(get_gestor_atual),
+    gestor: models.Gestor = Depends(get_gestor_atual),
     db: Session = Depends(get_db),
 ):
     artigo = db.query(models.Artigo).filter(models.Artigo.id == artigo_id).first()
@@ -70,13 +78,14 @@ def atualizar_artigo(
 
     db.commit()
     db.refresh(artigo)
+    logger.info("artigo_atualizado id=%s gestor_id=%s", artigo.id, gestor.id)
     return artigo
 
 
 @router.delete("/{artigo_id}", status_code=204, summary="Remove um artigo (requer login de gestor)")
 def deletar_artigo(
     artigo_id: int,
-    _: models.Gestor = Depends(get_gestor_atual),
+    gestor: models.Gestor = Depends(get_gestor_atual),
     db: Session = Depends(get_db),
 ):
     artigo = db.query(models.Artigo).filter(models.Artigo.id == artigo_id).first()
@@ -84,3 +93,4 @@ def deletar_artigo(
         raise HTTPException(status_code=404, detail="Artigo não encontrado")
     db.delete(artigo)
     db.commit()
+    logger.warning("artigo_deletado id=%s gestor_id=%s titulo=%r", artigo_id, gestor.id, artigo.titulo[:40])

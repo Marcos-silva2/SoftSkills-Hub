@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,7 @@ from database import get_db
 from dependencies import get_gestor_atual
 from limiter import limiter
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth/gestor", tags=["Auth"])
 
 
@@ -20,8 +23,10 @@ def login_gestor(
 ):
     gestor = db.query(models.Gestor).filter(models.Gestor.username == dados.username).first()
     if not gestor or not auth.verificar_senha(dados.senha, gestor.senha_hash):
+        logger.warning("login_falho_gestor username=%s", dados.username)
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")
     token = auth.criar_token({"sub": str(gestor.id), "tipo": "gestor"})
+    logger.info("login_gestor id=%s", gestor.id)
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -38,6 +43,7 @@ def atualizar_perfil(
     if dados.nova_senha:
         gestor.senha_hash = auth.hash_senha(dados.nova_senha)
     db.commit()
+    logger.info("perfil_atualizado_gestor id=%s", gestor.id)
     return {"mensagem": "Perfil atualizado com sucesso"}
 
 

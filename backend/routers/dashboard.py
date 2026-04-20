@@ -1,6 +1,10 @@
+import csv
+import io
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from sqlalchemy import func, case
 from sqlalchemy.orm import Session
 
@@ -10,6 +14,7 @@ from database import get_db
 from dependencies import get_gestor_atual
 from services.dashboard_service import filtrar_ano
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/dashboard", tags=["Dashboard"])
 
 
@@ -23,7 +28,7 @@ def dashboard_resumo(
     genero: Optional[str] = None,
     faixa_etaria: Optional[str] = None,
     ano: Optional[int] = None,
-    _: models.Gestor = Depends(get_gestor_atual),
+    gestor: models.Gestor = Depends(get_gestor_atual),
     db: Session = Depends(get_db),
 ):
     query = db.query(models.RespostaEnquete)
@@ -244,3 +249,59 @@ def detalhe_empresa(
         "pontos_negativos":  [{"valor": r.valor, "total": r.total} for r in negativos],
         "problemas":         [{"problema": r.problema, "total": r.total} for r in problemas],
     }
+
+
+@router.get(
+    "/export",
+    summary="Exporta respostas da enquete em CSV (com os mesmos filtros do resumo)",
+)
+def exportar_csv(
+    empresa_id: Optional[int] = None,
+    genero: Optional[str] = None,
+    faixa_etaria: Optional[str] = None,
+    ano: Optional[int] = None,
+    gestor: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    query = db.query(models.RespostaEnquete).join(models.Empresa)
+    if empresa_id:
+        query = query.filter(models.RespostaEnquete.empresa_id == empresa_id)
+    if genero:
+        query = query.filter(models.RespostaEnquete.genero == genero)
+    if faixa_etaria:
+        query = query.filter(models.RespostaEnquete.faixa_etaria == faixa_etaria)
+    query = filtrar_ano(query, ano)
+
+    respostas = query.order_by(models.RespostaEnquete.data_resposta.desc()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output, quoting=csv.QUOTE_ALL)
+    writer.writerow([
+        "data_resposta", "empresa", "genero", "faixa_etaria",
+        "desejo_efetivacao", "nota_satisfacao",
+        "problemas", "pontos_positivos", "pontos_negativos",
+    ])
+    for r in respostas:
+        problemas   = "|".join(p.problema for p in r.problemas)
+        positivos   = "|".join(a.valor for a in r.avaliacoes if a.tipo == "positivo")
+        negativos   = "|".join(a.valor for a in r.avaliacoes if a.tipo == "negativo")
+        writer.writerow([
+            r.data_resposta.strftime("%Y-%m-%d %H:%M"),
+            r.empresa.nome,
+            r.genero,
+            r.faixa_etaria,
+            r.desejo_efetivacao,
+            r.nota_satisfacao,
+            problemas,
+            positivos,
+            negativos,
+        ])
+
+    data = output.getvalue().encode("utf-8-sig")  # BOM para Excel reconhecer UTF-8
+    filename = f"softskills-export-{ano or 'todos'}.csv"
+    logger.info("csv_exportado gestor_id=%s registros=%s", gestor.id, len(respostas))
+    return StreamingResponse(
+        iter([data]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

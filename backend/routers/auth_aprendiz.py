@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -9,6 +11,7 @@ from database import get_db
 from dependencies import get_aprendiz_atual
 from limiter import limiter
 
+logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth/aprendiz", tags=["Auth"])
 
 
@@ -34,6 +37,7 @@ def cadastrar_aprendiz(dados: schemas.AprendizCreate, db: Session = Depends(get_
     db.add(aprendiz)
     db.commit()
     db.refresh(aprendiz)
+    logger.info("aprendiz_cadastrado id=%s username=%s", aprendiz.id, aprendiz.username)
     return aprendiz
 
 
@@ -46,8 +50,10 @@ def login_aprendiz(
 ):
     aprendiz = db.query(models.Aprendiz).filter(models.Aprendiz.username == form_data.username).first()
     if not aprendiz or not auth.verificar_senha(form_data.password, aprendiz.senha_hash):
+        logger.warning("login_falho_aprendiz username=%s", form_data.username)
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")
     token = auth.criar_token({"sub": str(aprendiz.id), "tipo": "aprendiz"})
+    logger.info("login_aprendiz id=%s", aprendiz.id)
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -73,6 +79,7 @@ def atualizar_perfil(
         aprendiz.senha_hash = auth.hash_senha(dados.nova_senha)
 
     db.commit()
+    logger.info("perfil_atualizado_aprendiz id=%s", aprendiz.id)
     return {"mensagem": "Perfil atualizado com sucesso"}
 
 

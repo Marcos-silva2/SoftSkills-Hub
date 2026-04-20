@@ -1,3 +1,5 @@
+import logging
+import logging.config
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -12,11 +14,36 @@ from database import engine, SessionLocal
 from limiter import limiter
 from routers import empresas, auth_aprendiz, auth_gestor, enquete, mural, artigos, dashboard
 
+# ─── Logging ──────────────────────────────────────────────────────────────────
+
+logging.config.dictConfig({
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s | %(levelname)-8s | %(name)-35s | %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        }
+    },
+    "handlers": {
+        "console": {"class": "logging.StreamHandler", "formatter": "default"}
+    },
+    "root": {"level": "INFO", "handlers": ["console"]},
+    "loggers": {
+        "uvicorn":        {"level": "WARNING", "handlers": ["console"], "propagate": False},
+        "uvicorn.error":  {"level": "INFO",    "handlers": ["console"], "propagate": False},
+        "uvicorn.access": {"level": "WARNING", "handlers": ["console"], "propagate": False},
+    },
+})
+
+logger = logging.getLogger(__name__)
+
 
 # ─── Startup ──────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info("iniciando SoftSkills Hub API")
     models.Base.metadata.create_all(bind=engine)
 
     with engine.connect() as conn:
@@ -47,8 +74,11 @@ async def lifespan(app: FastAPI):
                     is_admin=True,
                 ))
                 session.commit()
+                logger.info("conta aprendiz-adm criada")
 
+    logger.info("startup concluído")
     yield
+    logger.info("encerrando servidor")
 
 
 # ─── Aplicação ────────────────────────────────────────────────────────────────
@@ -71,7 +101,8 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*", "X-Total-Count"],
+    expose_headers=["X-Total-Count"],
 )
 
 # ─── Routers ──────────────────────────────────────────────────────────────────

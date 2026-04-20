@@ -117,6 +117,27 @@ function donutChart(sim, nao, talvez, total) {
         </div>`;
 }
 
+async function exportarCSV() {
+    const token = getToken();
+    const q = filtrosQuery();
+    try {
+        const res = await fetch(`${API}/dashboard/export${q}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) { mostrarToast('Erro ao exportar dados', 'erro'); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `softskills-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        mostrarToast('CSV exportado com sucesso!', 'sucesso');
+    } catch (e) {
+        mostrarToast('Erro: ' + e.message, 'erro');
+    }
+}
+
 async function carregarResumo() {
     document.getElementById('kpiGrid').innerHTML = skeletonKpi(4);
     document.getElementById('cardEfetivacao').style.display = 'none';
