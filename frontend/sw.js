@@ -1,4 +1,4 @@
-const CACHE = 'softskills-v2';
+const CACHE = 'softskills-v3';
 const ASSETS = [
     '/SoftSkills-Hub/',
     '/SoftSkills-Hub/index.html',
