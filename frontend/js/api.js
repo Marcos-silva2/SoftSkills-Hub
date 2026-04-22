@@ -1,4 +1,7 @@
-const API = 'http://localhost:8000';
+// Em produção, troque pela URL real do Render após criar o serviço.
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:8000'
+    : 'https://softskills-hub-api.onrender.com';
 
 async function apiFetch(path, opts = {}) {
     const headers = { 'Content-Type': 'application/json', ...opts.headers };

@@ -88,7 +88,7 @@
         </header>
 
         <div id="avisoEmpresa" class="alerta alerta-info" style="display:none; margin-bottom:12px;">
-            ⚠️ Não foi possível carregar as empresas. Verifique se o servidor está rodando em <strong>localhost:8000</strong>.
+            ⚠️ Não foi possível carregar as empresas. Verifique se o servidor está disponível.
         </div>
 
         <div class="form-group">
@@ -142,7 +142,9 @@
 
 <script src="js/utils.js"></script>
 <script>
-    const API = 'http://localhost:8000';
+    const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:8000'
+        : 'https://softskills-hub-api.onrender.com';
 
     function getToken() { return localStorage.getItem('ssh_token'); }
 
@@ -154,7 +156,7 @@
         try {
             res = await fetch(API + path, { ...opts, headers });
         } catch {
-            throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando: uvicorn main:app --reload`);
+            throw new Error('Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.');
         }
         if (!res.ok) {
             const err = await res.json().catch(() => ({ detail: 'Erro ao comunicar com o servidor.' }));
@@ -175,7 +177,10 @@
             el.style.background = '#fdecea';
             el.style.color = '#c0392b';
             el.style.border = '1px solid #f5c6cb';
-            el.textContent = '⚠️ Servidor offline. Inicie o backend com: uvicorn main:app --reload';
+            const dica = API.includes('localhost')
+                ? 'Inicie o backend com: cd backend && uvicorn main:app --reload'
+                : 'O servidor pode estar iniciando. Aguarde alguns segundos e recarregue a página.';
+            el.textContent = `⚠️ Não foi possível conectar ao servidor. ${dica}`;
         }
     }
 
