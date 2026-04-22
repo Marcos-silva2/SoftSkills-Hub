@@ -10,6 +10,7 @@ async function carregarPerfilGestor() {
 function mostrarAlertaGestor(id, msg, tipo) {
     const el = document.getElementById(id);
     el.textContent = msg; el.className = `alerta-g ${tipo}`; el.style.display = 'block';
+    if (tipo === 'erro') { adicionarShake(el); vibrar([30, 15, 30]); }
 }
 
 async function salvarNomeGestor() {
@@ -30,7 +31,9 @@ async function salvarNomeGestor() {
         document.getElementById('perfilGestorNome').textContent = novoNome;
         document.getElementById('gestorNovoNome').value = '';
         document.getElementById('gestorSenhaNome').value = '';
-        mostrarToast('✅ Nome atualizado com sucesso!', 'sucesso');
+        animarBotaoSucesso(document.querySelector('[onclick="salvarNomeGestor()"]'));
+        vibrar([30]);
+        mostrarToast('Nome atualizado com sucesso!', 'sucesso');
     } catch (e) {
         mostrarAlertaGestor('erroNomeGestor', e.message, 'erro');
     }
@@ -55,7 +58,9 @@ async function salvarSenhaGestor() {
         document.getElementById('gestorSenhaAtual').value = '';
         document.getElementById('gestorNovaSenha').value = '';
         document.getElementById('gestorConfirmaSenha').value = '';
-        mostrarToast('✅ Senha alterada com sucesso!', 'sucesso');
+        animarBotaoSucesso(document.querySelector('[onclick="salvarSenhaGestor()"]'));
+        vibrar([30]);
+        mostrarToast('Senha alterada com sucesso!', 'sucesso');
     } catch (e) {
         mostrarAlertaGestor('erroSenhaGestor', e.message, 'erro');
     }

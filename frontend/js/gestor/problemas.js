@@ -52,6 +52,7 @@ async function carregarProblemas() {
                 <span class="rank-val">${p.total} relato${p.total > 1 ? 's' : ''}</span>
             </div>
         `).join('');
+        animarListaComScroll(lista);
     } catch (e) {
         lista.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
     }

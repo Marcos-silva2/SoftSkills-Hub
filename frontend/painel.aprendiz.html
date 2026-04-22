@@ -290,7 +290,8 @@
     </main>
 
     <!-- ── BOTTOM NAV ──────────────────────────────── -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" style="position:relative;">
+        <span id="navPill" class="nav-pill"></span>
         <button id="navInicio"  class="nav-item active" aria-label="Tela inicial"        onclick="navegarApp('viewInicio')">  <i data-lucide="home"></i><span>Início</span></button>
         <button id="navMural"   class="nav-item"        aria-label="Mural da comunidade" onclick="navegarApp('viewMural')">   <i data-lucide="message-circle"></i><span>Mural</span><span id="muralBadge" class="nav-badge"></span></button>
         <button id="navLeitura" class="nav-item"        aria-label="Trilhas de leitura"  onclick="navegarApp('viewTrilhas')"> <i data-lucide="book-open"></i><span>Leitura</span></button>
@@ -298,6 +299,8 @@
     </nav>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>

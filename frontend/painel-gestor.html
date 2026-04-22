@@ -241,7 +241,8 @@
         </div>
     </div>
 
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" style="position:relative;">
+        <span id="navPill" class="nav-pill"></span>
         <button id="navResumo"       class="nav-item active" aria-label="Resumo geral"          onclick="navegarApp('viewResumo')">   <i data-lucide="bar-chart-2"></i><span>Resumo</span></button>
         <button id="navProblemas"    class="nav-item"        aria-label="Ranking de problemas"   onclick="navegarApp('viewProblemas')"><i data-lucide="alert-triangle"></i><span>Problemas</span></button>
         <button id="navEmpresas"     class="nav-item"        aria-label="Dados por empresa"      onclick="navegarApp('viewEmpresas')"> <i data-lucide="building-2"></i><span>Empresas</span></button>
@@ -250,6 +251,8 @@
     </nav>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/utils.js"></script>
 <script src="js/api.js"></script>

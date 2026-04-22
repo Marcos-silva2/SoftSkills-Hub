@@ -54,6 +54,7 @@ async function carregarSatisfacaoEmpresas() {
                 </div>
             `;
         }).join('');
+        animarListaComScroll(lista);
     } catch (e) {
         lista.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
     }

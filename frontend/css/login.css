@@ -1,6 +1,7 @@
 body {
     align-items: center;
     padding: 20px;
+    background: transparent;
 }
 
 .app-container {
@@ -8,9 +9,86 @@ body {
     padding-bottom: 40px;
     border-radius: 20px;
     padding: 40px 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.80);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.10);
 }
-html.tema-escuro .app-container { box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+html.tema-escuro .app-container {
+    background: rgba(18, 18, 18, 0.82);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+/* ── Mesh Gradient Background ──────────────────────────── */
+#meshBg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    background: #edfaf4;
+}
+html.tema-escuro #meshBg { background: #0b120f; }
+
+.mesh-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(78px);
+    will-change: transform;
+    pointer-events: none;
+}
+.blob-1 {
+    width: 400px; height: 340px; top: -110px; left: -90px;
+    background: rgba(72, 210, 165, 0.52);
+    animation: blobDrift1 14s ease-in-out infinite;
+}
+.blob-2 {
+    width: 330px; height: 310px; top: -70px; right: -80px;
+    background: rgba(72, 158, 255, 0.42);
+    animation: blobDrift2 18s ease-in-out infinite;
+}
+.blob-3 {
+    width: 310px; height: 360px; bottom: 30px; left: 18%;
+    background: rgba(100, 220, 180, 0.36);
+    animation: blobDrift3 21s ease-in-out infinite;
+}
+.blob-4 {
+    width: 280px; height: 260px; bottom: -90px; right: 8%;
+    background: rgba(88, 178, 255, 0.34);
+    animation: blobDrift1 16s ease-in-out infinite reverse;
+}
+
+html.tema-escuro .blob-1 { background: rgba(16, 88, 52, 0.80); }
+html.tema-escuro .blob-2 { background: rgba(10, 35, 95, 0.90); }
+html.tema-escuro .blob-3 { background: rgba(6,  60, 38, 0.70); }
+html.tema-escuro .blob-4 { background: rgba(12, 25, 78, 0.80); }
+
+@keyframes blobDrift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%       { transform: translate(32px, -26px) scale(1.07); }
+    66%       { transform: translate(-20px, 22px) scale(0.96); }
+}
+@keyframes blobDrift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%       { transform: translate(-28px, 32px) scale(1.05); }
+    70%       { transform: translate(22px, -18px) scale(0.94); }
+}
+@keyframes blobDrift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    30%       { transform: translate(22px, 28px) scale(1.09); }
+    60%       { transform: translate(-32px, -22px) scale(0.93); }
+}
+
+/* ── Network Dots Canvas ───────────────────────────────── */
+#networkCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
 
 header { text-align: center; margin-bottom: 30px; }
 header h1 { color: var(--verde); font-size: 1.8rem; margin-bottom: 5px; }
@@ -52,3 +130,9 @@ html.tema-escuro input:focus, html.tema-escuro select:focus { box-shadow: 0 0 0 
 .link-text span { color: var(--verde); font-weight: bold; cursor: pointer; }
 
 .btn { margin-top: 10px; }
+
+/* ── Tab slide transition ────────────────────────────────── */
+@keyframes slideInLeft  { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideInRight { from { opacity:0; transform:translateX( 20px); } to { opacity:1; transform:translateX(0); } }
+.tab-slide-left  { animation: slideInLeft  0.25s ease both; }
+.tab-slide-right { animation: slideInRight 0.25s ease both; }

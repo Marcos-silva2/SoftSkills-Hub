@@ -21,23 +21,46 @@ function navegarApp(id) {
 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+
+    const newView = document.getElementById(id);
+    newView.classList.add('active');
 
     const h = document.querySelector('header');
     h.className = _headerTema[id] || '';
 
-    if (id === 'viewInicio' || id === 'viewEnquete' || id === 'viewJogo') {
-        document.getElementById('navInicio').classList.add('active');
+    if (typeof gsap !== 'undefined') {
+        gsap.fromTo(newView,
+            { x: 22, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.28, ease: 'power3.out', clearProps: 'transform,opacity' }
+        );
+        const cards = newView.querySelectorAll('.card, .kpi');
+        if (cards.length) {
+            gsap.from(cards, { y: 20, opacity: 0, duration: 0.38, stagger: 0.07,
+                ease: 'power2.out', clearProps: 'transform,opacity' });
+        }
     }
-    if (id === 'viewJogo')    { iniciarJogo(); }
-    if (id === 'viewMural')   {
-        document.getElementById('navMural').classList.add('active');
+
+    let activeBtn;
+    if (id === 'viewInicio' || id === 'viewEnquete' || id === 'viewJogo') {
+        activeBtn = document.getElementById('navInicio');
+        activeBtn.classList.add('active');
+    }
+    if (id === 'viewJogo')  { iniciarJogo(); }
+    if (id === 'viewMural') {
+        activeBtn = document.getElementById('navMural');
+        activeBtn.classList.add('active');
         const badge = document.getElementById('muralBadge');
-        if (badge) { badge.classList.remove('visivel'); }
+        if (badge) badge.classList.remove('visivel');
         carregarMural();
     }
-    if (id === 'viewTrilhas') { document.getElementById('navLeitura').classList.add('active'); carregarArtigos(); }
-    if (id === 'viewPerfil')  { document.getElementById('navPerfil').classList.add('active'); carregarPerfil(); atualizarBtnTema(); }
+    if (id === 'viewTrilhas') { activeBtn = document.getElementById('navLeitura'); activeBtn.classList.add('active'); carregarArtigos(); }
+    if (id === 'viewPerfil')  { activeBtn = document.getElementById('navPerfil');  activeBtn.classList.add('active'); carregarPerfil(); atualizarBtnTema(); }
+
+    if (activeBtn && typeof gsap !== 'undefined') {
+        gsap.fromTo(activeBtn, { scale: 0.78 }, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+    }
+    atualizarNavPill(activeBtn);
+    vibrar([12]);
 }
 
 (async function init() {
@@ -64,4 +87,13 @@ function navegarApp(id) {
     }
 
     carregarDicaDia();
+
+    iniciarRipple();
+    iniciarPressAnimation();
+    setTimeout(() => atualizarNavPill(document.getElementById('navInicio'), false), 200);
+    iniciarPullToRefresh(done => {
+        const v = document.querySelector('.view.active');
+        if (v) navegarApp(v.id);
+        setTimeout(done, 900);
+    });
 })();

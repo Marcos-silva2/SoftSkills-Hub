@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/login.css">
     <script>
@@ -24,6 +25,14 @@
     </script>
 </head>
 <body>
+<div id="meshBg" aria-hidden="true">
+    <div class="mesh-blob blob-1"></div>
+    <div class="mesh-blob blob-2"></div>
+    <div class="mesh-blob blob-3"></div>
+    <div class="mesh-blob blob-4"></div>
+</div>
+<canvas id="networkCanvas" aria-hidden="true"></canvas>
+
 <div class="app-container">
 
     <!-- ── LOGIN ──────────────────────────────────── -->
@@ -193,11 +202,19 @@
         const bJ = document.getElementById('btnJovem');
         const bG = document.getElementById('btnGestor');
         if (tipo === 'jovem') {
-            fJ.style.display = 'block'; fG.style.display = 'none';
-            bJ.classList.add('active-jovem');   bG.classList.remove('active-gestor');
+            fG.style.display = 'none';
+            fJ.style.display = 'block';
+            fJ.classList.remove('tab-slide-left', 'tab-slide-right');
+            void fJ.offsetWidth;
+            fJ.classList.add('tab-slide-left');
+            bJ.classList.add('active-jovem'); bG.classList.remove('active-gestor');
         } else {
-            fG.style.display = 'block'; fJ.style.display = 'none';
-            bG.classList.add('active-gestor');  bJ.classList.remove('active-jovem');
+            fJ.style.display = 'none';
+            fG.style.display = 'block';
+            fG.classList.remove('tab-slide-left', 'tab-slide-right');
+            void fG.offsetWidth;
+            fG.classList.add('tab-slide-right');
+            bG.classList.add('active-gestor'); bJ.classList.remove('active-jovem');
         }
     }
 
@@ -238,6 +255,8 @@
             window.location.href = 'painel.aprendiz.html';
         } catch (e) {
             mostrar('erroLogin', e.message, 'erro');
+            adicionarShake(document.getElementById('formJovem'));
+            vibrar([30, 15, 30]);
         } finally {
             setBotao('btnEntrar', false, 'Entrar');
         }
@@ -259,6 +278,8 @@
             window.location.href = 'painel-gestor.html';
         } catch (e) {
             mostrar('erroGestor', e.message, 'erro');
+            adicionarShake(document.getElementById('formGestor'));
+            vibrar([30, 15, 30]);
         } finally {
             setBotao('btnEntrarGestor', false, 'Acessar Painel de Dados');
         }
@@ -330,11 +351,88 @@
 
     verificarServidor();
 
+    if (typeof gsap !== 'undefined' && !localStorage.getItem('ssh_token') && !localStorage.getItem('ssh_token_gestor')) {
+        gsap.timeline({ defaults: { ease: 'power3.out' } })
+            .from('header > div', { scale: 0.3, opacity: 0, duration: 0.65, ease: 'elastic.out(1, 0.5)' })
+            .from('header h1',    { y: 20, opacity: 0, duration: 0.4 }, '-=0.25')
+            .from('header p',     { y: 15, opacity: 0, duration: 0.3 }, '-=0.15')
+            .from('.tabs',        { y: 18, opacity: 0, duration: 0.32 }, '-=0.1')
+            .from('#formJovem .input-wrap, #formJovem .btn, #formJovem .link-text',
+                { y: 12, opacity: 0, stagger: 0.07, duration: 0.28 }, '-=0.05');
+    }
+
     if (localStorage.getItem('ssh_token_gestor')) {
         window.location.href = 'painel-gestor.html';
     } else if (localStorage.getItem('ssh_token')) {
         window.location.href = 'painel.aprendiz.html';
     }
+
+    (function initNetworkDots() {
+        const canvas = document.getElementById('networkCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dots = [];
+        const DOT_COUNT = 55;
+        const MAX_DIST = 130;
+
+        function resize() {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function isDark() { return document.documentElement.classList.contains('tema-escuro'); }
+
+        function initDots() {
+            dots.length = 0;
+            for (let i = 0; i < DOT_COUNT; i++) {
+                dots.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.45,
+                    vy: (Math.random() - 0.5) * 0.45,
+                    r: Math.random() * 1.5 + 1.2,
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const dark = isDark();
+            const dotRGB  = dark ? '90,210,150'  : '40,110,70';
+            const lineRGB = dark ? '90,210,150'  : '40,100,65';
+            const dotA    = dark ? 0.45 : 0.28;
+
+            for (let i = 0; i < dots.length; i++) {
+                const d = dots[i];
+                d.x += d.vx; d.y += d.vy;
+                if (d.x < 0 || d.x > canvas.width)  d.vx *= -1;
+                if (d.y < 0 || d.y > canvas.height)  d.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${dotRGB},${dotA})`;
+                ctx.fill();
+
+                for (let j = i + 1; j < dots.length; j++) {
+                    const d2 = dots[j];
+                    const dx = d.x - d2.x, dy = d.y - d2.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < MAX_DIST) {
+                        ctx.beginPath();
+                        ctx.moveTo(d.x, d.y);
+                        ctx.lineTo(d2.x, d2.y);
+                        ctx.strokeStyle = `rgba(${lineRGB},${(1 - dist / MAX_DIST) * 0.1})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+
+        resize(); initDots(); draw();
+        window.addEventListener('resize', () => { resize(); initDots(); });
+    })();
 </script>
 <script>
     if ('serviceWorker' in navigator) {

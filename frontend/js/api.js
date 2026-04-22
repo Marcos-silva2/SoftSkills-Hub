@@ -4,6 +4,7 @@ const API = (window.location.hostname === 'localhost' || window.location.hostnam
     : 'https://softskills-hub.onrender.com';
 
 async function apiFetch(path, opts = {}) {
+    if (typeof topBarInicio !== 'undefined') topBarInicio();
     const headers = { 'Content-Type': 'application/json', ...opts.headers };
     const token = getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -11,8 +12,10 @@ async function apiFetch(path, opts = {}) {
     try {
         res = await fetch(API + path, { ...opts, headers });
     } catch {
+        if (typeof topBarFim !== 'undefined') topBarFim();
         throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando.`);
     }
+    if (typeof topBarFim !== 'undefined') topBarFim();
     if (res.status === 401) { throw new Error('Sessão expirada. Faça login novamente.'); }
     if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Erro de comunicação com o servidor.' }));
@@ -25,6 +28,7 @@ async function apiFetch(path, opts = {}) {
 }
 
 async function apiFetchComTotal(path, opts = {}) {
+    if (typeof topBarInicio !== 'undefined') topBarInicio();
     const headers = { 'Content-Type': 'application/json', ...opts.headers };
     const token = getToken();
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -32,8 +36,10 @@ async function apiFetchComTotal(path, opts = {}) {
     try {
         res = await fetch(API + path, { ...opts, headers });
     } catch {
+        if (typeof topBarFim !== 'undefined') topBarFim();
         throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando.`);
     }
+    if (typeof topBarFim !== 'undefined') topBarFim();
     if (res.status === 401) { throw new Error('Sessão expirada. Faça login novamente.'); }
     if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Erro de comunicação com o servidor.' }));

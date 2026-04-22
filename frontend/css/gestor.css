@@ -6,14 +6,15 @@ html.tema-escuro {
 }
 
 header {
-    background: linear-gradient(135deg, #a8461a, #e87c40); color: white;
-    padding: 30px 20px 20px; transition: background 0.4s ease;
+    background: linear-gradient(135deg, #8c3a14, #e87c40, #c05218, #8c3a14);
+    background-size: 300% 300%; animation: gradientShift 8s ease infinite;
+    color: white; padding: 30px 20px 20px;
     border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
     text-align: center;
 }
 header h1 { font-size: 1.3rem; font-weight: bold; }
 header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
-html.tema-escuro header { background: linear-gradient(135deg, #3a1a08, #6b2e0e); }
+html.tema-escuro header { background: linear-gradient(135deg, #2a0e04, #6b2e0e, #2a0e04, #3d1506) !important; background-size: 300% 300% !important; }
 
 .nav-item.active { color: var(--laranja); font-weight: bold; }
 .btn-tema:hover { border-color: var(--laranja); color: var(--laranja); }
@@ -72,6 +73,8 @@ html.tema-escuro .input-perfil:focus { box-shadow: 0 0 0 3px rgba(224,105,58,0.2
 .alerta-g { border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; margin: 8px 0; display: none; line-height: 1.4; }
 .alerta-g.erro    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
 .alerta-g.sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+html.tema-escuro .alerta-g.erro    { background: #3b1010; color: #f87171; border-color: #7f1d1d; }
+html.tema-escuro .alerta-g.sucesso { background: #0f2d14; color: #86efac; border-color: #14532d; }
 
 .estrelas { color: #f39c12; letter-spacing: 2px; }
 
@@ -102,6 +105,7 @@ html.tema-escuro .empresa-row { background: #2a2a2a; border-color: #3a3a3a; }
     font-weight: bold; text-transform: uppercase; border-bottom: 1px solid #eee;
     margin-bottom: 4px;
 }
+html.tema-escuro .genero-header { border-color: #3a3a3a; }
 .genero-row {
     display: grid; grid-template-columns: 1fr auto auto auto;
     gap: 6px; align-items: center; padding: 8px 0;
@@ -118,12 +122,17 @@ html.tema-escuro .genero-row { border-color: #3a3a3a; }
 .badge-talvez { background: #fff8e1; color: #856404; }
 .badge-nao    { background: #fdecea; color: #c0392b; }
 .badge-total  { background: #f0f0f0; color: #555; }
+html.tema-escuro .badge-sim    { background: #0f2d14; color: #86efac; }
+html.tema-escuro .badge-talvez { background: #2d2200; color: #fcd34d; }
+html.tema-escuro .badge-nao    { background: #3b1010; color: #f87171; }
+html.tema-escuro .badge-total  { background: #2a2a2a; color: #aaa; }
 
 .ponto-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 7px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.82rem;
 }
 .ponto-item:last-child { border-bottom: none; }
+html.tema-escuro .ponto-item { border-color: #3a3a3a; }
 .ponto-nome { color: var(--texto); flex: 1; }
 .ponto-qtd  { font-weight: bold; color: var(--laranja); flex-shrink: 0; }
 
@@ -154,6 +163,10 @@ html.tema-escuro .artigo-item { background: #2a2a2a; border-color: #3a3a3a; }
 .cat-comunicacao            { background: #e3f2fd; color: #1565c0; }
 .cat-postura_profissional   { background: #e8f5e9; color: #2e7d32; }
 .cat-saude_mental           { background: #fff3e0; color: #e65100; }
+html.tema-escuro .cat-inteligencia_emocional { background: #2d1040; color: #d8b4fe; }
+html.tema-escuro .cat-comunicacao            { background: #0c1e3b; color: #93c5fd; }
+html.tema-escuro .cat-postura_profissional   { background: #0f2d14; color: #86efac; }
+html.tema-escuro .cat-saude_mental           { background: #2d1200; color: #fdba74; }
 
 .modal-overlay {
     display: none; position: fixed; inset: 0;

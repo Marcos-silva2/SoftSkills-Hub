@@ -12,13 +12,35 @@ function sair() {
 function navegarApp(id) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    if (id === 'viewResumo')         { document.getElementById('navResumo').classList.add('active');       carregarResumo(); }
-    if (id === 'viewProblemas')      { document.getElementById('navProblemas').classList.add('active');    carregarProblemas(); }
-    if (id === 'viewEmpresas')       { document.getElementById('navEmpresas').classList.add('active');     carregarSatisfacaoEmpresas(); }
-    if (id === 'viewDetalheEmpresa') { document.getElementById('navEmpresas').classList.add('active'); }
-    if (id === 'viewTrilhas')        { document.getElementById('navTrilhas').classList.add('active');      carregarTrilhas(); }
-    if (id === 'viewPerfilGestor')   { document.getElementById('navPerfilGestor').classList.add('active'); carregarPerfilGestor(); atualizarBtnTema(); }
+
+    const newView = document.getElementById(id);
+    newView.classList.add('active');
+
+    if (typeof gsap !== 'undefined') {
+        gsap.fromTo(newView,
+            { x: 22, opacity: 0 },
+            { x: 0, opacity: 1, duration: 0.28, ease: 'power3.out', clearProps: 'transform,opacity' }
+        );
+        const cards = newView.querySelectorAll('.card, .kpi');
+        if (cards.length) {
+            gsap.from(cards, { y: 20, opacity: 0, duration: 0.38, stagger: 0.07,
+                ease: 'power2.out', clearProps: 'transform,opacity' });
+        }
+    }
+
+    let activeBtn;
+    if (id === 'viewResumo')         { activeBtn = document.getElementById('navResumo');       activeBtn.classList.add('active'); carregarResumo(); }
+    if (id === 'viewProblemas')      { activeBtn = document.getElementById('navProblemas');    activeBtn.classList.add('active'); carregarProblemas(); }
+    if (id === 'viewEmpresas')       { activeBtn = document.getElementById('navEmpresas');     activeBtn.classList.add('active'); carregarSatisfacaoEmpresas(); }
+    if (id === 'viewDetalheEmpresa') { activeBtn = document.getElementById('navEmpresas');     activeBtn.classList.add('active'); }
+    if (id === 'viewTrilhas')        { activeBtn = document.getElementById('navTrilhas');      activeBtn.classList.add('active'); carregarTrilhas(); }
+    if (id === 'viewPerfilGestor')   { activeBtn = document.getElementById('navPerfilGestor'); activeBtn.classList.add('active'); carregarPerfilGestor(); atualizarBtnTema(); }
+
+    if (activeBtn && typeof gsap !== 'undefined') {
+        gsap.fromTo(activeBtn, { scale: 0.78 }, { scale: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+    }
+    atualizarNavPill(activeBtn);
+    vibrar([12]);
 }
 
 (async function init() {
@@ -46,4 +68,13 @@ function navegarApp(id) {
     popularFiltroAnos();
     carregarFiltroEmpresas();
     carregarResumo();
+
+    iniciarRipple();
+    iniciarPressAnimation();
+    setTimeout(() => atualizarNavPill(document.getElementById('navResumo'), false), 200);
+    iniciarPullToRefresh(done => {
+        const v = document.querySelector('.view.active');
+        if (v) navegarApp(v.id);
+        setTimeout(done, 900);
+    });
 })();

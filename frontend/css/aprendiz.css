@@ -1,16 +1,17 @@
 header {
-    background: linear-gradient(135deg, #2a5e1e, #56c240); color: white;
-    padding: 30px 20px 20px;
+    background: linear-gradient(135deg, #1e5c12, #56c240, #2a9e1a, #1e5c12);
+    background-size: 300% 300%; animation: gradientShift 8s ease infinite;
+    color: white; padding: 30px 20px 20px;
     border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;
-    text-align: center; transition: background 0.4s ease;
+    text-align: center;
 }
-header.tema-mural   { background: linear-gradient(135deg, #1a5276, #2e86c1) !important; }
-header.tema-trilhas { background: linear-gradient(135deg, #4a235a, #8e44ad) !important; }
-header.tema-perfil  { background: linear-gradient(135deg, #1b4f72, #2980b9) !important; }
-header.tema-jogo    { background: linear-gradient(135deg, #6c3483, #9b59b6) !important; }
+header.tema-mural   { background: linear-gradient(135deg, #0f3854, #2e86c1, #1a5276, #0f3854) !important; background-size: 300% 300% !important; animation: gradientShift 8s ease infinite !important; }
+header.tema-trilhas { background: linear-gradient(135deg, #35174a, #8e44ad, #4a235a, #35174a) !important; background-size: 300% 300% !important; animation: gradientShift 8s ease infinite !important; }
+header.tema-perfil  { background: linear-gradient(135deg, #0f3450, #2980b9, #1b4f72, #0f3450) !important; background-size: 300% 300% !important; animation: gradientShift 8s ease infinite !important; }
+header.tema-jogo    { background: linear-gradient(135deg, #4a2370, #9b59b6, #6c3483, #4a2370) !important; background-size: 300% 300% !important; animation: gradientShift 8s ease infinite !important; }
 header h1 { font-size: 1.4rem; font-weight: bold; }
 header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
-html.tema-escuro header { background: linear-gradient(135deg, #1a3a12, #2a5e1e); }
+html.tema-escuro header { background: linear-gradient(135deg, #0e2e08, #1e5c10, #0e2e08, #163d0a) !important; background-size: 300% 300% !important; }
 
 .nav-item.active { color: var(--verde); font-weight: bold; }
 .btn-tema:hover { border-color: var(--verde); color: var(--verde); }
@@ -64,6 +65,7 @@ html.tema-escuro input, html.tema-escuro select, html.tema-escuro textarea { bac
     border: 1px solid #ddd; border-radius: 8px;
     font-weight: bold; cursor: pointer; transition: 0.2s; color: var(--muted);
 }
+html.tema-escuro .escala-btn { background: #2a2a2a; border-color: #3a3a3a; }
 .escala-btn:nth-child(1) { border-color:#e74c3c; color:#e74c3c; }
 .escala-btn:nth-child(1):hover, .escala-btn:nth-child(1).selecionado { background:#e74c3c; border-color:#e74c3c; color:white; }
 .escala-btn:nth-child(2) { border-color:#e67e22; color:#e67e22; }
@@ -117,7 +119,9 @@ html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
 .artigo-meta { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 .tag { font-size: 0.72rem; padding: 2px 8px; border-radius: 20px; background: var(--verde-claro); color: var(--verde); font-weight: bold; }
 .tag-cinza { background: #f0f0f0; color: #777; }
+html.tema-escuro .tag-cinza { background: #2a2a2a; color: #aaa; }
 .artigo-body { display: none; margin-top: 12px; font-size: 0.85rem; color: var(--texto); line-height: 1.7; border-top: 1px solid #eee; padding-top: 12px; }
+html.tema-escuro .artigo-body { border-color: #3a3a3a; }
 .artigo-body.aberto { display: block; }
 .artigo-body h1,.artigo-body h2,.artigo-body h3 { font-size: 0.95rem; color: var(--verde); margin: 12px 0 6px; }
 .artigo-body p  { margin-bottom: 8px; }
@@ -132,6 +136,7 @@ html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
     background: #f5f5f5; color: var(--muted); font-size: 0.78rem;
     font-weight: bold; cursor: pointer; transition: 0.2s;
 }
+html.tema-escuro .btn-categoria { background: #2a2a2a; border-color: #3a3a3a; }
 .btn-categoria:hover { border-color: var(--verde); color: var(--verde); }
 .btn-categoria.ativo { background: var(--verde); color: white; border-color: var(--verde); }
 
@@ -185,6 +190,8 @@ html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
     transform: rotateY(180deg); padding: 4px; text-align: center;
 }
 .carta.acertada .carta-face { background: #f5eef8; border-color: var(--roxo); }
+html.tema-escuro .carta-face { background: #1e1e1e; border-color: #4a2d5e; }
+html.tema-escuro .carta.acertada .carta-face { background: #2d1a40; }
 .carta-emoji { font-size: 1.1rem; }
 .carta-termo { font-size: 0.6rem; font-weight: bold; color: var(--roxo); line-height: 1.2; }
 
@@ -198,6 +205,7 @@ html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
     text-align: center; max-width: 320px; width: 100%;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
 }
+html.tema-escuro .vitoria-card { background: #1e1e1e; }
 .vitoria-card h3 { font-size: 1.3rem; color: var(--roxo); margin: 10px 0 6px; }
 .vitoria-card p  { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
 
@@ -205,8 +213,10 @@ html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
     margin: 0 20px 16px; background: white; border-radius: 14px;
     padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
 }
+html.tema-escuro .dicionario { background: #1e1e1e; }
 .dicionario h4 { color: var(--roxo); margin-bottom: 12px; font-size: 0.92rem; }
 .def-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+html.tema-escuro .def-item { border-color: #3a3a3a; }
 .def-item:last-child { border-bottom: none; padding-bottom: 0; }
 .def-header { font-size: 0.85rem; margin-bottom: 3px; }
 .def-texto  { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }

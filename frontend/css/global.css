@@ -20,7 +20,8 @@ html.tema-escuro {
     --card: #1e1e1e;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+button, a, [onclick] { touch-action: manipulation; user-select: none; -webkit-user-select: none; cursor: pointer; }
 
 body { background-color: var(--fundo); display: flex; justify-content: center; min-height: 100vh; line-height: 1.5; }
 
@@ -31,7 +32,7 @@ body { background-color: var(--fundo); display: flex; justify-content: center; m
     box-shadow: 0 0 20px rgba(0,0,0,0.05);
 }
 
-.view { display: none; padding: 20px; animation: fadeIn 0.3s ease-in-out; }
+.view { display: none; padding: 20px; }
 .view.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -51,14 +52,19 @@ body { background-color: var(--fundo); display: flex; justify-content: center; m
 .alerta-erro    { background: #fdecea; color: #c0392b; border: 1px solid #f5c6cb; }
 .alerta-sucesso { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
 .alerta-info    { background: #fff8e1; color: #856404; border: 1px solid #ffeeba; }
+html.tema-escuro .alerta-erro    { background: #3b1010; color: #f87171; border-color: #7f1d1d; }
+html.tema-escuro .alerta-sucesso { background: #0f2d14; color: #86efac; border-color: #14532d; }
+html.tema-escuro .alerta-info    { background: #2d2200; color: #fcd34d; border-color: #78350f; }
 
 .bottom-nav {
     position: fixed; bottom: 0; width: 100%; max-width: 400px;
-    background-color: var(--card); display: flex; justify-content: space-around;
-    padding: 10px 0 15px; border-top: 1px solid #eee;
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    display: flex; justify-content: space-around;
+    padding: 10px 0 15px; border-top: 1px solid rgba(0,0,0,0.06);
     border-top-left-radius: 20px; border-top-right-radius: 20px;
 }
-html.tema-escuro .bottom-nav { border-color: #2a2a2a; }
+html.tema-escuro .bottom-nav { background: rgba(18,18,18,0.88); border-color: rgba(255,255,255,0.06); }
 
 .nav-item { position: relative; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; color: var(--muted); cursor: pointer; background: none; border: none; transition: 0.3s; padding: 0 8px; }
 .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; stroke: currentColor; transition: transform 0.2s; }
@@ -73,24 +79,39 @@ html.tema-escuro .bottom-nav { border-color: #2a2a2a; }
 
 .skeleton {
     display: block;
-    background: linear-gradient(90deg, #ebebeb 25%, #f5f5f5 50%, #ebebeb 75%);
-    background-size: 200% 100%;
-    animation: skeletonPulse 1.4s ease-in-out infinite;
+    background: linear-gradient(100deg, #ececec 30%, #f8f8f8 50%, #ececec 70%);
+    background-size: 400% 100%;
+    animation: shimmer 1.6s ease infinite;
     border-radius: 4px;
 }
-@keyframes skeletonPulse {
-    0%   { background-position:  200% 0; }
-    100% { background-position: -200% 0; }
+@keyframes shimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
 }
 html.tema-escuro .skeleton {
-    background: linear-gradient(90deg, #2a2a2a 25%, #383838 50%, #2a2a2a 75%);
-    background-size: 200% 100%;
+    background: linear-gradient(100deg, #242424 30%, #333 50%, #242424 70%);
+    background-size: 400% 100%;
 }
 
+/* PTR spinner */
+.ptr-spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--muted); border-top-color: transparent;
+    border-radius: 50%; margin-right: 8px; vertical-align: middle;
+    opacity: 0; transition: opacity 0.2s;
+    animation: ptr-spin 0.75s linear infinite;
+}
+.ptr-indicator.atualizando .ptr-spinner { opacity: 1; }
+@keyframes ptr-spin { to { transform: rotate(360deg); } }
+
 .estado-vazio { text-align: center; padding: 40px 20px; }
-.estado-vazio svg { margin: 0 auto 14px; display: block; opacity: 0.35; color: var(--muted); }
+.estado-vazio svg { margin: 0 auto 14px; display: block; opacity: 0.35; color: var(--muted); animation: floatIcon 3s ease-in-out infinite; }
 .estado-vazio .ev-titulo { font-size: 0.92rem; font-weight: 600; color: var(--texto); margin-bottom: 4px; }
 .estado-vazio .ev-sub { font-size: 0.82rem; color: var(--muted); }
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-9px); }
+}
 
 .toast-container {
     position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
@@ -136,3 +157,65 @@ html.tema-escuro .skeleton {
 .perfil-info-row .valor { font-weight: bold; color: var(--texto); }
 
 html.tema-transition * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important; }
+
+/* ── Shake ───────────────────────────────────────────────── */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    12%  { transform: translateX(-7px); }
+    25%  { transform: translateX( 7px); }
+    37%  { transform: translateX(-5px); }
+    50%  { transform: translateX( 5px); }
+    62%  { transform: translateX(-3px); }
+    75%  { transform: translateX( 3px); }
+}
+.shake { animation: shake 0.52s cubic-bezier(.36,.07,.19,.97) both; }
+
+/* ── Top loading bar ─────────────────────────────────────── */
+.top-bar {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    z-index: 9999; border-radius: 0 3px 3px 0; opacity: 0;
+    background: linear-gradient(90deg, var(--verde), #56c240, var(--verde));
+    background-size: 200% 100%;
+    animation: topBarShimmer 1.2s linear infinite;
+    transition: width 0.4s ease, opacity 0.3s ease;
+    pointer-events: none;
+}
+@keyframes topBarShimmer {
+    0%   { background-position:  100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+/* ── Gradiente animado ───────────────────────────────────── */
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50%       { background-position: 100% 50%; }
+}
+
+/* ── Ripple ─────────────────────────────────────────────── */
+@keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+.ripple-wave {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    background: rgba(255,255,255,0.3); transform: scale(0);
+    animation: rippleAnim 0.5s linear;
+}
+
+/* ── Bottom nav pill ─────────────────────────────────────── */
+.nav-pill {
+    position: absolute; bottom: 8px; height: 3px; border-radius: 3px;
+    pointer-events: none; background: currentColor;
+    will-change: left, width, background-color;
+}
+.nav-item { will-change: transform; }
+.card { will-change: transform, opacity; }
+
+/* ── Pull-to-refresh ─────────────────────────────────────── */
+.ptr-indicator {
+    position: fixed; top: 0; left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    z-index: 500; background: var(--card); color: var(--muted);
+    border-radius: 0 0 16px 16px; padding: 10px 20px;
+    font-size: 0.8rem; font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    transition: transform 0.25s ease; white-space: nowrap;
+}
+.ptr-indicator.visivel { transform: translateX(-50%) translateY(0); }

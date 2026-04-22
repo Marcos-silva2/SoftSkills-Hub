@@ -65,11 +65,14 @@ async function salvarUsername() {
         document.getElementById('perfilNome').textContent = novoUsername;
         document.getElementById('perfilNovoUsername').value = '';
         document.getElementById('perfilSenhaUsername').value = '';
-        mostrarToast('✅ Nome atualizado com sucesso!', 'sucesso');
+        animarBotaoSucesso(document.querySelector('[onclick="salvarUsername()"]'));
+        vibrar([30]);
+        mostrarToast('Nome atualizado com sucesso!', 'sucesso');
         carregarPerfil();
     } catch (e) {
         erroEl.textContent = e.message;
         erroEl.style.display = 'block';
+        adicionarShake(erroEl); vibrar([30, 15, 30]);
     }
 }
 
@@ -93,9 +96,12 @@ async function salvarSenha() {
         document.getElementById('perfilSenhaAtual').value = '';
         document.getElementById('perfilNovaSenha').value = '';
         document.getElementById('perfilConfirmaSenha').value = '';
-        mostrarToast('✅ Senha alterada com sucesso!', 'sucesso');
+        animarBotaoSucesso(document.querySelector('[onclick="salvarSenha()"]'));
+        vibrar([30]);
+        mostrarToast('Senha alterada com sucesso!', 'sucesso');
     } catch (e) {
         erroEl.textContent = e.message;
         erroEl.style.display = 'block';
+        adicionarShake(erroEl); vibrar([30, 15, 30]);
     }
 }
