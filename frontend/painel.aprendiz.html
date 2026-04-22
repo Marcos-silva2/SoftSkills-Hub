@@ -57,116 +57,149 @@
     <!-- ── ENQUETE ─────────────────────────────────── -->
     <main id="viewEnquete" class="view">
         <div class="card">
-            <h3 style="color:var(--verde);margin-bottom:5px;">Sua voz importa!</h3>
-            <p style="font-size:0.85rem;margin-bottom:20px;">Marque as opções que refletem a sua realidade. Ninguém saberá quem enviou as respostas.</p>
+            <h3 style="color:var(--verde);margin-bottom:4px;">Sua voz importa! 🗣️</h3>
+            <p style="font-size:0.83rem;color:var(--muted);margin-bottom:22px;">Anônimo e seguro. Seja honesto(a) — isso nos ajuda a proteger você.</p>
 
-            <form id="formEnquete" onsubmit="return false;">
-
-                <!-- Progresso -->
-                <div class="enquete-progresso">
-                    <div class="prog-label"><span>Progresso</span><strong id="progTexto">0 de 3 perguntas</strong></div>
-                    <div class="prog-bg"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+            <!-- Step indicator -->
+            <div class="wizard-steps">
+                <div class="wizard-step ativo" id="wstep-0">
+                    <div class="step-circle">1</div>
+                    <span class="step-label">Problemas</span>
                 </div>
+                <div class="wizard-line" id="wline-0"></div>
+                <div class="wizard-step" id="wstep-1">
+                    <div class="step-circle">2</div>
+                    <span class="step-label">Avaliação</span>
+                </div>
+                <div class="wizard-line" id="wline-1"></div>
+                <div class="wizard-step" id="wstep-2">
+                    <div class="step-circle">3</div>
+                    <span class="step-label">Efetivação</span>
+                </div>
+                <div class="wizard-line" id="wline-2"></div>
+                <div class="wizard-step" id="wstep-3">
+                    <div class="step-circle">4</div>
+                    <span class="step-label">Satisfação</span>
+                </div>
+            </div>
 
-                <!-- P1 -->
-                <div class="pergunta-box">
-                    <label class="titulo-pergunta">1. Quais problemas você enfrenta ou já enfrentou na empresa?</label>
-                    <div class="scroll-box">
-                        <div class="checkbox-group">
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="nenhum"> 🟢 Nenhum dos problemas abaixo</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="assedio_moral"> Assédio moral</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="favorecimento"> Favorecimento indevido</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="machismo"> Machismo</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="assedio_sexual"> Assédio sexual</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="desvio_funcao"> Desvio de função (tarefas fora do contrato)</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="carga_excessiva"> Carga horária excessiva / desrespeito ao horário de estudo</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="falta_orientacao"> Falta de orientação ou supervisão adequada</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="sobrecarga"> Sobrecarga de tarefas</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="preconceito_etario"> Preconceito etário (subestimação por ser jovem)</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="discriminacao_racial"> Discriminação racial</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="homofobia"> Homofobia ou Transfobia</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="intolerancia_religiosa"> Intolerância religiosa</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="atraso_pagamento"> Atraso no pagamento do salário</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="falta_feedback"> Falta de feedback construtivo</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="pressao_psicologica"> Pressão psicológica por metas inatingíveis</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="condicoes_inseguras"> Condições de trabalho inseguras ou insalubres</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="exclusao_equipe"> Exclusão de reuniões e dinâmicas da equipe</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="desvalorizacao_ideias"> Desvalorização de ideias ou opiniões</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="microgerenciamento"> Microgerenciamento excessivo</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="tarefas_repetitivas"> Realização exclusiva de tarefas repetitivas</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="ameacas_demissao"> Ameaças constantes de demissão</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="falta_estrutura"> Falta de estrutura física adequada ou equipamentos</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="desrespeito_direitos"> Desrespeito aos direitos da Lei da Aprendizagem</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="ausencia_intervalo"> Ausência de intervalo para descanso ou refeição</label>
-                            <label class="checkbox-item"><input type="checkbox" name="p1" value="proibicao_cursos"> Proibição de participar de cursos teóricos da instituição</label>
+            <!-- Passo 1: Problemas -->
+            <div class="wizard-passo" id="passo-0">
+                <p class="passo-titulo">Quais problemas você enfrenta ou já enfrentou?</p>
+                <p class="passo-sub">Selecione todos que se aplicam à sua realidade.</p>
+                <div class="pill-group">
+                    <button class="pill-tag" data-value="nenhum" onclick="togglePill(this,'p1')">🟢 Nenhum problema</button>
+                    <button class="pill-tag" data-value="assedio_moral" onclick="togglePill(this,'p1')">Assédio moral</button>
+                    <button class="pill-tag" data-value="favorecimento" onclick="togglePill(this,'p1')">Favorecimento indevido</button>
+                    <button class="pill-tag" data-value="machismo" onclick="togglePill(this,'p1')">Machismo</button>
+                    <button class="pill-tag" data-value="assedio_sexual" onclick="togglePill(this,'p1')">Assédio sexual</button>
+                    <button class="pill-tag" data-value="desvio_funcao" onclick="togglePill(this,'p1')">Desvio de função</button>
+                    <button class="pill-tag" data-value="carga_excessiva" onclick="togglePill(this,'p1')">Carga horária excessiva</button>
+                    <button class="pill-tag" data-value="falta_orientacao" onclick="togglePill(this,'p1')">Falta de orientação</button>
+                    <button class="pill-tag" data-value="sobrecarga" onclick="togglePill(this,'p1')">Sobrecarga de tarefas</button>
+                    <button class="pill-tag" data-value="preconceito_etario" onclick="togglePill(this,'p1')">Preconceito etário</button>
+                    <button class="pill-tag" data-value="discriminacao_racial" onclick="togglePill(this,'p1')">Discriminação racial</button>
+                    <button class="pill-tag" data-value="homofobia" onclick="togglePill(this,'p1')">Homofobia / Transfobia</button>
+                    <button class="pill-tag" data-value="intolerancia_religiosa" onclick="togglePill(this,'p1')">Intolerância religiosa</button>
+                    <button class="pill-tag" data-value="atraso_pagamento" onclick="togglePill(this,'p1')">Atraso no pagamento</button>
+                    <button class="pill-tag" data-value="falta_feedback" onclick="togglePill(this,'p1')">Falta de feedback</button>
+                    <button class="pill-tag" data-value="pressao_psicologica" onclick="togglePill(this,'p1')">Pressão psicológica</button>
+                    <button class="pill-tag" data-value="condicoes_inseguras" onclick="togglePill(this,'p1')">Condições inseguras</button>
+                    <button class="pill-tag" data-value="exclusao_equipe" onclick="togglePill(this,'p1')">Exclusão da equipe</button>
+                    <button class="pill-tag" data-value="desvalorizacao_ideias" onclick="togglePill(this,'p1')">Desvalorização de ideias</button>
+                    <button class="pill-tag" data-value="microgerenciamento" onclick="togglePill(this,'p1')">Microgerenciamento</button>
+                    <button class="pill-tag" data-value="tarefas_repetitivas" onclick="togglePill(this,'p1')">Tarefas repetitivas</button>
+                    <button class="pill-tag" data-value="ameacas_demissao" onclick="togglePill(this,'p1')">Ameaças de demissão</button>
+                    <button class="pill-tag" data-value="falta_estrutura" onclick="togglePill(this,'p1')">Falta de estrutura</button>
+                    <button class="pill-tag" data-value="desrespeito_direitos" onclick="togglePill(this,'p1')">Desrespeito à Lei da Aprendizagem</button>
+                    <button class="pill-tag" data-value="ausencia_intervalo" onclick="togglePill(this,'p1')">Ausência de intervalo</button>
+                    <button class="pill-tag" data-value="proibicao_cursos" onclick="togglePill(this,'p1')">Proibição de cursos</button>
+                </div>
+            </div>
+
+            <!-- Passo 2: Avaliação -->
+            <div class="wizard-passo" id="passo-1" style="display:none;">
+                <p class="passo-titulo">Como você avalia sua empresa?</p>
+                <p class="passo-sub" style="color:var(--verde);font-weight:600;">✅ Pontos positivos:</p>
+                <div class="pill-group" style="margin-bottom:18px;">
+                    <button class="pill-tag pill-pos" data-value="aprendizado" onclick="togglePill(this,'positivos')">Bom aprendizado prático</button>
+                    <button class="pill-tag pill-pos" data-value="clima_bom" onclick="togglePill(this,'positivos')">Bom clima na equipe</button>
+                    <button class="pill-tag pill-pos" data-value="lideranca_apoio" onclick="togglePill(this,'positivos')">Liderança prestativa</button>
+                    <button class="pill-tag pill-pos" data-value="beneficios" onclick="togglePill(this,'positivos')">Bons benefícios</button>
+                    <button class="pill-tag pill-pos" data-value="flexibilidade" onclick="togglePill(this,'positivos')">Flexibilidade de horários</button>
+                    <button class="pill-tag pill-pos" data-value="nenhum_pos" onclick="togglePill(this,'positivos')">Nenhum positivo</button>
+                </div>
+                <p class="passo-sub" style="color:#d32f2f;font-weight:600;">❌ Pontos negativos:</p>
+                <div class="pill-group">
+                    <button class="pill-tag pill-neg" data-value="comunicacao_ruim" onclick="togglePill(this,'negativos')">Comunicação ruim</button>
+                    <button class="pill-tag pill-neg" data-value="desorganizacao" onclick="togglePill(this,'negativos')">Desorganização</button>
+                    <button class="pill-tag pill-neg" data-value="clima_tenso" onclick="togglePill(this,'negativos')">Clima tenso</button>
+                    <button class="pill-tag pill-neg" data-value="falta_reconhecimento" onclick="togglePill(this,'negativos')">Falta de reconhecimento</button>
+                    <button class="pill-tag pill-neg" data-value="distancia_lideranca" onclick="togglePill(this,'negativos')">Liderança ausente</button>
+                    <button class="pill-tag pill-neg" data-value="nenhum_neg" onclick="togglePill(this,'negativos')">Nenhum negativo</button>
+                </div>
+            </div>
+
+            <!-- Passo 3: Efetivação -->
+            <div class="wizard-passo" id="passo-2" style="display:none;">
+                <p class="passo-titulo">Você quer ser efetivado(a) aqui?</p>
+                <p class="passo-sub">Após o término do contrato de aprendizagem.</p>
+                <div class="efetivacao-cards">
+                    <button class="efetivacao-card" data-value="sim" onclick="selecionarEfetivacao(this)">
+                        <span class="efetivacao-icon">✅</span>
+                        <div>
+                            <span class="efetivacao-label">Sim, quero!</span>
+                            <span class="efetivacao-sub">Quero continuar nesta empresa</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- P2 -->
-                <div class="pergunta-box">
-                    <label class="titulo-pergunta">2. Avaliação da Empresa</label>
-                    <p style="font-size:0.85rem;color:var(--verde);font-weight:bold;margin-bottom:5px;">Pontos POSITIVOS:</p>
-                    <div class="scroll-box" style="max-height:140px;margin-bottom:15px;">
-                        <div class="checkbox-group">
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="aprendizado"> Boa oportunidade de aprendizado prático</label>
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="clima_bom"> Bom clima e relacionamento com a equipe</label>
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="lideranca_apoio"> Liderança prestativa e disposta a ensinar</label>
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="beneficios"> Bons benefícios (vale-refeição, transporte, etc)</label>
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="flexibilidade"> Flexibilidade e respeito aos horários</label>
-                            <label class="checkbox-item"><input type="checkbox" name="positivos" value="nenhum_pos"> Nenhum ponto positivo a destacar</label>
+                    </button>
+                    <button class="efetivacao-card" data-value="nao" onclick="selecionarEfetivacao(this)">
+                        <span class="efetivacao-icon">❌</span>
+                        <div>
+                            <span class="efetivacao-label">Não</span>
+                            <span class="efetivacao-sub">Prefiro outras oportunidades</span>
                         </div>
-                    </div>
-
-                    <p style="font-size:0.85rem;color:#d32f2f;font-weight:bold;margin-bottom:5px;">Pontos NEGATIVOS:</p>
-                    <div class="scroll-box" style="max-height:140px;">
-                        <div class="checkbox-group">
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="comunicacao_ruim"> Falta de comunicação interna clara</label>
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="desorganizacao"> Desorganização nos processos e tarefas</label>
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="clima_tenso"> Clima organizacional tenso ou competitivo demais</label>
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="falta_reconhecimento"> Falta de reconhecimento pelo bom trabalho</label>
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="distancia_lideranca"> Liderança muito distante ou ausente</label>
-                            <label class="checkbox-item"><input type="checkbox" name="negativos" value="nenhum_neg"> Nenhum ponto negativo a destacar</label>
+                    </button>
+                    <button class="efetivacao-card" data-value="talvez" onclick="selecionarEfetivacao(this)">
+                        <span class="efetivacao-icon">🤔</span>
+                        <div>
+                            <span class="efetivacao-label">Ainda não sei</span>
+                            <span class="efetivacao-sub">Preciso pensar mais</span>
                         </div>
-                    </div>
+                    </button>
                 </div>
+            </div>
 
-                <!-- P3 -->
-                <div class="pergunta-box">
-                    <label class="titulo-pergunta">3. Você tem o desejo de ser efetivado(a) nesta empresa após o término do contrato?</label>
-                    <div class="radio-group">
-                        <label class="radio-item"><input type="radio" name="efetivacao" value="sim"> Sim</label>
-                        <label class="radio-item"><input type="radio" name="efetivacao" value="nao"> Não</label>
-                        <label class="radio-item"><input type="radio" name="efetivacao" value="talvez"> Ainda não sei</label>
-                    </div>
+            <!-- Passo 4: Satisfação -->
+            <div class="wizard-passo" id="passo-3" style="display:none;">
+                <p class="passo-titulo">Qual seu nível de satisfação geral?</p>
+                <p class="passo-sub">Na empresa hoje, como você se sente?</p>
+                <div class="escala-satisfacao">
+                    <button type="button" class="escala-btn" onclick="selecionarNota(this)">1</button>
+                    <button type="button" class="escala-btn" onclick="selecionarNota(this)">2</button>
+                    <button type="button" class="escala-btn" onclick="selecionarNota(this)">3</button>
+                    <button type="button" class="escala-btn" onclick="selecionarNota(this)">4</button>
+                    <button type="button" class="escala-btn" onclick="selecionarNota(this)">5</button>
                 </div>
-
-                <!-- P4 -->
-                <div class="pergunta-box">
-                    <label class="titulo-pergunta">4. Qual seu nível de satisfação geral na empresa hoje?</label>
-                    <div class="escala-satisfacao">
-                        <button type="button" class="escala-btn" onclick="selecionarNota(this)">1</button>
-                        <button type="button" class="escala-btn" onclick="selecionarNota(this)">2</button>
-                        <button type="button" class="escala-btn" onclick="selecionarNota(this)">3</button>
-                        <button type="button" class="escala-btn" onclick="selecionarNota(this)">4</button>
-                        <button type="button" class="escala-btn" onclick="selecionarNota(this)">5</button>
-                    </div>
-                    <div style="display:flex;margin-top:5px;padding:0 1px;">
-                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Baixo</span>
-                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Baixo</span>
-                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Regular</span>
-                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Alto</span>
-                        <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Alto</span>
-                    </div>
+                <div style="display:flex;margin-top:6px;padding:0 1px;">
+                    <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Baixo</span>
+                    <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Baixo</span>
+                    <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Regular</span>
+                    <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Alto</span>
+                    <span style="flex:1;font-size:0.62rem;color:var(--muted);text-align:center;line-height:1.2;">Muito<br>Alto</span>
                 </div>
+            </div>
 
-                <div id="erroEnquete"    class="alerta alerta-erro"></div>
-                <div id="sucessoEnquete" class="alerta alerta-sucesso"></div>
+            <div id="erroEnquete" class="alerta alerta-erro" style="margin-top:14px;"></div>
 
-                <button type="button" id="btnEnviarEnquete" class="btn btn-verde" onclick="enviarEnquete()">Enviar Respostas Anônimas</button>
-            </form>
+            <!-- Navegação wizard -->
+            <div class="wizard-nav">
+                <button id="btnVoltarWizard" class="btn-voltar-wizard" onclick="passoAnterior()" style="display:none;">← Voltar</button>
+                <button id="btnProximoWizard" class="btn-proximo-wizard" onclick="proximoPasso()">Próximo →</button>
+                <button id="btnEnviarEnquete" class="btn btn-verde" onclick="enviarEnquete()" style="display:none;flex:1;">Enviar Respostas ✓</button>
+            </div>
+        </div>
 
-            <button class="btn" style="background:transparent;color:var(--muted);margin-top:10px;" onclick="navegarApp('viewInicio')">Cancelar e Voltar</button>
+        <button class="btn" style="background:transparent;color:var(--muted);margin-top:4px;" onclick="navegarApp('viewInicio')">← Cancelar e Voltar</button>
         </div>
     </main>
 
@@ -299,6 +332,7 @@
     </nav>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="js/theme.js"></script>

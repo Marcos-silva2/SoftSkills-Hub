@@ -56,6 +56,93 @@ html.tema-escuro .scroll-box {
 html.tema-escuro .checkbox-item { background: #2a2a2a; border-color: #3a3a3a; }
 html.tema-escuro input, html.tema-escuro select, html.tema-escuro textarea { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
 
+/* ── Wizard Step Indicator ────────────────────────────── */
+.wizard-steps {
+    display: flex; align-items: flex-start; justify-content: center;
+    margin-bottom: 24px; gap: 0;
+}
+.wizard-step { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.step-circle {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #e8e8e8; color: var(--muted);
+    font-size: 0.82rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.wizard-step.ativo  .step-circle { background: var(--verde); color: white; box-shadow: 0 0 0 5px rgba(54,122,40,0.18); }
+.wizard-step.concluido .step-circle { background: var(--verde); color: white; }
+.step-label { font-size: 0.6rem; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.wizard-step.ativo .step-label { color: var(--verde); font-weight: 700; }
+.wizard-step.concluido .step-label { color: var(--verde); }
+.wizard-line {
+    flex: 1; height: 2px; background: #e0e0e0;
+    margin: 16px 4px 0; transition: background 0.4s;
+    min-width: 16px;
+}
+.wizard-line.concluida { background: var(--verde); }
+html.tema-escuro .step-circle { background: #2a2a2a; }
+html.tema-escuro .wizard-line { background: #3a3a3a; }
+
+/* ── Wizard passo ─────────────────────────────────────── */
+.wizard-passo { overflow: hidden; }
+.passo-titulo { font-size: 1rem; font-weight: 700; color: var(--texto); margin-bottom: 5px; line-height: 1.4; }
+.passo-sub    { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
+
+/* ── Pills ────────────────────────────────────────────── */
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill-tag {
+    padding: 7px 13px; border-radius: 20px;
+    border: 1.5px solid #ddd; background: #f5f5f5;
+    font-size: 0.8rem; color: var(--texto);
+    cursor: pointer; transition: border-color 0.15s, background 0.15s, color 0.15s;
+    font-family: inherit; line-height: 1.3;
+}
+.pill-tag:hover { border-color: var(--verde); color: var(--verde); }
+.pill-tag.pill-selecionada { background: var(--verde); border-color: var(--verde); color: white; font-weight: 600; }
+.pill-tag.pill-pos.pill-selecionada { background: #27ae60; border-color: #27ae60; }
+.pill-tag.pill-neg.pill-selecionada { background: #e74c3c; border-color: #e74c3c; }
+html.tema-escuro .pill-tag { background: #2a2a2a; border-color: #3a3a3a; color: var(--texto); }
+html.tema-escuro .pill-tag:hover { border-color: var(--verde); color: var(--verde); }
+
+/* ── Efetivação cards ─────────────────────────────────── */
+.efetivacao-cards { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.efetivacao-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 18px; border: 2px solid #e8e8e8;
+    border-radius: 14px; background: #fafafa;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    text-align: left; width: 100%; font-family: inherit;
+}
+.efetivacao-card:hover { border-color: var(--verde); background: var(--verde-claro); }
+.efetivacao-card.selecionado {
+    border-color: var(--verde); background: var(--verde-claro);
+    box-shadow: 0 0 0 3px rgba(54,122,40,0.15);
+}
+.efetivacao-icon  { font-size: 2rem; flex-shrink: 0; }
+.efetivacao-label { display: block; font-size: 0.95rem; font-weight: 700; color: var(--texto); }
+.efetivacao-sub   { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+html.tema-escuro .efetivacao-card { background: #2a2a2a; border-color: #3a3a3a; }
+html.tema-escuro .efetivacao-card:hover { background: #1a3a16; }
+html.tema-escuro .efetivacao-card.selecionado { background: #1a3a16; border-color: var(--verde); box-shadow: 0 0 0 3px rgba(79,181,62,0.18); }
+
+/* ── Wizard nav ───────────────────────────────────────── */
+.wizard-nav { display: flex; gap: 10px; margin-top: 20px; }
+.btn-voltar-wizard {
+    padding: 14px 18px; border: 1.5px solid #ddd; border-radius: 12px;
+    background: transparent; color: var(--muted);
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; transition: 0.2s;
+}
+.btn-voltar-wizard:hover { border-color: var(--muted); }
+.btn-proximo-wizard {
+    flex: 1; padding: 15px; border: none; border-radius: 12px;
+    background: var(--verde); color: white;
+    font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.btn-proximo-wizard:hover { background: #2a5e1e; }
+html.tema-escuro .btn-voltar-wizard { border-color: #3a3a3a; }
+
 .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
 .radio-item {
     display: flex; align-items: center; gap: 8px;
