@@ -1,0 +1,25 @@
+{
+  "name": "SoftSkills Hub",
+  "short_name": "SoftSkills",
+  "description": "Plataforma de desenvolvimento de soft skills para jovens aprendizes",
+  "start_url": "/SoftSkills-Hub/",
+  "scope": "/SoftSkills-Hub/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1565c0",
+  "icons": [
+    {
+      "src": "emoji/Logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "emoji/Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
