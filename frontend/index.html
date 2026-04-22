@@ -47,7 +47,7 @@
 
         <div id="statusServidor"></div>
 
-        <button id="btnInstalarPwa" style="display:none;width:100%;padding:12px;margin-bottom:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;gap:8px;align-items:center;justify-content:center;" onclick="instalarPwa()">
+        <button id="btnInstalarPwa" style="width:100%;padding:12px;margin-bottom:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;gap:8px;display:flex;align-items:center;justify-content:center;" onclick="instalarPwa()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Instalar App
         </button>
@@ -355,21 +355,31 @@
     }
 
     let _pwaPrompt = null;
+    const _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const _isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault();
         _pwaPrompt = e;
-        const btn = document.getElementById('btnInstalarPwa');
-        if (btn) btn.style.display = 'flex';
     });
     window.addEventListener('appinstalled', () => {
-        const btn = document.getElementById('btnInstalarPwa');
-        if (btn) btn.style.display = 'none';
+        document.getElementById('btnInstalarPwa').style.display = 'none';
         _pwaPrompt = null;
     });
+
+    if (_isInstalled) {
+        document.getElementById('btnInstalarPwa').style.display = 'none';
+    }
+
     function instalarPwa() {
-        if (!_pwaPrompt) return;
-        _pwaPrompt.prompt();
-        _pwaPrompt.userChoice.then(() => { _pwaPrompt = null; });
+        if (_pwaPrompt) {
+            _pwaPrompt.prompt();
+            _pwaPrompt.userChoice.then(() => { _pwaPrompt = null; });
+        } else if (_isIos) {
+            mostrarToast('No Safari: toque em Compartilhar → "Adicionar à Tela de Início"', 'info', 5000);
+        } else {
+            mostrarToast('No Chrome: toque nos ⋮ (3 pontos) → "Adicionar à tela inicial"', 'info', 5000);
+        }
     }
 
     verificarServidor();
