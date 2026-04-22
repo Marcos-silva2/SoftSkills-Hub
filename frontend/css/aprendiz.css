@@ -56,8 +56,17 @@ html.tema-escuro .scroll-box {
 html.tema-escuro .checkbox-item { background: #2a2a2a; border-color: #3a3a3a; }
 html.tema-escuro input, html.tema-escuro select, html.tema-escuro textarea { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
 
-.radio-group { display: flex; gap: 15px; flex-wrap: wrap; }
-.radio-item { display: flex; align-items: center; gap: 5px; font-size: 0.9rem; cursor: pointer; }
+.radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.radio-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.9rem; cursor: pointer;
+    background: #fafafa; padding: 10px 14px;
+    border: 1px solid #eee; border-radius: 10px;
+    color: var(--texto); transition: 0.2s;
+}
+.radio-item:hover { background: var(--verde-claro); border-color: var(--verde); }
+html.tema-escuro .radio-item { background: #2a2a2a; border-color: #3a3a3a; color: var(--texto); }
+html.tema-escuro .radio-item:hover { background: #1a3a16; border-color: var(--verde); }
 
 .escala-satisfacao { display: flex; justify-content: space-between; gap: 5px; margin-top: 10px; }
 .escala-btn {

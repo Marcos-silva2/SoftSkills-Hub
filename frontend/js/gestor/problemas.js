@@ -44,7 +44,10 @@ async function carregarProblemas() {
         const dados = await apiFetch('/dashboard/problemas' + filtrosQueryProblemas());
         if (!dados.length) { lista.innerHTML = emptyState(SVG_GRAFICO, 'Nenhum dado encontrado', 'Ajuste os filtros ou aguarde novas respostas.'); return; }
         const medalhas  = ['🥇','🥈','🥉'];
-        const bgPodio   = ['#fffbea','#f5f5f5','#fff4ee'];
+        const isDark    = document.documentElement.classList.contains('tema-escuro');
+        const bgPodio   = isDark
+            ? ['#3a3218','#2a2a2a','#2e1e10']
+            : ['#fffbea','#f5f5f5','#fff4ee'];
         lista.innerHTML = dados.map((p, i) => `
             <div class="rank-item" style="${i < 3 ? `background:${bgPodio[i]};border-radius:10px;padding:12px 4px;` : ''}">
                 <span class="rank-num" style="${i < 3 ? 'font-size:1.3rem;' : ''}">${i < 3 ? medalhas[i] : (i+1)+'º'}</span>

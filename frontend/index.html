@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#1565c0">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="emoji/Logo.ico">
-    <link rel="apple-touch-icon" href="emoji/Logo.png">
+    <link rel="apple-touch-icon" href="emoji/icon-512x512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -352,7 +352,7 @@
     verificarServidor();
 
     if (typeof gsap !== 'undefined' && !localStorage.getItem('ssh_token') && !localStorage.getItem('ssh_token_gestor')) {
-        gsap.timeline({ defaults: { ease: 'power3.out' } })
+        gsap.timeline({ defaults: { ease: 'power3.out', clearProps: 'all' } })
             .from('header > div', { scale: 0.3, opacity: 0, duration: 0.65, ease: 'elastic.out(1, 0.5)' })
             .from('header h1',    { y: 20, opacity: 0, duration: 0.4 }, '-=0.25')
             .from('header p',     { y: 15, opacity: 0, duration: 0.3 }, '-=0.15')
