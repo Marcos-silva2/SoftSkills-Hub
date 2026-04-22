@@ -47,6 +47,11 @@
 
         <div id="statusServidor"></div>
 
+        <button id="btnInstalarPwa" style="display:none;width:100%;padding:12px;margin-bottom:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;gap:8px;align-items:center;justify-content:center;" onclick="instalarPwa()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Instalar App
+        </button>
+
         <div class="tabs">
             <button id="btnJovem"  class="tab-btn active-jovem" onclick="mudarAba('jovem')">Sou Aprendiz</button>
             <button id="btnGestor" class="tab-btn"              onclick="mudarAba('gestor')">Sou Gestor</button>
@@ -347,6 +352,24 @@
         bars.forEach((b, i) => { b.style.background = i < score ? cor : '#eee'; });
         label.textContent = score > 0 ? textos[score - 1] : '';
         label.style.color = cor;
+    }
+
+    let _pwaPrompt = null;
+    window.addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        _pwaPrompt = e;
+        const btn = document.getElementById('btnInstalarPwa');
+        if (btn) btn.style.display = 'flex';
+    });
+    window.addEventListener('appinstalled', () => {
+        const btn = document.getElementById('btnInstalarPwa');
+        if (btn) btn.style.display = 'none';
+        _pwaPrompt = null;
+    });
+    function instalarPwa() {
+        if (!_pwaPrompt) return;
+        _pwaPrompt.prompt();
+        _pwaPrompt.userChoice.then(() => { _pwaPrompt = null; });
     }
 
     verificarServidor();

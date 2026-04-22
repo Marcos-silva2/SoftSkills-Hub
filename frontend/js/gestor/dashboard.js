@@ -64,6 +64,7 @@ function donutChart(sim, nao, talvez, total) {
     const r = 44, cx = 62, cy = 62;
     const circ = 2 * Math.PI * r;
     const gap  = circ * 0.012;
+    const dark = document.documentElement.classList.contains('tema-escuro');
 
     const nSim    = Math.round(sim    / 100 * total);
     const nNao    = Math.round(nao    / 100 * total);
@@ -89,9 +90,23 @@ function donutChart(sim, nao, talvez, total) {
     });
 
     let badge, badgeColor, badgeBg;
-    if (sim >= 60)      { badge = '🎯 Boa retenção de talentos'; badgeColor = '#2e7d32'; badgeBg = '#e8f5e9'; }
-    else if (sim >= 35) { badge = '📊 Retenção moderada';         badgeColor = '#856404'; badgeBg = '#fff8e1'; }
-    else                { badge = '⚠️ Atenção: baixa retenção';  badgeColor = '#c0392b'; badgeBg = '#fdecea'; }
+    if (sim >= 60) {
+        badge = '🎯 Boa retenção de talentos';
+        badgeColor = dark ? '#86efac' : '#2e7d32';
+        badgeBg    = dark ? '#0f2d14' : '#e8f5e9';
+    } else if (sim >= 35) {
+        badge = '📊 Retenção moderada';
+        badgeColor = dark ? '#fcd34d' : '#856404';
+        badgeBg    = dark ? '#2d2200' : '#fff8e1';
+    } else {
+        badge = '⚠️ Atenção: baixa retenção';
+        badgeColor = dark ? '#f87171' : '#c0392b';
+        badgeBg    = dark ? '#3b1010' : '#fdecea';
+    }
+
+    const ringStroke  = dark ? '#3a3a3a' : '#f0f0f0';
+    const textFill    = dark ? '#e4e4e4' : '#333333';
+    const mutedFill   = dark ? '#9e9e9e' : '#777777';
 
     const legenda = segs.map(s => `
         <div style="display:flex;align-items:flex-start;gap:8px;">
@@ -106,10 +121,10 @@ function donutChart(sim, nao, talvez, total) {
         <div style="display:flex;flex-direction:column;gap:16px;">
             <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
                 <svg width="124" height="124" viewBox="0 0 124 124" style="flex-shrink:0;">
-                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f0f0f0" stroke-width="15"/>
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ringStroke}" stroke-width="15"/>
                     <g transform="rotate(-90 ${cx} ${cy})">${arcos.join('')}</g>
-                    <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="currentColor">${total}</text>
-                    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="currentColor" opacity=".5">respostas</text>
+                    <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="${textFill}">${total}</text>
+                    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="${mutedFill}">respostas</text>
                 </svg>
                 <div style="display:flex;flex-direction:column;gap:12px;flex:1;">${legenda}</div>
             </div>
