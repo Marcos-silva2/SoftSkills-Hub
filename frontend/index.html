@@ -500,12 +500,6 @@
     (function () {
         const splash = document.getElementById('splashScreen');
 
-        // Uma vez por sessão
-        if (sessionStorage.getItem('ssh_splash_shown')) {
-            splash.style.display = 'none';
-            return;
-        }
-
         const grad = document.getElementById('splashGrad');
         const logo = document.getElementById('splashLogo');
         const text = document.getElementById('splashText');
@@ -519,11 +513,7 @@
         gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
         gsap.set(text, { opacity: 0, x: -20 });
 
-        const tl = gsap.timeline({
-            onComplete() {
-                sessionStorage.setItem('ssh_splash_shown', '1');
-            }
-        });
+        const tl = gsap.timeline();
 
         // ① Spin de entrada — logo cresce + rotaciona -135°  (400 ms)
         tl.to(logo, {
