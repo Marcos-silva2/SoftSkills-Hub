@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -39,25 +40,37 @@ logging.config.dictConfig({
 logger = logging.getLogger(__name__)
 
 
+# ─── Migrações ────────────────────────────────────────────────────────────────
+
+def _run_migrations() -> None:
+    from alembic.config import Config
+    from alembic import command
+    from sqlalchemy import inspect as sa_inspect
+
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    alembic_cfg = Config(os.path.join(base_dir, "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", os.path.join(base_dir, "alembic"))
+
+    inspector = sa_inspect(engine)
+    tabelas_existentes = inspector.get_table_names()
+
+    if "alembic_version" not in tabelas_existentes and tabelas_existentes:
+        # Banco pré-Alembic com dados — marca como atual sem re-executar o DDL
+        command.stamp(alembic_cfg, "head")
+        logger.info("banco pré-Alembic marcado como 'head'")
+    else:
+        command.upgrade(alembic_cfg, "head")
+        logger.info("migrações Alembic aplicadas com sucesso")
+
+
 # ─── Startup ──────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("iniciando SoftSkills Hub API")
-    models.Base.metadata.create_all(bind=engine)
+    _run_migrations()
 
     with engine.connect() as conn:
-        for ddl in [
-            "ALTER TABLE aprendizes ADD COLUMN last_enquete_at DATETIME",
-            "ALTER TABLE aprendizes ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0",
-            "ALTER TABLE aprendizes ADD COLUMN last_mural_post_at DATETIME",
-        ]:
-            try:
-                conn.execute(text(ddl))
-                conn.commit()
-            except Exception:
-                pass  # coluna já existe
-
         conn.execute(text("UPDATE aprendizes SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
         conn.execute(text("UPDATE respostas_enquete SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
         conn.commit()
