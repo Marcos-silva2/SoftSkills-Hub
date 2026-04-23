@@ -260,8 +260,15 @@
     <!-- ── TRILHAS ─────────────────────────────────── -->
     <main id="viewTrilhas" class="view">
         <div class="card" style="padding:15px 20px;margin-bottom:5px;">
-            <h3><img src="emoji/conhecimento.png" alt="" style="width:44px;height:44px;vertical-align:middle;margin-right:8px;"> Trilhas de Soft Skills</h3>
-            <p style="margin:0;">Toque em um artigo para expandir e ler.</p>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="margin:0;"><img src="emoji/conhecimento.png" alt="" style="width:36px;height:36px;vertical-align:middle;margin-right:8px;">Trilhas</h3>
+                <button class="btn-surpresa" onclick="surpreendaMe()">🎲 Surpresa</button>
+            </div>
+            <div class="busca-artigos-wrap">
+                <svg class="busca-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input class="busca-artigos" id="buscaArtigos" type="search" placeholder="Buscar por título ou resumo…" oninput="onBuscaArtigos(this)" autocomplete="off" aria-label="Buscar artigos">
+            </div>
+            <p id="totalArtigos" style="font-size:0.74rem;color:var(--muted);margin:8px 0 0;min-height:1em;"></p>
         </div>
         <div class="categoria-filtros">
             <button class="btn-categoria ativo" onclick="filtrarCategoria(this, '')">Todos</button>
@@ -269,9 +276,34 @@
             <button class="btn-categoria" onclick="filtrarCategoria(this, 'comunicacao')">Comunicação</button>
             <button class="btn-categoria" onclick="filtrarCategoria(this, 'postura_profissional')">Postura Prof.</button>
             <button class="btn-categoria" onclick="filtrarCategoria(this, 'saude_mental')">Saúde Mental</button>
+            <button class="btn-filtro-especial btn-categoria" onclick="filtrarEspecial(this, 'favoritos')">❤️ Favoritos</button>
+            <button class="btn-filtro-especial btn-categoria" onclick="filtrarEspecial(this, 'lidos')">✓ Já li</button>
         </div>
         <div id="listaArtigos"><div class="loading">Carregando artigos...</div></div>
     </main>
+
+    <!-- ── MODAL LEITURA ────────────────────────────── -->
+    <div id="modalLeitura" class="modal-leitura" role="dialog" aria-modal="true" aria-labelledby="leituraTitulo">
+        <div class="leitura-progress-bar">
+            <div class="leitura-progress-fill" id="leituraProgressFill"></div>
+        </div>
+        <div class="leitura-header">
+            <button class="leitura-btn-voltar" onclick="fecharLeitura()" aria-label="Voltar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="leitura-acoes">
+                <button id="btnFavLeitura" class="leitura-btn-acao" onclick="toggleFavoritoModal()" aria-label="Favoritar">🤍</button>
+                <button class="leitura-btn-acao" onclick="compartilharArtigoModal()" aria-label="Compartilhar">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+            </div>
+        </div>
+        <div class="leitura-corpo" id="leituraCorpo" onscroll="onScrollLeitura(this)">
+            <div class="leitura-meta-wrap" id="leituraMeta"></div>
+            <h2 id="leituraTitulo" class="leitura-titulo"></h2>
+            <div id="leituraConteudo" class="leitura-markdown"></div>
+        </div>
+    </div>
 
     <!-- ── PERFIL ────────────────────────────────────── -->
     <main id="viewPerfil" class="view">

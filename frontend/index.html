@@ -25,6 +25,26 @@
     </script>
 </head>
 <body>
+
+<!-- ── SPLASH SCREEN ───────────────────────────────────────────── -->
+<div id="splashScreen" aria-hidden="true" style="
+    position:fixed;inset:0;z-index:9999;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+">
+    <div id="splashBg"  style="position:absolute;inset:0;background:#000;"></div>
+    <div id="splashGrad" style="position:absolute;inset:0;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 50%,#1e88e5 100%);opacity:0;"></div>
+    <div id="splashContent" style="position:relative;display:flex;align-items:center;justify-content:center;">
+        <img id="splashLogo" src="emoji/Logo.png" alt="" style="width:130px;height:130px;object-fit:contain;will-change:transform;">
+        <span id="splashText" style="
+            font-family:'Inter',sans-serif;font-size:1.65rem;font-weight:700;
+            color:#fff;white-space:nowrap;opacity:0;margin-left:14px;
+            will-change:transform,opacity;
+        ">SoftSkills Hub</span>
+    </div>
+</div>
+<!-- ─────────────────────────────────────────────────────────────── -->
+
 <div id="meshBg" aria-hidden="true">
     <div class="mesh-blob blob-1"></div>
     <div class="mesh-blob blob-2"></div>
@@ -474,6 +494,81 @@
 
         resize(); initDots(); draw();
         window.addEventListener('resize', () => { resize(); initDots(); });
+    })();
+</script>
+<script>
+    (function () {
+        const splash = document.getElementById('splashScreen');
+
+        // Uma vez por sessão
+        if (sessionStorage.getItem('ssh_splash_shown')) {
+            splash.style.display = 'none';
+            return;
+        }
+
+        const grad = document.getElementById('splashGrad');
+        const logo = document.getElementById('splashLogo');
+        const text = document.getElementById('splashText');
+
+        // Duração do spring em segundos convertida de ms
+        // Figma: duration 400ms, stiffness 400, damping 30  → elastic.out(1.1, 0.22)
+        // Figma: duration 1550ms fase final                  → elastic.out(1, 0.4)
+        const springSnap  = 'elastic.out(1.1, 0.22)';
+        const springReveal = 'elastic.out(1, 0.4)';
+
+        gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
+        gsap.set(text, { opacity: 0, x: -20 });
+
+        const tl = gsap.timeline({
+            onComplete() {
+                sessionStorage.setItem('ssh_splash_shown', '1');
+            }
+        });
+
+        // ① Spin de entrada — logo cresce + rotaciona -135°  (400 ms)
+        tl.to(logo, {
+            scale: 1.18,
+            rotation: -135,
+            duration: 0.4,
+            ease: 'power2.in'
+        });
+
+        // ② Estabilização com spring — volta ao tamanho e 0°  (~800 ms = spring 400ms)
+        tl.to(logo, {
+            scale: 1,
+            rotation: 0,
+            duration: 0.8,
+            ease: springSnap
+        });
+
+        // ③ Revelação — gradiente + logo desliza esq. + texto entra  (1550 ms)
+        tl.to(grad, {
+            opacity: 1,
+            duration: 1.55,
+            ease: 'power2.out'
+        }, '+=0.12');
+
+        tl.to(logo, {
+            x: -55,
+            duration: 1.55,
+            ease: springReveal
+        }, '<');
+
+        tl.to(text, {
+            x: 0,
+            opacity: 1,
+            duration: 1.55,
+            ease: springReveal
+        }, '<0.04');
+
+        // ④ Espera e dissolve
+        tl.to(splash, {
+            opacity: 0,
+            duration: 0.55,
+            delay: 0.75,
+            ease: 'power2.in',
+            onComplete() { splash.style.display = 'none'; }
+        });
     })();
 </script>
 <script>
