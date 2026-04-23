@@ -83,39 +83,67 @@
             const springSnap   = 'elastic.out(1.1, 0.22)';
             const springReveal = 'elastic.out(1, 0.4)';
 
-            gsap.set(logo,     { scale: 1, rotation: 0, x: 0 });
-            gsap.set(textWrap, { opacity: 0, x: -22 });
-            gsap.set(tagline,  { opacity: 0, y: 8 });
+            // Wrap cada char da tagline em <span> para stagger individual
+            const rawText = tagline.textContent;
+            tagline.innerHTML = rawText.split('').map(c =>
+                `<span style="display:inline-block">${c === ' ' ? '&nbsp;' : c}</span>`
+            ).join('');
+            const chars = tagline.querySelectorAll('span');
+
+            // Anel de 8 partículas criadas dinamicamente no centro da tela
+            const N = 8;
+            const particles = Array.from({ length: N }, () => {
+                const p = document.createElement('div');
+                p.style.cssText = 'position:absolute;width:5px;height:5px;border-radius:50%;background:#fff;top:50%;left:50%;pointer-events:none;';
+                splash.appendChild(p);
+                return p;
+            });
+
+            // Estados iniciais
+            gsap.set(logo,      { transformPerspective: 600, scale: 0.3, rotationY: -180, opacity: 0, x: 0 });
+            gsap.set(textWrap,  { opacity: 1, clipPath: 'inset(0 100% 0 0)' });
+            gsap.set(tagline,   { opacity: 0 });
+            gsap.set(chars,     { opacity: 0, y: 10 });
+            gsap.set(particles, { xPercent: -50, yPercent: -50, x: 0, y: -20, opacity: 0, scale: 0 });
+
+            function burstParticles() {
+                particles.forEach((p, i) => {
+                    const angle = (i / N) * Math.PI * 2;
+                    const r = 80;
+                    gsap.fromTo(p,
+                        { xPercent: -50, yPercent: -50, x: 0, y: -20, opacity: 0.85, scale: 1 },
+                        { xPercent: -50, yPercent: -50,
+                          x: Math.cos(angle) * r, y: -20 + Math.sin(angle) * r,
+                          opacity: 0, scale: 0.3, duration: 0.65, ease: 'power2.out' }
+                    );
+                });
+            }
 
             gsap.timeline()
-                // ① Spin de entrada
-                .to(logo, { scale: 1.18, rotation: -135, duration: 0.4, ease: 'power2.in' })
+                // ① Flip 3D de entrada
+                .to(logo, { scale: 1, rotationY: 0, opacity: 1, duration: 0.55, ease: 'back.out(1.7)' })
+                .to(logo, { scale: 1.07, duration: 0.1, ease: 'power1.out' })
+                .to(logo, { scale: 1, duration: 0.3, ease: springSnap })
 
-                // ② Estabilização + brilho radial
-                .to(logo, { scale: 1, rotation: 0, duration: 0.8, ease: springSnap })
-                .to(glow, { scale: 2.6, opacity: 1, duration: 0.18, ease: 'power1.out' }, '-=0.55')
+                // ② Brilho radial + burst de partículas
+                .to(glow, { scale: 2.6, opacity: 1, duration: 0.18, ease: 'power1.out' }, '-=0.28')
                 .to(glow, { scale: 3.5, opacity: 0, duration: 0.38, ease: 'power2.out' }, '-=0.18')
+                .call(burstParticles, [], '-=0.5')
 
-                // ③ Revelação — gradiente + logo esq. + texto com shimmer
-                .to(grad,     { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.1')
-                .to(logo,     { x: -55, duration: 1.55, ease: springReveal }, '<')
-                .to(textWrap, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
+                // ③ Revelação — gradiente + slide logo + wipe clip-path do texto
+                .to(grad,     { opacity: 1, duration: 1.2, ease: 'power2.out' }, '+=0.12')
+                .to(logo,     { x: -55, duration: 1.2, ease: springReveal }, '<')
+                .to(textWrap, { clipPath: 'inset(0 0% 0 0)', duration: 0.65, ease: 'power3.out' }, '<0.08')
+                .to(shimmer,  { backgroundPosition: '-200% 0', duration: 0.5, ease: 'power1.inOut' }, '-=0.48')
 
-                // shimmer varre o texto após ele aparecer
-                .to(shimmer, {
-                    backgroundPosition: '-200% 0', duration: 0.6, ease: 'power1.inOut'
-                }, '-=0.7')
+                // Tagline: revela container + stagger por char
+                .to(tagline, { opacity: 1, duration: 0.01 }, '-=0.35')
+                .to(chars,   { opacity: 1, y: 0, duration: 0.03, stagger: 0.018, ease: 'power2.out' }, '<')
 
-                // tagline desliza para cima
-                .to(tagline, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, '-=0.4')
-
-                // ④ Dissolve com blur + scale
+                // ④ Dissolve limpo — sem blur, leve scale para baixo
                 .to(splash, {
-                    opacity: 0,
-                    filter: 'blur(8px)',
-                    scale: 1.04,
-                    duration: 0.6,
-                    delay: 0.8,
+                    opacity: 0, scale: 0.97,
+                    duration: 0.5, delay: 0.65,
                     ease: 'power2.in',
                     onComplete() { splash.style.display = 'none'; }
                 });
