@@ -44,6 +44,35 @@
     </div>
 </div>
 <!-- ─────────────────────────────────────────────────────────────── -->
+<script>
+    (function () {
+        const splash = document.getElementById('splashScreen');
+        const grad   = document.getElementById('splashGrad');
+        const logo   = document.getElementById('splashLogo');
+        const text   = document.getElementById('splashText');
+
+        const springSnap   = 'elastic.out(1.1, 0.22)';
+        const springReveal = 'elastic.out(1, 0.4)';
+
+        gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
+        gsap.set(text, { opacity: 0, x: -20 });
+
+        gsap.timeline()
+            // ① Spin de entrada
+            .to(logo, { scale: 1.18, rotation: -135, duration: 0.4, ease: 'power2.in' })
+            // ② Estabilização com spring
+            .to(logo, { scale: 1, rotation: 0, duration: 0.8, ease: springSnap })
+            // ③ Revelação — gradiente + logo esq. + texto entra
+            .to(grad, { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.12')
+            .to(logo, { x: -55, duration: 1.55, ease: springReveal }, '<')
+            .to(text, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
+            // ④ Dissolve final
+            .to(splash, {
+                opacity: 0, duration: 0.55, delay: 0.75, ease: 'power2.in',
+                onComplete() { splash.style.display = 'none'; }
+            });
+    })();
+</script>
 
 <div id="meshBg" aria-hidden="true">
     <div class="mesh-blob blob-1"></div>
@@ -494,71 +523,6 @@
 
         resize(); initDots(); draw();
         window.addEventListener('resize', () => { resize(); initDots(); });
-    })();
-</script>
-<script>
-    (function () {
-        const splash = document.getElementById('splashScreen');
-
-        const grad = document.getElementById('splashGrad');
-        const logo = document.getElementById('splashLogo');
-        const text = document.getElementById('splashText');
-
-        // Duração do spring em segundos convertida de ms
-        // Figma: duration 400ms, stiffness 400, damping 30  → elastic.out(1.1, 0.22)
-        // Figma: duration 1550ms fase final                  → elastic.out(1, 0.4)
-        const springSnap  = 'elastic.out(1.1, 0.22)';
-        const springReveal = 'elastic.out(1, 0.4)';
-
-        gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
-        gsap.set(text, { opacity: 0, x: -20 });
-
-        const tl = gsap.timeline();
-
-        // ① Spin de entrada — logo cresce + rotaciona -135°  (400 ms)
-        tl.to(logo, {
-            scale: 1.18,
-            rotation: -135,
-            duration: 0.4,
-            ease: 'power2.in'
-        });
-
-        // ② Estabilização com spring — volta ao tamanho e 0°  (~800 ms = spring 400ms)
-        tl.to(logo, {
-            scale: 1,
-            rotation: 0,
-            duration: 0.8,
-            ease: springSnap
-        });
-
-        // ③ Revelação — gradiente + logo desliza esq. + texto entra  (1550 ms)
-        tl.to(grad, {
-            opacity: 1,
-            duration: 1.55,
-            ease: 'power2.out'
-        }, '+=0.12');
-
-        tl.to(logo, {
-            x: -55,
-            duration: 1.55,
-            ease: springReveal
-        }, '<');
-
-        tl.to(text, {
-            x: 0,
-            opacity: 1,
-            duration: 1.55,
-            ease: springReveal
-        }, '<0.04');
-
-        // ④ Espera e dissolve
-        tl.to(splash, {
-            opacity: 0,
-            duration: 0.55,
-            delay: 0.75,
-            ease: 'power2.in',
-            onComplete() { splash.style.display = 'none'; }
-        });
     })();
 </script>
 <script>
