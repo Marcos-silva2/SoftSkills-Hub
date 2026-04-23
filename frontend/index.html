@@ -51,26 +51,52 @@
         const logo   = document.getElementById('splashLogo');
         const text   = document.getElementById('splashText');
 
-        const springSnap   = 'elastic.out(1.1, 0.22)';
-        const springReveal = 'elastic.out(1, 0.4)';
+        function runAnimation() {
+            const springSnap   = 'elastic.out(1.1, 0.22)';
+            const springReveal = 'elastic.out(1, 0.4)';
 
-        gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
-        gsap.set(text, { opacity: 0, x: -20 });
+            gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
+            gsap.set(text, { opacity: 0, x: -20 });
 
-        gsap.timeline()
-            // ① Spin de entrada
-            .to(logo, { scale: 1.18, rotation: -135, duration: 0.4, ease: 'power2.in' })
-            // ② Estabilização com spring
-            .to(logo, { scale: 1, rotation: 0, duration: 0.8, ease: springSnap })
-            // ③ Revelação — gradiente + logo esq. + texto entra
-            .to(grad, { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.12')
-            .to(logo, { x: -55, duration: 1.55, ease: springReveal }, '<')
-            .to(text, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
-            // ④ Dissolve final
-            .to(splash, {
-                opacity: 0, duration: 0.55, delay: 0.75, ease: 'power2.in',
-                onComplete() { splash.style.display = 'none'; }
-            });
+            gsap.timeline()
+                .to(logo, { scale: 1.18, rotation: -135, duration: 0.4, ease: 'power2.in' })
+                .to(logo, { scale: 1, rotation: 0, duration: 0.8, ease: springSnap })
+                .to(grad, { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.12')
+                .to(logo, { x: -55, duration: 1.55, ease: springReveal }, '<')
+                .to(text, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
+                .to(splash, {
+                    opacity: 0, duration: 0.55, delay: 0.75, ease: 'power2.in',
+                    onComplete() { splash.style.display = 'none'; }
+                });
+        }
+
+        function fallback() {
+            // GSAP indisponível: exibe splash com CSS e fecha após 2.5s
+            grad.style.transition = 'opacity 1s';
+            grad.style.opacity = '1';
+            splash.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                setTimeout(() => { splash.style.display = 'none'; }, 500);
+            }, 2500);
+        }
+
+        if (typeof gsap !== 'undefined') {
+            runAnimation();
+        } else {
+            // Aguarda o GSAP terminar de carregar (até 3s)
+            var waited = 0;
+            var check = setInterval(function () {
+                waited += 50;
+                if (typeof gsap !== 'undefined') {
+                    clearInterval(check);
+                    runAnimation();
+                } else if (waited >= 3000) {
+                    clearInterval(check);
+                    fallback();
+                }
+            }, 50);
+        }
     })();
 </script>
 
