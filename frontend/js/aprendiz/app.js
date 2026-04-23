@@ -101,7 +101,8 @@ function navegarApp(id) {
     setTimeout(() => atualizarNavPill(document.getElementById('navInicio'), false), 200);
     iniciarPullToRefresh(done => {
         const v = document.querySelector('.view.active');
-        if (v) navegarApp(v.id);
+        if (v?.id === 'viewTrilhas') carregarArtigos(true);
+        else if (v) navegarApp(v.id);
         setTimeout(done, 900);
     });
 })();

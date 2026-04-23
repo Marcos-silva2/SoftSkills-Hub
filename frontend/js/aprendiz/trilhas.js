@@ -102,14 +102,21 @@ function _renderLista() {
 }
 
 // ── Carregamento ───────────────────────────────────────────
-async function carregarArtigos() {
+async function carregarArtigos(forcar = false) {
+    if (_artigos.length && !forcar) { _renderLista(); return; }
     const lista = document.getElementById('listaArtigos');
     lista.innerHTML = skeletonArtigo(3);
     try {
         _artigos = await apiFetch('/artigos');
         _renderLista();
     } catch {
-        lista.innerHTML = '<div class="loading">Erro ao carregar artigos.</div>';
+        lista.innerHTML = `
+            <div style="text-align:center;padding:36px 20px;">
+                <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px;">
+                    Não foi possível carregar os artigos.<br>Verifique sua conexão e tente novamente.
+                </p>
+                <button class="btn btn-verde" onclick="carregarArtigos(true)">↺ Tentar novamente</button>
+            </div>`;
     }
 }
 
@@ -187,7 +194,10 @@ function abrirLeitura(id) {
         `<span class="tag">${escapeHtml(categoriaLabel[a.categoria] || a.categoria)}</span>
          <span class="tag tag-cinza">⏱ ${_tempoLeitura(a)} min</span>`;
     document.getElementById('leituraTitulo').textContent = a.titulo;
-    document.getElementById('leituraConteudo').innerHTML = marked.parse(a.conteudo);
+    document.getElementById('leituraConteudo').innerHTML = typeof marked !== 'undefined'
+        ? marked.parse(a.conteudo)
+        : '<pre style="white-space:pre-wrap;font-family:inherit;font-size:0.93rem;line-height:1.85;">'
+          + escapeHtml(a.conteudo) + '</pre>';
 
     const corpo = document.getElementById('leituraCorpo');
     corpo.scrollTop = 0;
