@@ -50,7 +50,7 @@ def postar_mensagem(
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
 
-    verificar_rate_limit(aprendiz.id)
+    verificar_rate_limit(aprendiz, db)
     msg = models.MensagemMural(conteudo=conteudo_limpo)
     db.add(msg)
     db.commit()

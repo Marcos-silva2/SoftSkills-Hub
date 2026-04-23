@@ -156,6 +156,7 @@ async function exportarCSV() {
 async function carregarResumo() {
     document.getElementById('kpiGrid').innerHTML = skeletonKpi(4);
     document.getElementById('cardEfetivacao').style.display = 'none';
+    document.getElementById('cardAvaliacoes').style.display = 'none';
 
     try {
         const q = filtrosQuery();
@@ -188,6 +189,26 @@ async function carregarResumo() {
         document.querySelectorAll('#kpiGrid .valor[data-alvo]').forEach(el => {
             animarContagem(el, +el.dataset.alvo, el.dataset.sufixo, +el.dataset.decimais, 800);
         });
+
+        if (resumo.top_positivos?.length || resumo.top_negativos?.length) {
+            const _avalRow = (item, cor) =>
+                `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <div style="flex:1;font-size:0.82rem;color:var(--texto);">${item.valor.replace(/_/g,' ')}</div>
+                    <div style="font-size:0.8rem;font-weight:600;color:${cor};">${item.total}</div>
+                </div>`;
+            const posHtml = (resumo.top_positivos || []).map(i => _avalRow(i,'#27ae60')).join('');
+            const negHtml = (resumo.top_negativos || []).map(i => _avalRow(i,'#e74c3c')).join('');
+            document.getElementById('gridAvaliacoes').innerHTML = `
+                <div>
+                    <p style="font-size:0.75rem;font-weight:600;color:#27ae60;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">✅ Pontos Positivos</p>
+                    ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
+                </div>
+                <div>
+                    <p style="font-size:0.75rem;font-weight:600;color:#e74c3c;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">❌ Pontos Negativos</p>
+                    ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
+                </div>`;
+            document.getElementById('cardAvaliacoes').style.display = 'block';
+        }
 
         if (efetivacao.length > 0) {
             let sim = 0, nao = 0, talvez = 0, total = 0;

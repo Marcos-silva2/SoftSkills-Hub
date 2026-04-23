@@ -81,6 +81,13 @@ function navegarApp(id) {
             document.getElementById('saudacao').textContent = `Olá, ${perfil.username}!`;
             atualizarCardEnquete(perfil.last_enquete_at);
             _isAdmin = perfil.is_admin === true;
+
+            fetch(`${API}/auth/aprendiz/refresh`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` },
+            }).then(r => r.ok ? r.json() : null).then(d => {
+                if (d?.access_token) localStorage.setItem('ssh_token', d.access_token);
+            }).catch(() => {});
         }
     } catch (e) {
         console.warn('[init] servidor offline ou erro de rede:', e.message);
@@ -90,6 +97,7 @@ function navegarApp(id) {
 
     iniciarRipple();
     iniciarPressAnimation();
+    initOfflineIndicator();
     setTimeout(() => atualizarNavPill(document.getElementById('navInicio'), false), 200);
     iniciarPullToRefresh(done => {
         const v = document.querySelector('.view.active');

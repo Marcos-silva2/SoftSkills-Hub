@@ -219,6 +219,27 @@ function iniciarPullToRefresh(onRefresh) {
     });
 }
 
+function initOfflineIndicator() {
+    const banner = document.createElement('div');
+    banner.id = 'offlineBanner';
+    banner.className = 'offline-banner';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+    banner.textContent = '⚠️ Sem conexão — você está offline';
+    document.body.appendChild(banner);
+
+    function atualizar() {
+        banner.classList.toggle('visivel', !navigator.onLine);
+        if (navigator.onLine) {
+            mostrarToast('Conexão restaurada!', 'sucesso', 2500);
+        }
+    }
+
+    window.addEventListener('online', atualizar);
+    window.addEventListener('offline', () => banner.classList.add('visivel'));
+    if (!navigator.onLine) banner.classList.add('visivel');
+}
+
 function emptyState(svgInner, titulo, sub = '') {
     return `<div class="estado-vazio">
         <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${svgInner}</svg>

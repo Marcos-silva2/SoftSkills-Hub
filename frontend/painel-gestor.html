@@ -68,6 +68,11 @@
             <h3>✅ Desejo de Efetivação</h3>
             <div id="barrasEfetivacao"></div>
         </div>
+
+        <div class="card" id="cardAvaliacoes" style="display:none;">
+            <h3>📋 Top Avaliações</h3>
+            <div id="gridAvaliacoes" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px;"></div>
+        </div>
     </main>
 
     <!-- ── PROBLEMAS ────────────────────────────────── -->
@@ -241,7 +246,7 @@
         </div>
     </div>
 
-    <nav class="bottom-nav" style="position:relative;">
+    <nav class="bottom-nav">
         <span id="navPill" class="nav-pill"></span>
         <button id="navResumo"       class="nav-item active" aria-label="Resumo geral"          onclick="navegarApp('viewResumo')">   <i data-lucide="bar-chart-2"></i><span>Resumo</span></button>
         <button id="navProblemas"    class="nav-item"        aria-label="Ranking de problemas"   onclick="navegarApp('viewProblemas')"><i data-lucide="alert-triangle"></i><span>Problemas</span></button>

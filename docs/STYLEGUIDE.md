@@ -745,6 +745,24 @@ function atualizarContadorMural() {
 
 ---
 
+### Pills da enquete — comportamento exclusivo do "nenhum"
+
+Cada grupo de pills (`p1`, `positivos`, `negativos`) tem um valor exclusivo que se comporta como "nenhum dos acima":
+
+| Grupo       | Valor exclusivo |
+|-------------|-----------------|
+| `p1`        | `nenhum`        |
+| `positivos` | `nenhum_pos`    |
+| `negativos` | `nenhum_neg`    |
+
+**Regras:**
+- Selecionar o exclusivo → desmarca e limpa todos os outros do grupo
+- Selecionar qualquer outro → desmarca o exclusivo se estiver ativo
+
+`nenhum_pos` e `nenhum_neg` são filtrados do payload antes do POST (`enquete.js`) — nunca chegam ao backend. `nenhum` é enviado mas filtrado dos rankings no backend (`WHERE problema != 'nenhum'`).
+
+---
+
 ### Checkbox e Radio (enquete)
 
 ```css
@@ -1197,25 +1215,37 @@ async function apagarMensagem(id, btn) {
 ### apiFetch — wrapper autenticado
 
 ```javascript
+// Limpa tokens e redireciona para o login com aviso de sessão expirada.
+function _expirarSessao() {
+    localStorage.removeItem('ssh_token');
+    localStorage.removeItem('ssh_token_gestor');
+    window.location.href = 'index.html?sessao=expirada';
+}
+
 async function apiFetch(path, opts = {}) {
-    const token = localStorage.getItem('ssh_token'); // ou ssh_token_gestor
-    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+    const headers = { 'Content-Type': 'application/json', ...opts.headers };
+    const token = getToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
     let res;
     try {
         res = await fetch(API + path, { ...opts, headers });
     } catch {
-        throw new Error('Servidor não encontrado. Verifique se o backend está rodando.');
+        throw new Error(`Servidor não encontrado em ${API}. Verifique se o backend está rodando.`);
     }
+    // 401 → sessão expirada: limpa tokens e redireciona automaticamente
+    if (res.status === 401) { _expirarSessao(); throw new Error('Sessão expirada.'); }
     if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        const err = await res.json().catch(() => ({ detail: 'Erro de comunicação com o servidor.' }));
         const detail = Array.isArray(err.detail)
-            ? err.detail.map(e => e.msg).join(' | ')
-            : (err.detail || `Erro ${res.status}`);
+            ? err.detail.map(e => e.msg || JSON.stringify(e)).join(' | ')
+            : (err.detail || 'Erro desconhecido');
         throw new Error(detail);
     }
     return res.json();
 }
 ```
+
+A tela de login (`index.html`) detecta `?sessao=expirada` na URL e exibe um toast vermelho: _"Sua sessão expirou. Faça login novamente."_
 
 ### Formatação de data relativa (Mural)
 

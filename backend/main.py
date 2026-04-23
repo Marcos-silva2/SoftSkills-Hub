@@ -50,6 +50,7 @@ async def lifespan(app: FastAPI):
         for ddl in [
             "ALTER TABLE aprendizes ADD COLUMN last_enquete_at DATETIME",
             "ALTER TABLE aprendizes ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0",
+            "ALTER TABLE aprendizes ADD COLUMN last_mural_post_at DATETIME",
         ]:
             try:
                 conn.execute(text(ddl))

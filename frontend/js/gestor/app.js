@@ -60,6 +60,13 @@ function navegarApp(id) {
             const nome = perfil.nome || perfil.username || nomeLocal;
             localStorage.setItem('ssh_gestor', nome);
             document.getElementById('saudacaoGestor').textContent = `Olá, ${nome}!`;
+
+            fetch(`${API}/auth/gestor/refresh`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${getToken()}` },
+            }).then(r => r.ok ? r.json() : null).then(d => {
+                if (d?.access_token) localStorage.setItem('ssh_token_gestor', d.access_token);
+            }).catch(() => {});
         }
     } catch (e) {
         console.warn('[gestor init] servidor offline ou erro de rede:', e.message);
@@ -71,6 +78,7 @@ function navegarApp(id) {
 
     iniciarRipple();
     iniciarPressAnimation();
+    initOfflineIndicator();
     setTimeout(() => atualizarNavPill(document.getElementById('navResumo'), false), 200);
     iniciarPullToRefresh(done => {
         const v = document.querySelector('.view.active');

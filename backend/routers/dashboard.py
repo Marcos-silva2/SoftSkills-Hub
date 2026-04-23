@@ -50,12 +50,35 @@ def dashboard_resumo(
 
     total = agg.total or 0
     if total == 0:
-        return {"total_respostas": 0, "media_satisfacao": 0.0, "perc_quer_efetivacao": 0.0}
+        return {
+            "total_respostas": 0, "media_satisfacao": 0.0, "perc_quer_efetivacao": 0.0,
+            "top_positivos": [], "top_negativos": [],
+        }
+
+    def _top_avaliacoes(tipo: str):
+        q = (
+            db.query(models.RespostaAvaliacao.valor, func.count().label("total"))
+            .join(models.RespostaEnquete)
+            .filter(models.RespostaAvaliacao.tipo == tipo)
+        )
+        if empresa_id:
+            q = q.filter(models.RespostaEnquete.empresa_id == empresa_id)
+        if genero:
+            q = q.filter(models.RespostaEnquete.genero == genero)
+        if faixa_etaria:
+            q = q.filter(models.RespostaEnquete.faixa_etaria == faixa_etaria)
+        q = filtrar_ano(q, ano)
+        return [
+            {"valor": r.valor, "total": r.total}
+            for r in q.group_by(models.RespostaAvaliacao.valor).order_by(func.count().desc()).limit(3).all()
+        ]
 
     return {
         "total_respostas": total,
         "media_satisfacao": round(agg.media, 2),
         "perc_quer_efetivacao": round((agg.qtd_sim / total) * 100, 1),
+        "top_positivos": _top_avaliacoes("positivo"),
+        "top_negativos": _top_avaliacoes("negativo"),
     }
 
 
@@ -78,6 +101,7 @@ def dashboard_problemas(
             func.count(models.RespostaProblema.problema).label("total"),
         )
         .join(models.RespostaEnquete)
+        .filter(models.RespostaProblema.problema != "nenhum")
     )
     if empresa_id:
         query = query.filter(models.RespostaEnquete.empresa_id == empresa_id)
@@ -235,7 +259,10 @@ def detalhe_empresa(
     problemas = (
         db.query(models.RespostaProblema.problema, func.count().label("total"))
         .join(models.RespostaEnquete)
-        .filter(models.RespostaEnquete.empresa_id == empresa_id)
+        .filter(
+            models.RespostaEnquete.empresa_id == empresa_id,
+            models.RespostaProblema.problema != "nenhum",
+        )
         .group_by(models.RespostaProblema.problema)
         .order_by(func.count().desc())
         .all()

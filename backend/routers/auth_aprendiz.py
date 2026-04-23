@@ -83,6 +83,12 @@ def atualizar_perfil(
     return {"mensagem": "Perfil atualizado com sucesso"}
 
 
+@router.post("/refresh", response_model=schemas.Token, summary="Renova o JWT do aprendiz (token ainda válido)")
+def refresh_aprendiz(aprendiz: models.Aprendiz = Depends(get_aprendiz_atual)):
+    token = auth.criar_token({"sub": str(aprendiz.id), "tipo": "aprendiz"})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 @router.get("/me", response_model=schemas.AprendizOut, summary="Retorna dados do aprendiz autenticado")
 def perfil_aprendiz(aprendiz: models.Aprendiz = Depends(get_aprendiz_atual)):
     return aprendiz

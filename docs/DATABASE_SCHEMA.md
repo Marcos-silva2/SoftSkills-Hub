@@ -34,8 +34,9 @@ Usuários do tipo aprendiz. Autenticados via JWT (tipo `"aprendiz"`).
 | `genero`          | VARCHAR(30)  | NOT NULL — `feminino \| masculino \| prefiro_nao_dizer`         |
 | `empresa_id`      | INTEGER      | NOT NULL, FK → `empresas.id`                                    |
 | `created_at`      | DATETIME     | default: `datetime.now(UTC)`                                    |
-| `last_enquete_at` | DATETIME     | nullable — registra quando o aprendiz enviou a última enquete   |
-| `is_admin`        | BOOLEAN      | NOT NULL, default `0` — indica conta com permissão de admin     |
+| `last_enquete_at`    | DATETIME  | nullable — registra quando o aprendiz enviou a última enquete   |
+| `last_mural_post_at` | DATETIME  | nullable — registra quando o aprendiz fez o último post no mural (rate limit persistido) |
+| `is_admin`           | BOOLEAN   | NOT NULL, default `0` — indica conta com permissão de admin     |
 
 **Relacionamentos:**
 - `empresa` → muitos-para-um com `empresas`
@@ -163,6 +164,7 @@ Cada linha representa um item marcado na Pergunta 2 ("Avalie pontos da empresa")
 | `lideranca_apoio`  | Liderança que apoia          |
 | `beneficios`       | Bons benefícios              |
 | `flexibilidade`    | Flexibilidade de horários    |
+| `nenhum_pos`       | Nenhum ponto positivo        |
 
 **Valores para `tipo = "negativo"`** (validados pelo conjunto `_NEGATIVOS_VALIDOS`):
 
@@ -173,6 +175,9 @@ Cada linha representa um item marcado na Pergunta 2 ("Avalie pontos da empresa")
 | `clima_tenso`          | Clima de trabalho tenso         |
 | `falta_reconhecimento` | Falta de reconhecimento         |
 | `distancia_lideranca`  | Liderança distante              |
+| `nenhum_neg`           | Nenhum ponto negativo           |
+
+> `nenhum_pos` e `nenhum_neg` são aceitos pelo validador mas **filtrados no frontend antes do POST** — nunca chegam a ser gravados no banco. Existem apenas para que o aprendiz possa indicar explicitamente que não tem pontos positivos/negativos sem travar a validação.
 
 ---
 
@@ -253,11 +258,13 @@ Os valores aceitos para os checkboxes da enquete são definidos como conjuntos P
 
 ```python
 _PROBLEMAS_VALIDOS = {"assedio_moral", "favorecimento", ..., "nenhum"}
-_POSITIVOS_VALIDOS = {"aprendizado", "clima_bom", "lideranca_apoio", "beneficios", "flexibilidade"}
-_NEGATIVOS_VALIDOS = {"comunicacao_ruim", "desorganizacao", "clima_tenso", "falta_reconhecimento", "distancia_lideranca"}
+_POSITIVOS_VALIDOS = {"aprendizado", "clima_bom", "lideranca_apoio", "beneficios", "flexibilidade", "nenhum_pos"}
+_NEGATIVOS_VALIDOS = {"comunicacao_ruim", "desorganizacao", "clima_tenso", "falta_reconhecimento", "distancia_lideranca", "nenhum_neg"}
 ```
 
 Qualquer valor fora dessas listas retorna HTTP 422 com a lista dos itens inválidos.
+
+> **Nota:** `nenhum_pos` e `nenhum_neg` são válidos no backend mas filtrados pelo frontend antes de enviar (ver `enquete.js`). O valor `nenhum` de problemas é aceito e gravado, mas **excluído dos rankings** (`/dashboard/problemas` e detalhe por empresa) via `WHERE problema != 'nenhum'`.
 
 ### Faixa etária vs. idade exata
 

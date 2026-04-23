@@ -34,13 +34,34 @@ function atualizarCardEnquete(lastEnqueteAt) {
     }
 }
 
+const _EXCLUSIVOS = { p1: 'nenhum', positivos: 'nenhum_pos', negativos: 'nenhum_neg' };
+
+function _desselecionarPill(container, val) {
+    const btn = container.querySelector(`[data-value="${val}"]`);
+    if (btn) { btn.classList.remove('pill-selecionada'); }
+}
+
 function togglePill(btn, grupo) {
     const val = btn.dataset.value;
+    const exclusivo = _EXCLUSIVOS[grupo];
+
     if (_selecionados[grupo].has(val)) {
         _selecionados[grupo].delete(val);
         btn.classList.remove('pill-selecionada');
         if (typeof gsap !== 'undefined') gsap.to(btn, { scale: 0.94, duration: 0.08, yoyo: true, repeat: 1 });
     } else {
+        if (val === exclusivo) {
+            // "Nenhum" selecionado — limpa todos os outros
+            _selecionados[grupo].forEach(v => {
+                const el = btn.closest('.pill-group, .wizard-passo').querySelector(`[data-value="${v}"]`);
+                if (el) el.classList.remove('pill-selecionada');
+            });
+            _selecionados[grupo].clear();
+        } else if (_selecionados[grupo].has(exclusivo)) {
+            // Outro item selecionado — remove o "nenhum"
+            _selecionados[grupo].delete(exclusivo);
+            _desselecionarPill(btn.closest('.wizard-passo') || document, exclusivo);
+        }
         _selecionados[grupo].add(val);
         btn.classList.add('pill-selecionada');
         if (typeof gsap !== 'undefined') gsap.fromTo(btn, { scale: 0.9 }, { scale: 1, duration: 0.35, ease: 'elastic.out(1, 0.5)' });
@@ -166,9 +187,9 @@ async function enviarEnquete() {
         await apiFetch('/enquete/responder', {
             method: 'POST',
             body: JSON.stringify({
-                problemas:         [..._selecionados.p1],
-                pontos_positivos:  [..._selecionados.positivos],
-                pontos_negativos:  [..._selecionados.negativos],
+                problemas:         [..._selecionados.p1].filter(v => v !== 'nenhum'),
+                pontos_positivos:  [..._selecionados.positivos].filter(v => v !== 'nenhum_pos'),
+                pontos_negativos:  [..._selecionados.negativos].filter(v => v !== 'nenhum_neg'),
                 desejo_efetivacao: _efetivacao,
                 nota_satisfacao:   notaSelecionada,
             }),

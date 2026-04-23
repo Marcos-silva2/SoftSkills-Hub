@@ -47,6 +47,12 @@ def atualizar_perfil(
     return {"mensagem": "Perfil atualizado com sucesso"}
 
 
+@router.post("/refresh", response_model=schemas.Token, summary="Renova o JWT do gestor (token ainda válido)")
+def refresh_gestor(gestor: models.Gestor = Depends(get_gestor_atual)):
+    token = auth.criar_token({"sub": str(gestor.id), "tipo": "gestor"})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 @router.get("/me", summary="Valida token do gestor e retorna seus dados")
 def perfil_gestor(gestor: models.Gestor = Depends(get_gestor_atual)):
     return {"id": gestor.id, "username": gestor.username, "nome": gestor.nome}

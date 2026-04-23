@@ -1,7 +1,7 @@
 # SoftSkills Hub — Contexto e Memória do Projeto
 
 > Documento de referência para todas as sessões de desenvolvimento.
-> Atualizado em: 2026-04-20
+> Atualizado em: 2026-04-23 (sessão 2)
 
 ---
 
@@ -111,21 +111,23 @@ uvicorn main:app --reload
 | GET | `/empresas` | Público | Lista as 61 empresas |
 | POST | `/auth/aprendiz/register` | Público | Cadastro do aprendiz |
 | POST | `/auth/aprendiz/login` | Público | Login (form-urlencoded) → JWT |
+| POST | `/auth/aprendiz/refresh` | Aprendiz | Renova o JWT (token válido → novo token) |
 | GET | `/auth/aprendiz/me` | Aprendiz | Perfil do usuário logado (inclui `is_admin`) |
 | PUT | `/auth/aprendiz/perfil` | Aprendiz | Altera username e/ou senha |
 | POST | `/auth/gestor/login` | Público | Login gestor (JSON) → JWT |
+| POST | `/auth/gestor/refresh` | Gestor | Renova o JWT do gestor |
 | GET | `/auth/gestor/me` | Gestor | Valida token e retorna dados do gestor |
 | PUT | `/auth/gestor/perfil` | Gestor | Altera nome de exibição e/ou senha |
 | POST | `/enquete/responder` | Aprendiz | Envia respostas anônimas (cooldown 7 dias) |
-| GET | `/mural` | Público | Lista últimas 50 mensagens |
-| POST | `/mural` | Aprendiz | Posta mensagem anônima (**rate limit: 1 post / 2 min por usuário**) |
+| GET | `/mural` | Público | Lista mensagens com paginação (`skip`, `limit`) — `X-Total-Count` no header |
+| POST | `/mural` | Aprendiz | Posta mensagem anônima (**rate limit: 1 post / 2 min — persistido no banco**) |
 | DELETE | `/mural/{id}` | Aprendiz admin | Apaga mensagem (requer `is_admin=True`, HTTP 403 caso contrário) |
 | GET | `/artigos` | Público | Lista artigos (filtro por `?categoria=`) |
 | GET | `/artigos/{id}` | Público | Artigo específico |
 | POST | `/artigos` | Gestor | Cria novo artigo |
 | PUT | `/artigos/{id}` | Gestor | Atualiza artigo existente |
 | DELETE | `/artigos/{id}` | Gestor | Remove artigo |
-| GET | `/dashboard/resumo` | Gestor | KPIs — filtros: `empresa_id`, `genero`, `faixa_etaria`, `ano` |
+| GET | `/dashboard/resumo` | Gestor | KPIs + top 3 pontos positivos/negativos — filtros: `empresa_id`, `genero`, `faixa_etaria`, `ano` |
 | GET | `/dashboard/problemas` | Gestor | Ranking de problemas — filtros acima |
 | GET | `/dashboard/satisfacao-por-empresa` | Gestor | Média de satisfação por empresa |
 | GET | `/dashboard/efetivacao-por-empresa` | Gestor | % efetivação por empresa |
@@ -147,6 +149,7 @@ O backend executa `ALTER TABLE` idempotentes no startup para colunas adicionadas
 # Colunas adicionadas via migração (try/except — ignoram se já existirem):
 ALTER TABLE aprendizes ADD COLUMN last_enquete_at DATETIME
 ALTER TABLE aprendizes ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0
+ALTER TABLE aprendizes ADD COLUMN last_mural_post_at DATETIME
 ```
 
 ---
@@ -240,11 +243,19 @@ Idade exata nunca é gravada nas respostas — convertida em faixa:
 | `allow_credentials=False` no CORS | JWT é enviado via header Authorization, não via cookie |
 | Agregação SQL no dashboard | `dashboard_resumo` usa `AVG`/`COUNT`/`CASE` — evita N+1 queries |
 | `substr(data, 1, 4)` para filtro de ano | `strftime('%Y', ...)` falha com microsegundos no SQLite |
-| Rate limiting em memória | Sem dependências extras; reiniciado com o servidor — suficiente para o volume atual |
+| Rate limiting do mural persistido no banco | `last_mural_post_at` em `aprendizes` — sobrevive ao reinício do servidor; não precisa de Redis |
 | `is_admin` criado por startup | Sem endpoint de promoção — a conta `aprendiz-adm` é criada automaticamente se não existir |
 | CRUD de artigos restrito ao gestor | Conteúdo educacional é curatorial — aprendizes não devem criar/editar artigos |
 | Arquitetura em camadas no frontend | CSS e JS separados por domínio em `css/` e `js/aprendiz/` / `js/gestor/`; `app.js` carregado por último para garantir que todas as funções de domínio já existam no escopo global quando o `init()` é executado |
 | `getToken()` definida em `app.js`, usada em `api.js` | `api.js` carrega antes de `app.js`, mas `getToken()` só é chamada em runtime dentro de `apiFetch()` — sem problema de ordem de carregamento |
+| `nenhum_pos`/`nenhum_neg` filtrados no frontend | Aceitos pelo validador do backend para não causar HTTP 422, mas removidos do payload antes do POST em `enquete.js` — nunca gravados no banco |
+| `nenhum` excluído dos rankings de problemas | `WHERE problema != 'nenhum'` nos endpoints `/dashboard/problemas` e detalhe por empresa — evita que "ausência de problema" apareça como um problema no ranking |
+| 401 → redirect automático para login | `_expirarSessao()` em `api.js` limpa os tokens e redireciona para `index.html?sessao=expirada`; a tela de login detecta o parâmetro e exibe toast de aviso |
+| Bottom-nav com `left:50%; transform:translateX(-50%)` | Garante centralização em qualquer largura de viewport sem depender da posição do pai no DOM |
+| Refresh de token no init() | Após `/auth/*/me` retornar 200, uma chamada fire-and-forget para `/auth/*/refresh` emite novo token e atualiza o `localStorage` — evita expiração silenciosa durante sessões longas |
+| Indicador offline via `navigator.onLine` | Banner fixo aparece/desaparece com eventos `online`/`offline` — injetado via `initOfflineIndicator()` em `utils.js`, chamado em ambos os `init()` |
+| Inputs de login com `<label class="sr-only">` | Acessibilidade WCAG: leitores de tela identificam os campos sem impacto visual |
+| Compartilhamento de mensagem do mural | Web Share API com fallback para `navigator.clipboard` — sem dependência externa |
 
 ---
 
@@ -253,6 +264,9 @@ Idade exata nunca é gravada nas respostas — convertida em faixa:
 | Área | Status |
 |------|--------|
 | Segundo minijogo de descompressão | Apenas o jogo de memória implementado |
-| Troca da `SECRET_KEY` do JWT | Hardcoded em `auth.py` — necessário para produção |
-| Rate limiting nas rotas de login | Não implementado (apenas no mural) |
-| Persistência do rate limiting do mural | Reinicia com o servidor; para produção usar Redis ou SQLite |
+| Troca da `SECRET_KEY` do JWT | Lida de `os.environ.get("SECRET_KEY", "chave-local-...")` — definir em produção |
+| Rate limiting nas rotas de login | ✅ Implementado via `@limiter.limit("5/minute")` (slowapi) |
+| Persistência do rate limiting do mural | ✅ Implementado via coluna `last_mural_post_at` em `aprendizes` |
+| Refresh de token JWT | ✅ Endpoints `POST /auth/*/refresh`; init() em ambos os painéis atualiza token silenciosamente |
+| Paginação do mural | ✅ Implementado com `skip`/`limit` e header `X-Total-Count`; botão "Carregar mais" no frontend |
+| Export CSV do dashboard | Endpoint `GET /dashboard/export` com filtros de empresa/gênero/faixa etária/ano |

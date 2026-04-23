@@ -195,17 +195,21 @@ html.tema-escuro .badge-verde-perfil { background: #1a3a1a; color: #86efac; }
 html.tema-escuro .mural-box textarea:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
 .mural-contador { font-size: 0.75rem; color: var(--muted); text-align: right; margin-top: -4px; }
 
-.msg-card { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; position: relative; }
+.msg-card { background: #fafafa; border: 1px solid #eee; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
 .msg-card p     { font-size: 0.9rem; color: var(--texto); line-height: 1.4; margin: 0 0 4px; }
 .msg-card small { font-size: 0.75rem; color: var(--muted); }
 html.tema-escuro .msg-card { border-color: #3a3a3a; background: #2a2a2a; }
-.btn-apagar-msg {
-    position: absolute; top: 8px; right: 8px;
+.msg-acoes {
+    display: flex; justify-content: flex-end; gap: 4px; margin-bottom: 6px;
+}
+.btn-apagar-msg, .btn-compartilhar-msg {
     background: none; border: none; cursor: pointer;
-    color: #ccc; font-size: 1rem; line-height: 1;
-    padding: 2px 5px; border-radius: 4px; transition: 0.2s;
+    color: #ccc; font-size: 0.9rem; line-height: 1;
+    padding: 3px 6px; border-radius: 4px; transition: 0.2s;
+    display: flex; align-items: center;
 }
 .btn-apagar-msg:hover { color: #e74c3c; background: #fdecea; }
+.btn-compartilhar-msg:hover { color: var(--verde); background: var(--verde-claro); }
 
 .artigo-card { background: var(--card); border-radius: 12px; padding: 16px; margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: 0.2s; }
 .artigo-card:hover { border-color: var(--verde); box-shadow: 0 8px 20px rgba(54,122,40,0.15); transform: translateY(-2px); }

@@ -13,14 +13,39 @@ function skeletonMensagem(n = 3) {
     `).join('');
 }
 
+const SVG_SHARE = '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>';
+
 function _renderMsgs(msgs, startIndex = 0) {
     return msgs.map((m, i) => `
         <div class="msg-card" style="animation:cardEnter 0.3s ease both;animation-delay:${(startIndex + i) * 0.05}s;">
-            ${_isAdmin ? `<button class="btn-apagar-msg" onclick="apagarMensagem(${m.id}, this)" title="Apagar mensagem">✕</button>` : ''}
+            <div class="msg-acoes">
+                <button class="btn-compartilhar-msg" onclick="compartilharMensagem(this)" data-conteudo="${escapeHtml(m.conteudo)}" title="Compartilhar mensagem">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${SVG_SHARE}</svg>
+                </button>
+                ${_isAdmin ? `<button class="btn-apagar-msg" onclick="apagarMensagem(${m.id}, this)" title="Apagar mensagem">✕</button>` : ''}
+            </div>
             <p>${escapeHtml(m.conteudo)}</p>
             <small>${tempoRelativo(m.created_at)}</small>
         </div>
     `).join('');
+}
+
+async function compartilharMensagem(btn) {
+    const texto = btn.dataset.conteudo;
+    if (navigator.share) {
+        try {
+            await navigator.share({ text: texto, title: 'SoftSkills Hub — Mural da Comunidade' });
+            return;
+        } catch (e) {
+            if (e.name === 'AbortError') return;
+        }
+    }
+    try {
+        await navigator.clipboard.writeText(texto);
+        mostrarToast('Mensagem copiada!', 'sucesso', 2000);
+    } catch {
+        mostrarToast('Não foi possível copiar a mensagem.', 'erro');
+    }
 }
 
 function _atualizarBtnCarregarMais(lista) {

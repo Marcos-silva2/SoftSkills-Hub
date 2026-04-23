@@ -131,11 +131,13 @@ _PROBLEMAS_VALIDOS = {
 
 _POSITIVOS_VALIDOS = {
     "aprendizado", "clima_bom", "lideranca_apoio", "beneficios", "flexibilidade",
+    "nenhum_pos",
 }
 
 _NEGATIVOS_VALIDOS = {
     "comunicacao_ruim", "desorganizacao", "clima_tenso",
     "falta_reconhecimento", "distancia_lideranca",
+    "nenhum_neg",
 }
 
 
@@ -191,10 +193,17 @@ class RespostaEnqueteCreate(BaseModel):
 
 # ─── Dashboard ────────────────────────────────────────────────────────────────
 
+class AvaliacaoContagem(BaseModel):
+    valor: str
+    total: int
+
+
 class DashboardResumo(BaseModel):
     total_respostas: int
     media_satisfacao: float
     perc_quer_efetivacao: float
+    top_positivos: list[AvaliacaoContagem] = []
+    top_negativos: list[AvaliacaoContagem] = []
 
 
 class ProblemaContagem(BaseModel):

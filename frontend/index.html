@@ -59,10 +59,12 @@
 
         <!-- Aprendiz -->
         <div id="formJovem">
+            <label class="sr-only" for="loginUsername">Nome de usuário</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <input id="loginUsername" type="text" placeholder="Nome de Usuário" autocomplete="username">
             </div>
+            <label class="sr-only" for="loginSenha">Senha</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password">
@@ -74,13 +76,15 @@
 
         <!-- Gestor -->
         <div id="formGestor" style="display:none;">
+            <label class="sr-only" for="gestorUsername">Usuário do gestor</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <input id="gestorUsername" type="text" placeholder="Usuário (ex: admin)">
+                <input id="gestorUsername" type="text" placeholder="Usuário (ex: admin)" autocomplete="username">
             </div>
+            <label class="sr-only" for="gestorSenha">Senha do gestor</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <input id="gestorSenha" type="password" placeholder="Senha">
+                <input id="gestorSenha" type="password" placeholder="Senha" autocomplete="current-password">
             </div>
             <div id="erroGestor" class="alerta alerta-erro"></div>
             <button id="btnEntrarGestor" class="btn btn-laranja" onclick="loginGestor()">Acessar Painel de Dados</button>
@@ -262,6 +266,7 @@
             mostrar('erroLogin', e.message, 'erro');
             adicionarShake(document.getElementById('formJovem'));
             vibrar([30, 15, 30]);
+            verificarServidor();
         } finally {
             setBotao('btnEntrar', false, 'Entrar');
         }
@@ -285,6 +290,7 @@
             mostrar('erroGestor', e.message, 'erro');
             adicionarShake(document.getElementById('formGestor'));
             vibrar([30, 15, 30]);
+            verificarServidor();
         } finally {
             setBotao('btnEntrarGestor', false, 'Acessar Painel de Dados');
         }
@@ -382,8 +388,6 @@
         }
     }
 
-    verificarServidor();
-
     if (typeof gsap !== 'undefined' && !localStorage.getItem('ssh_token') && !localStorage.getItem('ssh_token_gestor')) {
         gsap.timeline({ defaults: { ease: 'power3.out', clearProps: 'all' } })
             .from('header > div', { scale: 0.3, opacity: 0, duration: 0.65, ease: 'elastic.out(1, 0.5)' })
@@ -392,6 +396,11 @@
             .from('.tabs',        { y: 18, opacity: 0, duration: 0.32 }, '-=0.1')
             .from('#formJovem .input-wrap, #formJovem .btn, #formJovem .link-text',
                 { y: 12, opacity: 0, stagger: 0.07, duration: 0.28 }, '-=0.05');
+    }
+
+    if (new URLSearchParams(window.location.search).get('sessao') === 'expirada') {
+        mostrarToast('Sua sessão expirou. Faça login novamente.', 'erro', 5000);
+        history.replaceState(null, '', 'index.html');
     }
 
     if (localStorage.getItem('ssh_token_gestor')) {
