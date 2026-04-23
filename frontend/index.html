@@ -32,46 +32,96 @@
     display:flex;align-items:center;justify-content:center;
     overflow:hidden;
 ">
-    <div id="splashBg"  style="position:absolute;inset:0;background:#000;"></div>
+    <div id="splashBg"   style="position:absolute;inset:0;background:#000;"></div>
     <div id="splashGrad" style="position:absolute;inset:0;background:linear-gradient(135deg,#0d47a1 0%,#1565c0 50%,#1e88e5 100%);opacity:0;"></div>
-    <div id="splashContent" style="position:relative;display:flex;align-items:center;justify-content:center;">
-        <img id="splashLogo" src="emoji/Logo.png" alt="" style="width:130px;height:130px;object-fit:contain;will-change:transform;">
-        <span id="splashText" style="
-            font-family:'Inter',sans-serif;font-size:1.65rem;font-weight:700;
-            color:#fff;white-space:nowrap;opacity:0;margin-left:14px;
-            will-change:transform,opacity;
-        ">SoftSkills Hub</span>
+
+    <!-- Brilho radial do snap -->
+    <div id="splashGlow" style="
+        position:absolute;width:180px;height:180px;border-radius:50%;
+        background:radial-gradient(circle,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0) 70%);
+        transform:scale(0);opacity:0;pointer-events:none;
+    "></div>
+
+    <div id="splashContent" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <!-- Linha logo + nome -->
+        <div style="display:flex;align-items:center;justify-content:center;">
+            <img id="splashLogo" src="emoji/Logo.png" alt="" style="width:130px;height:130px;object-fit:contain;will-change:transform;">
+            <!-- Nome com shimmer -->
+            <div id="splashTextWrap" style="margin-left:14px;overflow:hidden;position:relative;opacity:0;will-change:transform,opacity;">
+                <span id="splashText" style="
+                    font-family:'Inter',sans-serif;font-size:1.65rem;font-weight:700;
+                    color:#fff;white-space:nowrap;display:block;
+                ">SoftSkills Hub</span>
+                <div id="splashShimmer" style="
+                    position:absolute;inset:0;
+                    background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,0.55) 50%,transparent 60%);
+                    background-size:200% 100%;background-position:200% 0;
+                    pointer-events:none;
+                "></div>
+            </div>
+        </div>
+        <!-- Tagline -->
+        <p id="splashTagline" style="
+            font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:400;
+            color:rgba(255,255,255,0.75);margin:10px 0 0;letter-spacing:0.03em;
+            opacity:0;will-change:transform,opacity;
+        ">Seu espaço seguro de desenvolvimento.</p>
     </div>
 </div>
 <!-- ─────────────────────────────────────────────────────────────── -->
 <script>
     (function () {
-        const splash = document.getElementById('splashScreen');
-        const grad   = document.getElementById('splashGrad');
-        const logo   = document.getElementById('splashLogo');
-        const text   = document.getElementById('splashText');
+        const splash   = document.getElementById('splashScreen');
+        const grad     = document.getElementById('splashGrad');
+        const glow     = document.getElementById('splashGlow');
+        const logo     = document.getElementById('splashLogo');
+        const textWrap = document.getElementById('splashTextWrap');
+        const shimmer  = document.getElementById('splashShimmer');
+        const tagline  = document.getElementById('splashTagline');
 
         function runAnimation() {
             const springSnap   = 'elastic.out(1.1, 0.22)';
             const springReveal = 'elastic.out(1, 0.4)';
 
-            gsap.set(logo, { scale: 1, rotation: 0, x: 0 });
-            gsap.set(text, { opacity: 0, x: -20 });
+            gsap.set(logo,     { scale: 1, rotation: 0, x: 0 });
+            gsap.set(textWrap, { opacity: 0, x: -22 });
+            gsap.set(tagline,  { opacity: 0, y: 8 });
 
             gsap.timeline()
+                // ① Spin de entrada
                 .to(logo, { scale: 1.18, rotation: -135, duration: 0.4, ease: 'power2.in' })
+
+                // ② Estabilização + brilho radial
                 .to(logo, { scale: 1, rotation: 0, duration: 0.8, ease: springSnap })
-                .to(grad, { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.12')
-                .to(logo, { x: -55, duration: 1.55, ease: springReveal }, '<')
-                .to(text, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
+                .to(glow, { scale: 2.6, opacity: 1, duration: 0.18, ease: 'power1.out' }, '-=0.55')
+                .to(glow, { scale: 3.5, opacity: 0, duration: 0.38, ease: 'power2.out' }, '-=0.18')
+
+                // ③ Revelação — gradiente + logo esq. + texto com shimmer
+                .to(grad,     { opacity: 1, duration: 1.55, ease: 'power2.out' }, '+=0.1')
+                .to(logo,     { x: -55, duration: 1.55, ease: springReveal }, '<')
+                .to(textWrap, { x: 0, opacity: 1, duration: 1.55, ease: springReveal }, '<0.04')
+
+                // shimmer varre o texto após ele aparecer
+                .to(shimmer, {
+                    backgroundPosition: '-200% 0', duration: 0.6, ease: 'power1.inOut'
+                }, '-=0.7')
+
+                // tagline desliza para cima
+                .to(tagline, { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' }, '-=0.4')
+
+                // ④ Dissolve com blur + scale
                 .to(splash, {
-                    opacity: 0, duration: 0.55, delay: 0.75, ease: 'power2.in',
+                    opacity: 0,
+                    filter: 'blur(8px)',
+                    scale: 1.04,
+                    duration: 0.6,
+                    delay: 0.8,
+                    ease: 'power2.in',
                     onComplete() { splash.style.display = 'none'; }
                 });
         }
 
         function fallback() {
-            // GSAP indisponível: exibe splash com CSS e fecha após 2.5s
             grad.style.transition = 'opacity 1s';
             grad.style.opacity = '1';
             splash.style.transition = 'opacity 0.5s';
@@ -84,7 +134,6 @@
         if (typeof gsap !== 'undefined') {
             runAnimation();
         } else {
-            // Aguarda o GSAP terminar de carregar (até 3s)
             var waited = 0;
             var check = setInterval(function () {
                 waited += 50;
