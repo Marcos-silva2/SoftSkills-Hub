@@ -13,6 +13,59 @@ header h1 { font-size: 1.4rem; font-weight: bold; }
 header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
 html.tema-escuro header { background: linear-gradient(135deg, #0e2e08, #1e5c10, #0e2e08, #163d0a) !important; background-size: 300% 300% !important; }
 
+/* ── Home: Enquete card ──────────────────────────────── */
+.card-enquete { border: 1px solid #c8e6c9 !important; }
+html.tema-escuro .card-enquete { border-color: #1b3a1b !important; }
+
+.enquete-header {
+    display: flex; align-items: flex-start;
+    gap: 12px; margin-bottom: 14px;
+}
+.enquete-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; margin-top: 2px; }
+.enquete-titulo { font-size: 1rem; font-weight: 700; color: var(--texto); margin: 0 0 4px; }
+.enquete-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.45; margin: 0; }
+
+/* ── Home: Dica do Dia ───────────────────────────────── */
+.card-dica { padding: 16px 20px 14px; }
+
+.dica-badge {
+    display: inline-block; font-size: 0.7rem; font-weight: 700;
+    color: var(--verde); background: var(--verde-claro);
+    border-radius: 20px; padding: 3px 10px;
+    margin-bottom: 10px; letter-spacing: 0.2px;
+}
+.dica-texto {
+    font-size: 0.88rem; color: var(--texto);
+    line-height: 1.55; margin: 0 0 12px;
+}
+.btn-link-verde {
+    background: none; border: none; color: var(--verde);
+    font-weight: 700; font-size: 0.82rem; cursor: pointer;
+    padding: 0; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 4px;
+    transition: gap 0.2s;
+}
+.btn-link-verde:hover { gap: 8px; }
+
+/* ── Home: Descompressão card ────────────────────────── */
+.card-descomp { border: 1px solid #e8daef !important; }
+html.tema-escuro .card-descomp { border-color: #3a2050 !important; }
+
+.descomp-emoji {
+    font-size: 2.2rem; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin-top: 2px;
+}
+
+.btn-descomp {
+    width: 100%; padding: 13px; border: 1.5px solid var(--roxo);
+    border-radius: 12px; background: transparent; color: var(--roxo);
+    font-size: 0.97rem; font-weight: bold; cursor: pointer;
+    transition: background 0.2s, color 0.2s; margin-top: 10px;
+    font-family: inherit;
+}
+.btn-descomp:hover { background: var(--roxo); color: white; }
+
 .nav-item.active { color: var(--verde); font-weight: bold; }
 .btn-tema:hover { border-color: var(--verde); color: var(--verde); }
 .input-perfil:focus { border-color: var(--verde); background: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
@@ -361,126 +414,84 @@ html.tema-escuro .leitura-markdown hr { border-color: #3a3a3a; }
     justify-content: center; font-size: 2rem; margin: 0 auto 12px;
 }
 
-/* ── Jogo: Hint bar ─────────────────────────────── */
-.jogo-hint {
-    margin: 0 20px 14px;
-    background: linear-gradient(135deg, rgba(142,68,173,0.07) 0%, rgba(142,68,173,0.03) 100%);
-    border: 1px solid rgba(142,68,173,0.18);
-    border-radius: 12px; padding: 10px 14px;
-    display: flex; align-items: flex-start; gap: 10px;
+/* ── Flashcard: Barra de progresso ──────────────── */
+.flash-progress-wrap {
+    margin: 0 20px 16px;
+    display: flex; flex-direction: column; gap: 6px;
 }
-html.tema-escuro .jogo-hint {
-    background: linear-gradient(135deg, rgba(176,108,204,0.1) 0%, rgba(176,108,204,0.04) 100%);
-    border-color: rgba(176,108,204,0.22);
+.flash-progress-bar {
+    height: 7px; background: #e0d0ea; border-radius: 4px; overflow: hidden;
 }
-.hint-badge {
-    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.3px;
-    color: var(--roxo); background: rgba(142,68,173,0.12);
-    border-radius: 6px; padding: 3px 7px; white-space: nowrap;
-    flex-shrink: 0; margin-top: 1px;
+html.tema-escuro .flash-progress-bar { background: #2d1a40; }
+.flash-progress-fill {
+    height: 100%; background: var(--roxo); border-radius: 4px; width: 0%;
+    transition: width 0.45s cubic-bezier(.34,1.56,.64,1);
 }
-.hint-body { flex: 1; transition: opacity 0.28s ease; }
-.hint-termo { font-size: 0.82rem; font-weight: 700; color: var(--roxo); }
-.hint-def   { font-size: 0.74rem; color: var(--muted); margin-top: 2px; line-height: 1.3; }
-
-/* ── Jogo: Stats bar ────────────────────────────── */
-.jogo-topo {
-    display: flex; align-items: center;
-    padding: 0 20px 14px; gap: 8px;
-}
-.jogo-kpi {
-    display: flex; flex-direction: column; align-items: center;
-    background: var(--card); border-radius: 12px; padding: 10px 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04); min-width: 54px;
-}
-.jogo-kpi-val   { font-size: 1.3rem; font-weight: bold; color: var(--roxo); line-height: 1; font-variant-numeric: tabular-nums; }
-.jogo-kpi-label { font-size: 0.63rem; color: var(--muted); margin-top: 4px; text-align: center; }
-
-.jogo-progress-col {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 6px; flex: 1;
-}
-.jogo-pares-segs { display: flex; gap: 6px; align-items: center; }
-.jogo-par-seg {
-    width: 13px; height: 13px; border-radius: 50%;
-    background: #e0d0ea; border: 1.5px solid rgba(142,68,173,0.15);
-    transition: background 0.35s cubic-bezier(.34,1.56,.64,1),
-                transform  0.35s cubic-bezier(.34,1.56,.64,1),
-                box-shadow 0.35s ease;
-}
-html.tema-escuro .jogo-par-seg { background: #2d1a40; border-color: rgba(176,108,204,0.2); }
-.jogo-par-seg.preenchido {
-    background: var(--roxo); border-color: var(--roxo);
-    transform: scale(1.2); box-shadow: 0 0 0 3px rgba(142,68,173,0.2);
+.flash-progress-label {
+    font-size: 0.72rem; color: var(--muted); font-weight: 600; text-align: center;
 }
 
-.btn-reiniciar {
-    background: var(--roxo); color: white; border: none; border-radius: 10px;
-    padding: 10px 13px; font-size: 1rem; cursor: pointer;
-    flex-shrink: 0; transition: 0.2s;
+/* ── Flashcard: Grid ─────────────────────────────── */
+.flashcard-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; padding: 0 20px 16px;
 }
-.btn-reiniciar:hover { background: #6c3483; }
 
-/* ── Jogo: Board & Cartas ──────────────────────── */
-.board {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 8px; padding: 0 20px 16px;
+/* ── Flashcard: Card ─────────────────────────────── */
+.flashcard {
+    min-height: 178px; cursor: pointer; perspective: 700px;
+    animation: cardEnter 0.38s ease both; position: relative;
 }
-.carta {
-    aspect-ratio: 3/4; cursor: pointer; perspective: 600px;
-    animation: cardEnter 0.38s ease both;
+.flashcard-inner {
+    width: 100%; min-height: 178px; position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.52s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.carta-inner {
-    width: 100%; height: 100%; position: relative;
-    transform-style: preserve-3d; transition: transform 0.45s ease;
-}
-.carta.virada  .carta-inner,
-.carta.acertada .carta-inner { transform: rotateY(180deg); }
-.carta-capa, .carta-face {
-    position: absolute; inset: 0; border-radius: 10px;
+.flashcard.virado .flashcard-inner { transform: rotateY(180deg); }
+
+.flashcard-frente, .flashcard-verso {
+    position: absolute; inset: 0; border-radius: 14px;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 3px;
+    padding: 14px 12px; min-height: 178px; gap: 6px;
 }
 
-/* Capa das cartas — gradiente rico com destaque radial */
-.carta-capa {
+/* Frente — gradiente roxo */
+.flashcard-frente {
     background:
-        radial-gradient(ellipse at 32% 28%, rgba(255,255,255,0.24) 0%, transparent 52%),
+        radial-gradient(ellipse at 32% 28%, rgba(255,255,255,0.22) 0%, transparent 52%),
         linear-gradient(145deg, #9b59b6 0%, #7d3c98 45%, #5b2c8d 100%);
-    box-shadow: 0 4px 10px rgba(142,68,173,0.45), inset 0 1px 0 rgba(255,255,255,0.18);
-    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(142,68,173,0.42), inset 0 1px 0 rgba(255,255,255,0.16);
+    align-items: center; justify-content: center; text-align: center;
 }
-.capa-icone { font-size: 1.5rem; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.3)); }
-.capa-label {
-    font-size: 0.46rem; font-weight: 800; letter-spacing: 2px;
-    text-transform: uppercase; color: rgba(255,255,255,0.5);
-}
+.fc-emoji { font-size: 2.2rem; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.25)); }
+.fc-termo { font-size: 0.85rem; font-weight: 800; color: white; letter-spacing: 0.4px; line-height: 1.2; }
+.fc-hint  { font-size: 0.6rem; color: rgba(255,255,255,0.6); font-weight: 500; margin-top: 2px; }
 
-.carta-face {
+/* Verso — fundo claro */
+.flashcard-verso {
     background: white; border: 2px solid #e8daef;
-    transform: rotateY(180deg); padding: 4px; text-align: center;
+    transform: rotateY(180deg);
+    align-items: flex-start; justify-content: flex-start; gap: 8px;
 }
-.carta.acertada .carta-face  { background: #f5eef8; border-color: var(--roxo); }
-.carta.acertada .carta-inner { filter: drop-shadow(0 0 5px rgba(142,68,173,0.3)); }
-html.tema-escuro .carta-face              { background: #1e1e1e; border-color: #4a2d5e; }
-html.tema-escuro .carta.acertada .carta-face { background: #2d1a40; }
-.carta-emoji { font-size: 1.1rem; }
-.carta-termo { font-size: 0.6rem; font-weight: bold; color: var(--roxo); line-height: 1.2; }
+html.tema-escuro .flashcard-verso { background: #1e1e1e; border-color: #4a2d5e; }
+.fc-def { font-size: 0.77rem; color: var(--texto); line-height: 1.45; margin: 0; }
+.fc-dica {
+    font-size: 0.71rem; color: var(--roxo); font-weight: 600;
+    background: rgba(142,68,173,0.08); border-radius: 8px;
+    padding: 6px 9px; width: 100%; line-height: 1.4;
+    border-left: 3px solid var(--roxo); box-sizing: border-box;
+}
+html.tema-escuro .fc-dica { background: rgba(176,108,204,0.12); }
 
-/* Erro flash ao errar o par */
-@keyframes erroBordaFlash {
-    0%, 100% { border-color: #e8daef; box-shadow: none; background: white; }
-    25%, 75%  { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.22); background: #fdecea; }
+/* Card estudado — anel sutil indicando visto */
+.flashcard.estudado .flashcard-frente {
+    box-shadow: 0 4px 12px rgba(142,68,173,0.42),
+                inset 0 1px 0 rgba(255,255,255,0.16),
+                0 0 0 2px rgba(255,255,255,0.3);
 }
-@keyframes erroBordaFlashEscuro {
-    0%, 100% { border-color: #4a2d5e; box-shadow: none; background: #1e1e1e; }
-    25%, 75%  { border-color: #c0392b; box-shadow: 0 0 0 3px rgba(192,57,43,0.3); background: #3b1010; }
-}
-.carta.erro.virada .carta-face { animation: erroBordaFlash 0.85s ease; }
-html.tema-escuro .carta.erro.virada .carta-face { animation: erroBordaFlashEscuro 0.85s ease; }
 
-/* ── Vitória overlay ─────────────────────────────── */
+/* ── Overlay de conclusão ────────────────────────── */
 .vitoria-overlay {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6);
     display: flex; align-items: center; justify-content: center;
@@ -499,22 +510,8 @@ html.tema-escuro .vitoria-card { background: #1e1e1e; }
 .vitoria-estrelas { display: flex; justify-content: center; gap: 10px; margin: 10px 0 8px; }
 .estrela { font-size: 2rem; opacity: 0.2; filter: grayscale(1) brightness(0.7); }
 .estrela.ativa { opacity: 1; filter: none; }
-.vitoria-record-msg { font-size: 0.78rem; color: var(--verde); font-weight: 600; margin-top: 4px; }
 
-/* ── Dicionário ──────────────────────────────────── */
-.dicionario {
-    margin: 0 20px 16px; background: white; border-radius: 14px;
-    padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-}
-html.tema-escuro .dicionario { background: #1e1e1e; }
-.dicionario h4 { color: var(--roxo); margin-bottom: 12px; font-size: 0.92rem; }
-.def-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-html.tema-escuro .def-item { border-color: #3a3a3a; }
-.def-item:last-child { border-bottom: none; padding-bottom: 0; }
-.def-header { font-size: 0.85rem; margin-bottom: 3px; }
-.def-texto  { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
-
-/* ── Animações do jogo ───────────────────────────── */
+/* ── Animações ───────────────────────────────────── */
 @keyframes cardEnter { from { opacity:0; transform:translateY(10px) scale(0.94); } to { opacity:1; transform:translateY(0) scale(1); } }
 @keyframes confettiFall { 0% { transform:translateY(0) rotate(0deg); opacity:1; } 100% { transform:translateY(90vh) rotate(720deg); opacity:0; } }
 .confetti-piece { position:fixed; pointer-events:none; z-index:9999; border-radius:2px; }

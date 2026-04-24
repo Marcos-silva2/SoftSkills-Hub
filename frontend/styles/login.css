@@ -1,3 +1,4 @@
+/* ── Body & Container ─────────────────────────── */
 body {
     align-items: center;
     padding: 20px;
@@ -6,22 +7,329 @@ body {
 
 .app-container {
     min-height: auto;
-    padding-bottom: 40px;
-    border-radius: 20px;
-    padding: 40px 30px;
+    padding: 32px 28px 36px;
+    border-radius: 24px;
     position: relative;
     z-index: 1;
-    background: rgba(255, 255, 255, 0.80);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.85) inset,
+        0 14px 44px rgba(0, 0, 0, 0.10),
+        0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    overflow: hidden;
 }
 html.tema-escuro .app-container {
-    background: rgba(18, 18, 18, 0.82);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    background: rgba(15, 15, 15, 0.86);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.55);
+    border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* ── Mesh Gradient Background ──────────────────────────── */
+/* Faixa de cor no topo do card */
+.app-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #367a28 0%, #48d2a5 50%, #5b9ff5 100%);
+}
+
+/* ── Brand header ─────────────────────────────── */
+.login-header { margin-bottom: 28px; }
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 4px;
+}
+
+.login-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 3px 12px rgba(54, 122, 40, 0.3));
+}
+
+.login-brand-text { text-align: left; }
+
+.login-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--verde);
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.login-subtitle {
+    font-size: 0.79rem;
+    color: var(--muted);
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* ── Botão instalar PWA ───────────────────────── */
+.btn-instalar {
+    width: 100%;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    border: 1.5px solid rgba(21, 101, 192, 0.25);
+    border-radius: 12px;
+    background: rgba(21, 101, 192, 0.05);
+    color: #1565c0;
+    font-size: 0.86rem;
+    font-weight: 600;
+    cursor: pointer;
+    gap: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+}
+.btn-instalar:hover {
+    background: rgba(21, 101, 192, 0.1);
+    border-color: rgba(21, 101, 192, 0.45);
+    box-shadow: 0 2px 10px rgba(21, 101, 192, 0.12);
+}
+html.tema-escuro .btn-instalar {
+    border-color: rgba(66, 165, 245, 0.28);
+    background: rgba(66, 165, 245, 0.06);
+    color: #64b5f6;
+}
+
+/* ── Tabs ─────────────────────────────────────── */
+.tabs {
+    display: flex;
+    padding: 3px;
+    gap: 2px;
+    background-color: #eaeaea;
+    border-radius: 14px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+html.tema-escuro .tabs { background-color: #252525; }
+
+.tab-btn {
+    flex: 1;
+    padding: 11px 8px;
+    min-height: 44px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    border-radius: 11px;
+    transition: background 0.22s, color 0.22s, box-shadow 0.22s;
+    font-family: inherit;
+    letter-spacing: 0.1px;
+}
+.tab-btn.active-jovem {
+    background: linear-gradient(135deg, #2e6b22 0%, #47a833 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(54, 122, 40, 0.38);
+}
+.tab-btn.active-gestor {
+    background: linear-gradient(135deg, #a03810 0%, #cc5420 100%);
+    color: white;
+    box-shadow: 0 2px 10px rgba(196, 82, 26, 0.38);
+}
+
+/* ── Form group ───────────────────────────────── */
+.form-group { margin-bottom: 14px; text-align: left; }
+.form-group label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.45px;
+}
+
+/* ── Inputs e Selects ─────────────────────────── */
+input, select {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px solid #e2e2e2;
+    border-radius: 12px;
+    background-color: #fafafa;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    margin-bottom: 5px;
+    color: var(--texto);
+    font-family: inherit;
+}
+input:focus, select:focus {
+    border-color: var(--verde);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(54, 122, 40, 0.12);
+}
+html.tema-escuro input, html.tema-escuro select {
+    background: #222 !important;
+    border-color: #333;
+    color: var(--texto);
+}
+html.tema-escuro input:focus, html.tema-escuro select:focus {
+    background: #282828 !important;
+    box-shadow: 0 0 0 4px rgba(79, 181, 62, 0.16);
+}
+
+/* Input com ícone à esquerda */
+.input-wrap { position: relative; margin-bottom: 10px; }
+.input-wrap input { padding-left: 44px; margin-bottom: 0; }
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 17px;
+    height: 17px;
+    stroke: var(--muted);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+    transition: stroke 0.2s;
+}
+.input-wrap:focus-within .input-icon { stroke: var(--verde); }
+
+/* Gestor: foco em laranja */
+#formGestor .input-wrap:focus-within .input-icon { stroke: var(--laranja); }
+#formGestor input:focus {
+    border-color: var(--laranja);
+    box-shadow: 0 0 0 4px rgba(196, 82, 26, 0.12);
+}
+
+/* Botão mostrar/ocultar senha */
+.btn-toggle-senha {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.2s, background 0.2s;
+    line-height: 0;
+}
+.btn-toggle-senha:hover {
+    color: var(--texto);
+    background: rgba(0, 0, 0, 0.05);
+}
+html.tema-escuro .btn-toggle-senha:hover { background: rgba(255, 255, 255, 0.08); }
+.input-wrap input.tem-toggle { padding-right: 42px; }
+
+/* ── Botões no login ──────────────────────────── */
+.btn {
+    margin-top: 8px;
+    border-radius: 14px;
+    font-size: 0.97rem;
+    letter-spacing: 0.1px;
+}
+.btn-verde {
+    background: linear-gradient(135deg, #2a5e1e 0%, #46a832 100%);
+    box-shadow: 0 4px 16px rgba(54, 122, 40, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+.btn-verde:hover:not(:disabled) {
+    filter: brightness(1.07);
+    box-shadow: 0 6px 22px rgba(54, 122, 40, 0.42);
+    transform: translateY(-1px);
+}
+.btn-verde:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(54, 122, 40, 0.28);
+}
+.btn-laranja {
+    background: linear-gradient(135deg, #9c3610 0%, #c85220 100%);
+    box-shadow: 0 4px 16px rgba(196, 82, 26, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+.btn-laranja:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow: 0 6px 22px rgba(196, 82, 26, 0.42);
+    transform: translateY(-1px);
+}
+.btn-laranja:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(196, 82, 26, 0.28);
+}
+
+/* ── Strength da senha ────────────────────────── */
+.senha-strength { display: flex; gap: 4px; margin-top: 8px; height: 5px; }
+.strength-bar {
+    flex: 1;
+    border-radius: 5px;
+    background: #e8e8e8;
+    transition: background 0.3s ease;
+}
+html.tema-escuro .strength-bar { background: #333; }
+.strength-label {
+    display: block;
+    font-size: 0.74rem;
+    margin-top: 5px;
+    min-height: 16px;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+/* ── Status do servidor ───────────────────────── */
+#statusServidor {
+    font-size: 0.78rem;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    display: none;
+    font-weight: 500;
+}
+
+/* ── Links ────────────────────────────────────── */
+.link-text {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.84rem;
+    color: var(--muted);
+}
+.link-text span {
+    color: var(--verde);
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 1.5px solid transparent;
+    transition: border-color 0.2s;
+}
+.link-text span:hover { border-color: var(--verde); }
+
+/* ── Trust badge ──────────────────────────────── */
+.login-trust {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 22px;
+    font-size: 0.71rem;
+    color: var(--muted);
+    opacity: 0.65;
+    font-weight: 500;
+}
+
+/* ── Mesh Gradient Background ─────────────────── */
 #meshBg {
     position: fixed;
     inset: 0;
@@ -29,7 +337,7 @@ html.tema-escuro .app-container {
     overflow: hidden;
     background: #edfaf4;
 }
-html.tema-escuro #meshBg { background: #0b120f; }
+html.tema-escuro #meshBg { background: #0a110e; }
 
 .mesh-blob {
     position: absolute;
@@ -40,29 +348,35 @@ html.tema-escuro #meshBg { background: #0b120f; }
 }
 .blob-1 {
     width: 400px; height: 340px; top: -110px; left: -90px;
-    background: rgba(72, 210, 165, 0.52);
+    background: rgba(72, 210, 165, 0.46);
     animation: blobDrift1 14s ease-in-out infinite;
 }
 .blob-2 {
     width: 330px; height: 310px; top: -70px; right: -80px;
-    background: rgba(72, 158, 255, 0.42);
+    background: rgba(142, 68, 173, 0.22);
     animation: blobDrift2 18s ease-in-out infinite;
 }
 .blob-3 {
     width: 310px; height: 360px; bottom: 30px; left: 18%;
-    background: rgba(100, 220, 180, 0.36);
+    background: rgba(100, 220, 180, 0.30);
     animation: blobDrift3 21s ease-in-out infinite;
 }
 .blob-4 {
     width: 280px; height: 260px; bottom: -90px; right: 8%;
-    background: rgba(88, 178, 255, 0.34);
+    background: rgba(72, 158, 255, 0.26);
     animation: blobDrift1 16s ease-in-out infinite reverse;
 }
+.blob-5 {
+    width: 220px; height: 240px; top: 35%; left: -60px;
+    background: rgba(100, 80, 200, 0.16);
+    animation: blobDrift2 24s ease-in-out infinite;
+}
 
-html.tema-escuro .blob-1 { background: rgba(16, 88, 52, 0.80); }
-html.tema-escuro .blob-2 { background: rgba(10, 35, 95, 0.90); }
-html.tema-escuro .blob-3 { background: rgba(6,  60, 38, 0.70); }
-html.tema-escuro .blob-4 { background: rgba(12, 25, 78, 0.80); }
+html.tema-escuro .blob-1 { background: rgba(16, 88, 52, 0.82); }
+html.tema-escuro .blob-2 { background: rgba(60, 15, 88, 0.88); }
+html.tema-escuro .blob-3 { background: rgba(6,  60, 38, 0.72); }
+html.tema-escuro .blob-4 { background: rgba(12, 25, 78, 0.82); }
+html.tema-escuro .blob-5 { background: rgba(40, 10, 70, 0.72); }
 
 @keyframes blobDrift1 {
     0%, 100% { transform: translate(0, 0) scale(1); }
@@ -80,7 +394,7 @@ html.tema-escuro .blob-4 { background: rgba(12, 25, 78, 0.80); }
     60%       { transform: translate(-32px, -22px) scale(0.93); }
 }
 
-/* ── Network Dots Canvas ───────────────────────────────── */
+/* ── Canvas de rede ───────────────────────────── */
 #networkCanvas {
     position: fixed;
     inset: 0;
@@ -90,49 +404,8 @@ html.tema-escuro .blob-4 { background: rgba(12, 25, 78, 0.80); }
     pointer-events: none;
 }
 
-header { text-align: center; margin-bottom: 30px; }
-header h1 { color: var(--verde); font-size: 1.8rem; margin-bottom: 5px; }
-header p  { color: var(--muted); font-size: 0.9rem; }
-
-.tabs { display: flex; background-color: #f0f0f0; border-radius: 30px; margin-bottom: 30px; overflow: hidden; }
-html.tema-escuro .tabs { background-color: #2a2a2a; }
-.tab-btn { flex: 1; padding: 10px 0; min-height: 44px; border: none; background: none; color: var(--muted); font-weight: bold; cursor: pointer; transition: 0.3s; }
-.tab-btn.active-jovem  { background-color: var(--verde);   color: white; border-radius: 30px; }
-.tab-btn.active-gestor { background-color: var(--laranja); color: white; border-radius: 30px; }
-
-.form-group { margin-bottom: 15px; text-align: left; }
-.form-group label { display: block; font-size: 0.9rem; color: var(--texto); margin-bottom: 5px; font-weight: bold; }
-
-input, select {
-    width: 100%; padding: 15px;
-    border: 1px solid #ddd; border-radius: 12px;
-    background-color: #fafafa; font-size: 1rem;
-    outline: none; transition: 0.3s; margin-bottom: 5px;
-}
-input:focus, select:focus { border-color: var(--verde); background-color: #fff; box-shadow: 0 0 0 3px rgba(54,122,40,0.15); }
-html.tema-escuro input, html.tema-escuro select { background: #2a2a2a !important; border-color: #3a3a3a; color: var(--texto); }
-html.tema-escuro input:focus, html.tema-escuro select:focus { box-shadow: 0 0 0 3px rgba(79,181,62,0.2); }
-
-.input-wrap { position: relative; margin-bottom: 5px; }
-.input-wrap input { padding-left: 42px; margin-bottom: 0; }
-.input-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-
-.senha-strength { display: flex; gap: 3px; margin-top: 6px; height: 5px; }
-.strength-bar   { flex: 1; border-radius: 5px; background: #eee; transition: background 0.3s ease; }
-.strength-label { display: block; font-size: 0.75rem; margin-top: 4px; min-height: 16px; font-weight: 600; transition: color 0.3s; }
-
-#statusServidor {
-    font-size: 0.78rem; text-align: center; padding: 6px 10px;
-    border-radius: 8px; margin-bottom: 16px; display: none;
-}
-
-.link-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--muted); }
-.link-text span { color: var(--verde); font-weight: bold; cursor: pointer; }
-
-.btn { margin-top: 10px; }
-
-/* ── Tab slide transition ────────────────────────────────── */
-@keyframes slideInLeft  { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
-@keyframes slideInRight { from { opacity:0; transform:translateX( 20px); } to { opacity:1; transform:translateX(0); } }
+/* ── Transições das abas ──────────────────────── */
+@keyframes slideInLeft  { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX( 20px); } to { opacity: 1; transform: translateX(0); } }
 .tab-slide-left  { animation: slideInLeft  0.25s ease both; }
 .tab-slide-right { animation: slideInRight 0.25s ease both; }

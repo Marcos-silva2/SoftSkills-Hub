@@ -182,6 +182,7 @@
     <div class="mesh-blob blob-2"></div>
     <div class="mesh-blob blob-3"></div>
     <div class="mesh-blob blob-4"></div>
+    <div class="mesh-blob blob-5"></div>
 </div>
 <canvas id="networkCanvas" aria-hidden="true"></canvas>
 
@@ -189,18 +190,20 @@
 
     <!-- ── LOGIN ──────────────────────────────────── -->
     <div id="telaLogin" class="view active">
-        <header>
-            <div style="margin:0 auto 6px;width:260px;height:260px;">
-                <img src="assets/icons/Logo.png" alt="SoftSkills Hub" style="width:260px;height:260px;object-fit:contain;">
+        <header class="login-header">
+            <div class="login-brand">
+                <img src="assets/icons/Logo.png" alt="SoftSkills Hub" class="login-logo">
+                <div class="login-brand-text">
+                    <h1 class="login-title">SoftSkills Hub</h1>
+                    <p class="login-subtitle">Seu espaço seguro de desenvolvimento.</p>
+                </div>
             </div>
-            <h1>SoftSkills Hub</h1>
-            <p>Seu espaço seguro de desenvolvimento.</p>
         </header>
 
         <div id="statusServidor"></div>
 
-        <button id="btnInstalarPwa" style="width:100%;padding:12px;margin-bottom:14px;border:none;border-radius:12px;background:linear-gradient(135deg,#1565c0,#1e88e5);color:white;font-size:0.9rem;font-weight:600;cursor:pointer;gap:8px;display:flex;align-items:center;justify-content:center;" onclick="instalarPwa()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <button id="btnInstalarPwa" class="btn-instalar" onclick="instalarPwa()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Instalar App
         </button>
 
@@ -219,11 +222,19 @@
             <label class="sr-only" for="loginSenha">Senha</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password">
+                <input id="loginSenha" type="password" placeholder="Senha" autocomplete="current-password" class="tem-toggle">
+                <button class="btn-toggle-senha" type="button" onclick="toggleVerSenha('loginSenha', this)" tabindex="-1" aria-label="Mostrar senha">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
             </div>
             <div id="erroLogin" class="alerta alerta-erro"></div>
             <button id="btnEntrar" class="btn btn-verde" onclick="loginAprendiz()">Entrar</button>
             <p class="link-text">Primeiro acesso? <span onclick="irParaCadastro()">Criar meu perfil anônimo</span></p>
+        </div>
+
+        <div class="login-trust">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Seus dados são anônimos e protegidos
         </div>
 
         <!-- Gestor -->
@@ -236,7 +247,10 @@
             <label class="sr-only" for="gestorSenha">Senha do gestor</label>
             <div class="input-wrap">
                 <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <input id="gestorSenha" type="password" placeholder="Senha" autocomplete="current-password">
+                <input id="gestorSenha" type="password" placeholder="Senha" autocomplete="current-password" class="tem-toggle">
+                <button class="btn-toggle-senha" type="button" onclick="toggleVerSenha('gestorSenha', this)" tabindex="-1" aria-label="Mostrar senha">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
             </div>
             <div id="erroGestor" class="alerta alerta-erro"></div>
             <button id="btnEntrarGestor" class="btn btn-laranja" onclick="loginGestor()">Acessar Painel de Dados</button>
@@ -245,9 +259,9 @@
 
     <!-- ── CADASTRO ────────────────────────────────── -->
     <div id="telaCadastro" class="view">
-        <header>
-            <h1 style="font-size:1.5rem;">Criar Perfil</h1>
-            <p>Nenhum dado pessoal será exigido.</p>
+        <header class="login-header">
+            <h1 class="login-title" style="font-size:1.45rem;">Criar Perfil</h1>
+            <p class="login-subtitle">Nenhum dado pessoal será exigido.</p>
         </header>
 
         <div id="avisoEmpresa" class="alerta alerta-info" style="display:none; margin-bottom:12px;">
@@ -284,7 +298,13 @@
 
         <div class="form-group">
             <label>Crie uma Senha</label>
-            <input id="cadSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="avaliarSenha(this.value)">
+            <div class="input-wrap" style="margin-bottom:0;">
+                <svg class="input-icon" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="cadSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="avaliarSenha(this.value)" class="tem-toggle">
+                <button class="btn-toggle-senha" type="button" onclick="toggleVerSenha('cadSenha', this)" tabindex="-1" aria-label="Mostrar senha">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
             <div class="senha-strength">
                 <div class="strength-bar" id="sb1"></div>
                 <div class="strength-bar" id="sb2"></div>
@@ -544,12 +564,23 @@
 
     if (typeof gsap !== 'undefined' && !localStorage.getItem('ssh_token') && !localStorage.getItem('ssh_token_gestor')) {
         gsap.timeline({ defaults: { ease: 'power3.out', clearProps: 'all' } })
-            .from('header > div', { scale: 0.3, opacity: 0, duration: 0.65, ease: 'elastic.out(1, 0.5)' })
-            .from('header h1',    { y: 20, opacity: 0, duration: 0.4 }, '-=0.25')
-            .from('header p',     { y: 15, opacity: 0, duration: 0.3 }, '-=0.15')
-            .from('.tabs',        { y: 18, opacity: 0, duration: 0.32 }, '-=0.1')
-            .from('#formJovem .input-wrap, #formJovem .btn, #formJovem .link-text',
+            .from('.login-logo',       { scale: 0.25, opacity: 0, duration: 0.7, ease: 'elastic.out(1, 0.5)' })
+            .from('.login-brand-text', { x: -18, opacity: 0, duration: 0.42 }, '-=0.38')
+            .from('.btn-instalar',     { y: 10, opacity: 0, duration: 0.3 }, '-=0.1')
+            .from('.tabs',             { y: 16, opacity: 0, duration: 0.3 }, '-=0.1')
+            .from('#formJovem .input-wrap, #formJovem .btn, #formJovem .link-text, .login-trust',
                 { y: 12, opacity: 0, stagger: 0.07, duration: 0.28 }, '-=0.05');
+    }
+
+    function toggleVerSenha(inputId, btn) {
+        const inp = document.getElementById(inputId);
+        const mostrar = inp.type === 'password';
+        inp.type = mostrar ? 'text' : 'password';
+        const svg = btn.querySelector('svg');
+        svg.innerHTML = mostrar
+            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+            : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+        btn.setAttribute('aria-label', mostrar ? 'Ocultar senha' : 'Mostrar senha');
     }
 
     if (new URLSearchParams(window.location.search).get('sessao') === 'expirada') {

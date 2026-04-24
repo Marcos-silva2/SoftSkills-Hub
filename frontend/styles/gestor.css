@@ -208,3 +208,108 @@ textarea.input-modal { resize: vertical; min-height: 130px; line-height: 1.5; }
     font-size: 0.9rem; cursor: pointer; transition: 0.2s;
 }
 .btn-modal-cancelar:hover { border-color: #bbb; }
+.btn-modal-salvar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ── Modal header com botão fechar ───────────────── */
+.modal-header {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 16px;
+}
+.modal-header .modal-titulo { margin-bottom: 0; }
+.btn-modal-fechar {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 4px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s; flex-shrink: 0;
+}
+.btn-modal-fechar:hover { background: #f0f0f0; color: var(--texto); }
+html.tema-escuro .btn-modal-fechar:hover { background: #2a2a2a; }
+
+/* ── Filtros de categoria (trilhas) ──────────────── */
+.cat-filtros {
+    display: flex; gap: 6px; flex-wrap: wrap;
+}
+.btn-cat {
+    padding: 5px 12px; border: none; border-radius: 20px;
+    font-size: 0.74rem; font-weight: 700; cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
+    color: white; opacity: 0.55; font-family: inherit;
+}
+.btn-cat.ativo { opacity: 1; transform: scale(1.04); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.btn-cat-todos { background: #555; }
+.btn-cat-ie    { background: #7b1fa2; }
+.btn-cat-com   { background: #1565c0; }
+.btn-cat-pp    { background: #2e7d32; }
+.btn-cat-sm    { background: #e65100; }
+
+/* ── Cards de artigo (admin) ─────────────────────── */
+.artigo-admin-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 0 20px 10px;
+    border: 1px solid #eee;
+    border-left: 4px solid var(--laranja);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.artigo-admin-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.09);
+    transform: translateY(-1px);
+}
+html.tema-escuro .artigo-admin-card {
+    background: #1e1e1e; border-color: #2a2a2a;
+}
+
+/* Borda esquerda colorida por categoria */
+.cat-borda-inteligencia_emocional { border-left-color: #7b1fa2; }
+.cat-borda-comunicacao            { border-left-color: #1565c0; }
+.cat-borda-postura_profissional   { border-left-color: #2e7d32; }
+.cat-borda-saude_mental           { border-left-color: #e65100; }
+
+.artigo-admin-topo {
+    display: flex; align-items: center;
+    justify-content: space-between; margin-bottom: 8px;
+}
+.artigo-admin-tempo {
+    font-size: 0.72rem; color: var(--muted); font-weight: 600;
+}
+.artigo-admin-titulo {
+    font-size: 0.9rem; font-weight: 700; color: var(--texto);
+    margin: 0 0 5px; line-height: 1.35;
+}
+.artigo-admin-resumo {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.4;
+    margin: 0 0 10px;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+}
+.artigo-admin-rodape {
+    display: flex; align-items: center; justify-content: space-between;
+}
+.artigo-admin-data { font-size: 0.72rem; color: var(--muted); }
+.artigo-admin-acoes { display: flex; gap: 6px; }
+
+/* Botões de ação por card */
+.btn-artigo-ico {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 11px; border: none; border-radius: 8px;
+    font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+}
+.btn-editar-ico {
+    background: rgba(196,82,26,0.09); color: var(--laranja);
+}
+.btn-editar-ico:hover {
+    background: var(--laranja); color: white;
+    box-shadow: 0 2px 8px rgba(196,82,26,0.35);
+}
+.btn-apagar-ico {
+    background: rgba(231,76,60,0.09); color: #e74c3c;
+}
+.btn-apagar-ico:hover {
+    background: #e74c3c; color: white;
+    box-shadow: 0 2px 8px rgba(231,76,60,0.35);
+}
+.btn-artigo-ico:disabled { opacity: 0.5; cursor: not-allowed; }

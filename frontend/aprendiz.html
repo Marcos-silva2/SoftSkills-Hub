@@ -35,23 +35,38 @@
 
     <!-- ── INÍCIO ──────────────────────────────────── -->
     <main id="viewInicio" class="view active">
-        <div id="cardEnquete" class="card" style="border:1px solid #e8f5e9;">
-            <h3><img src="assets/icons/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Pesquisa de Clima</h3>
-            <p id="cardEnqueteDesc">Quais desafios você enfrentou essa semana? Seu voto ajuda a melhorar o ambiente e é <strong>100% anônimo</strong>.</p>
+
+        <!-- Pesquisa de Clima — CTA principal -->
+        <div id="cardEnquete" class="card card-enquete">
+            <div class="enquete-header">
+                <img src="assets/icons/satisfacao-do-aprendiz.png" alt="" class="enquete-img">
+                <div>
+                    <h3 class="enquete-titulo">Pesquisa de Clima</h3>
+                    <p class="enquete-desc" id="cardEnqueteDesc">Quais desafios você enfrentou essa semana? Seu voto é <strong>100% anônimo</strong>.</p>
+                </div>
+            </div>
             <button id="btnIrEnquete" class="btn btn-verde" onclick="navegarApp('viewEnquete')">Responder Enquete</button>
         </div>
 
-        <div class="card" style="background:#f5eef8;border:1px solid #e8daef;">
-            <h3 style="color:#6c3483;">Momento Descompressão 🎮</h3>
-            <p style="color:var(--roxo);">Que tal um desafio rápido para destravar a mente e relaxar um pouco?</p>
-            <button class="btn btn-roxo" onclick="navegarApp('viewJogo')">Acessar</button>
+        <!-- Momento Descompressão -->
+        <div class="card card-descomp">
+            <div class="enquete-header">
+                <span class="descomp-emoji">🧩</span>
+                <div>
+                    <h3 class="enquete-titulo">Momento Descompressão</h3>
+                    <p class="enquete-desc">Explore o idiomês corporativo com flashcards interativos.</p>
+                </div>
+            </div>
+            <button class="btn btn-descomp" onclick="navegarApp('viewJogo')">Acessar flashcards</button>
         </div>
 
-        <div class="card">
-            <h3>💡 Dica do Dia</h3>
-            <p id="dicaResumo">Carregando dica...</p>
-            <button style="background:none;border:none;color:var(--verde);font-weight:bold;cursor:pointer;padding:0;" onclick="navegarApp('viewTrilhas')">Ver todos os artigos →</button>
+        <!-- Dica do Dia -->
+        <div class="card card-dica">
+            <span class="dica-badge">💡 Dica do Dia</span>
+            <p id="dicaResumo" class="dica-texto">Carregando dica...</p>
+            <button class="btn-link-verde" onclick="navegarApp('viewTrilhas')">Ver todos os artigos →</button>
         </div>
+
     </main>
 
     <!-- ── ENQUETE ─────────────────────────────────── -->
@@ -205,54 +220,36 @@
     <!-- ── JOGO ────────────────────────────────────── -->
     <main id="viewJogo" class="view" style="padding:20px 0 20px;">
 
-        <div id="jogoHint" class="jogo-hint">
-            <span class="hint-badge">💡 Dica</span>
-            <div class="hint-body">
-                <div><span id="hintEmoji"></span><strong class="hint-termo" id="hintTermo"></strong></div>
-                <div class="hint-def" id="hintDef"></div>
-            </div>
+        <div class="card" style="margin:0 20px 14px;padding:14px 18px;">
+            <h3 style="color:var(--roxo);">📖 Idiomês Corporativo</h3>
+            <p style="margin:5px 0 0;font-size:0.82rem;">Toque em cada card para descobrir o que o termo significa no trabalho.</p>
         </div>
 
-        <div class="jogo-topo">
-            <div class="jogo-kpi">
-                <span class="jogo-kpi-val" id="jogoMovimentos">0</span>
-                <span class="jogo-kpi-label">jogadas</span>
+        <div class="flash-progress-wrap">
+            <div class="flash-progress-bar">
+                <div class="flash-progress-fill" id="flashProgFill"></div>
             </div>
-            <div class="jogo-progress-col">
-                <div class="jogo-pares-segs" id="jogoProgress"></div>
-                <span class="jogo-kpi-label">pares</span>
-            </div>
-            <div class="jogo-kpi">
-                <span class="jogo-kpi-val" id="jogoTimer">0:00</span>
-                <span class="jogo-kpi-label">tempo</span>
-            </div>
-            <button class="btn-reiniciar" onclick="iniciarJogo()" aria-label="Novo jogo">🔄</button>
+            <span class="flash-progress-label" id="flashProgLabel">0 de 8 termos descobertos</span>
         </div>
 
-        <div class="board" id="boardJogo"></div>
-
-        <div id="dicionarioJogo" class="dicionario" style="display:none;">
-            <h4>📚 O que você aprendeu</h4>
-            <div id="dicionarioLista"></div>
-        </div>
+        <div class="flashcard-grid" id="flashGrid"></div>
 
         <button class="btn" style="background:transparent;color:var(--muted);margin:4px 20px 10px;width:calc(100% - 40px);" onclick="navegarApp('viewInicio')">← Voltar para o Início</button>
     </main>
 
-    <!-- Overlay de vitória -->
+    <!-- Overlay de conclusão -->
     <div id="jogoVitoria" class="vitoria-overlay" style="display:none;">
         <div class="vitoria-card">
-            <div class="vitoria-trofeu">🏆</div>
-            <h3>Você venceu!</h3>
+            <div class="vitoria-trofeu">🎓</div>
+            <h3>Você aprendeu tudo!</h3>
             <div class="vitoria-estrelas">
-                <span class="estrela" id="estrela1">⭐</span>
-                <span class="estrela" id="estrela2">⭐</span>
-                <span class="estrela" id="estrela3">⭐</span>
+                <span class="estrela ativa" id="estrela1">⭐</span>
+                <span class="estrela ativa" id="estrela2">⭐</span>
+                <span class="estrela ativa" id="estrela3">⭐</span>
             </div>
             <p id="jogoVitoriaMensagem"></p>
-            <p id="jogoRecordMsg" class="vitoria-record-msg"></p>
-            <button class="btn btn-roxo" onclick="iniciarJogo()" style="margin-top:14px;">Jogar novamente</button>
-            <button class="btn" style="background:transparent;color:var(--muted);margin-top:8px;" onclick="document.getElementById('jogoVitoria').style.display='none'">Ver dicionário →</button>
+            <button class="btn btn-roxo" onclick="reiniciarFlashcards()" style="margin-top:14px;">Estudar novamente</button>
+            <button class="btn" style="background:transparent;color:var(--muted);margin-top:8px;" onclick="document.getElementById('jogoVitoria').style.display='none'">Revisar cards →</button>
         </div>
     </div>
 
