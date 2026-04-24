@@ -4,9 +4,9 @@ Execute uma vez após instalar as dependências:
 
     python seed.py
 """
-from database import engine, SessionLocal
+from core.database import engine, SessionLocal
 import models
-import auth
+from core import security as auth
 
 models.Base.metadata.create_all(bind=engine)
 

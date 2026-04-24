@@ -11,7 +11,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./softskills.db")
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Importa Base e todos os models para popular o metadata
-from database import Base  # noqa: E402
+from core.database import Base  # noqa: E402
 import models  # noqa: E402, F401
 
 target_metadata = Base.metadata

@@ -6,14 +6,14 @@
     <title>SoftSkills Hub — Painel Gestor</title>
     <meta name="theme-color" content="#1565c0">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="emoji/Logo.ico">
-    <link rel="apple-touch-icon" href="emoji/Logo.png">
+    <link rel="icon" href="assets/icons/Logo.ico">
+    <link rel="apple-touch-icon" href="assets/icons/Logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/gestor.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/gestor.css">
     <script>
         (function () {
             const armazenado = localStorage.getItem('ssh_tema');
@@ -114,7 +114,7 @@
             </div>
         </div>
         <div class="card">
-            <h3><img src="emoji/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Satisfação por Empresa</h3>
+            <h3><img src="assets/icons/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Satisfação por Empresa</h3>
             <div id="listaEmpresas"><div class="loading">Carregando...</div></div>
         </div>
     </main>
@@ -123,7 +123,7 @@
     <main id="viewPerfilGestor" class="view">
         <div class="card" style="text-align:center;padding:24px 20px;">
             <div class="perfil-avatar-g" style="background:transparent;box-shadow:none;width:90px;height:90px;">
-                <img src="emoji/perfil gestor.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
+                <img src="assets/icons/perfil gestor.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
             </div>
             <h3 id="perfilGestorNome" style="font-size:1.1rem;"></h3>
             <p id="perfilGestorUser" style="font-size:0.82rem;color:var(--muted);margin-top:4px;"></p>
@@ -258,14 +258,18 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/api.js"></script>
-<script src="js/gestor/dashboard.js"></script>
-<script src="js/gestor/problemas.js"></script>
-<script src="js/gestor/empresas.js"></script>
-<script src="js/gestor/trilhas.js"></script>
-<script src="js/gestor/perfil.js"></script>
-<script src="js/gestor/app.js"></script>
+<script src="scripts/core/theme.js"></script>
+<script src="scripts/core/dom.js"></script>
+<script src="scripts/core/format.js"></script>
+<script src="scripts/core/feedback.js"></script>
+<script src="scripts/core/animations.js"></script>
+<script src="scripts/core/pwa.js"></script>
+<script src="scripts/core/api.js"></script>
+<script src="scripts/gestor/dashboard.js"></script>
+<script src="scripts/gestor/problemas.js"></script>
+<script src="scripts/gestor/empresas.js"></script>
+<script src="scripts/gestor/trilhas.js"></script>
+<script src="scripts/gestor/perfil.js"></script>
+<script src="scripts/gestor/app.js"></script>
 </body>
 </html>

@@ -3,12 +3,12 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
-import auth
+from core import security as auth
 import models
 import schemas
-from database import get_db
-from dependencies import get_gestor_atual
-from limiter import limiter
+from core.database import get_db
+from core.dependencies import get_gestor_atual
+from core.rate_limiter import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth/gestor", tags=["Auth"])

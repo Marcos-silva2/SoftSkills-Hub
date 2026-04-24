@@ -6,14 +6,14 @@
     <title>SoftSkills Hub</title>
     <meta name="theme-color" content="#1565c0">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="emoji/Logo.ico">
-    <link rel="apple-touch-icon" href="emoji/icon-512x512.png">
+    <link rel="icon" href="assets/icons/Logo.ico">
+    <link rel="apple-touch-icon" href="assets/icons/icon-512x512.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/login.css">
     <script>
         (function () {
             const armazenado = localStorage.getItem('ssh_tema');
@@ -45,7 +45,7 @@
     <div id="splashContent" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;">
         <!-- Linha logo + nome -->
         <div style="display:flex;align-items:center;justify-content:center;">
-            <img id="splashLogo" src="emoji/Logo.png" alt="" style="width:130px;height:130px;object-fit:contain;will-change:transform;">
+            <img id="splashLogo" src="assets/icons/Logo.png" alt="" style="width:130px;height:130px;object-fit:contain;will-change:transform;">
             <!-- Nome com shimmer -->
             <div id="splashTextWrap" style="margin-left:6px;overflow:hidden;position:relative;opacity:0;will-change:transform,opacity;">
                 <span id="splashText" style="
@@ -191,7 +191,7 @@
     <div id="telaLogin" class="view active">
         <header>
             <div style="margin:0 auto 6px;width:260px;height:260px;">
-                <img src="emoji/Logo.png" alt="SoftSkills Hub" style="width:260px;height:260px;object-fit:contain;">
+                <img src="assets/icons/Logo.png" alt="SoftSkills Hub" style="width:260px;height:260px;object-fit:contain;">
             </div>
             <h1>SoftSkills Hub</h1>
             <p>Seu espaço seguro de desenvolvimento.</p>
@@ -303,7 +303,9 @@
 
 </div>
 
-<script src="js/utils.js"></script>
+<script src="scripts/core/dom.js"></script>
+<script src="scripts/core/format.js"></script>
+<script src="scripts/core/feedback.js"></script>
 <script>
     const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:8000'
@@ -413,7 +415,7 @@
             const { access_token } = await res.json();
             localStorage.setItem('ssh_token', access_token);
             localStorage.setItem('ssh_username', username);
-            window.location.href = 'painel.aprendiz.html';
+            window.location.href = 'aprendiz.html';
         } catch (e) {
             mostrar('erroLogin', e.message, 'erro');
             adicionarShake(document.getElementById('formJovem'));
@@ -437,7 +439,7 @@
             });
             localStorage.setItem('ssh_token_gestor', dados.access_token);
             localStorage.setItem('ssh_gestor', username);
-            window.location.href = 'painel-gestor.html';
+            window.location.href = 'gestor.html';
         } catch (e) {
             mostrar('erroGestor', e.message, 'erro');
             adicionarShake(document.getElementById('formGestor'));
@@ -556,9 +558,9 @@
     }
 
     if (localStorage.getItem('ssh_token_gestor')) {
-        window.location.href = 'painel-gestor.html';
+        window.location.href = 'gestor.html';
     } else if (localStorage.getItem('ssh_token')) {
-        window.location.href = 'painel.aprendiz.html';
+        window.location.href = 'aprendiz.html';
     }
 
     (function initNetworkDots() {

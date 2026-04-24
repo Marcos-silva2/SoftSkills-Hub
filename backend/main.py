@@ -9,10 +9,10 @@ from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from sqlalchemy import text
 
-import auth
+from core import security as auth
 import models
-from database import engine, SessionLocal
-from limiter import limiter
+from core.database import engine, SessionLocal
+from core.rate_limiter import limiter
 from routers import empresas, auth_aprendiz, auth_gestor, enquete, mural, artigos, dashboard
 
 # ─── Logging ──────────────────────────────────────────────────────────────────

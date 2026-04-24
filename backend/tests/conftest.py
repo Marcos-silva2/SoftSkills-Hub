@@ -9,9 +9,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from database import Base, get_db
+from core.database import Base, get_db
 from main import app
-import auth as auth_module
+from core import security as auth_module
 import models
 
 # StaticPool garante que todas as sessões compartilham a mesma conexão em memória

@@ -1,16 +1,20 @@
-const CACHE = 'softskills-v12';
+const CACHE = 'softskills-v13';
 const ASSETS = [
     '/SoftSkills-Hub/',
     '/SoftSkills-Hub/index.html',
-    '/SoftSkills-Hub/painel.aprendiz.html',
-    '/SoftSkills-Hub/painel-gestor.html',
-    '/SoftSkills-Hub/css/global.css',
-    '/SoftSkills-Hub/css/gestor.css',
-    '/SoftSkills-Hub/css/aprendiz.css',
-    '/SoftSkills-Hub/js/api.js',
-    '/SoftSkills-Hub/js/theme.js',
-    '/SoftSkills-Hub/js/utils.js',
-    '/SoftSkills-Hub/emoji/Logo.png'
+    '/SoftSkills-Hub/aprendiz.html',
+    '/SoftSkills-Hub/gestor.html',
+    '/SoftSkills-Hub/styles/global.css',
+    '/SoftSkills-Hub/styles/gestor.css',
+    '/SoftSkills-Hub/styles/aprendiz.css',
+    '/SoftSkills-Hub/scripts/core/api.js',
+    '/SoftSkills-Hub/scripts/core/theme.js',
+    '/SoftSkills-Hub/scripts/core/dom.js',
+    '/SoftSkills-Hub/scripts/core/format.js',
+    '/SoftSkills-Hub/scripts/core/feedback.js',
+    '/SoftSkills-Hub/scripts/core/animations.js',
+    '/SoftSkills-Hub/scripts/core/pwa.js',
+    '/SoftSkills-Hub/assets/icons/Logo.png'
 ];
 
 self.addEventListener('install', e => {

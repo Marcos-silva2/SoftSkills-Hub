@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 import models
 import schemas
-from database import get_db
-from dependencies import get_aprendiz_atual
+from core.database import get_db
+from core.dependencies import get_aprendiz_atual
 from services.mural_service import verificar_rate_limit
 from services.sanitizer import sanitizar_conteudo
 

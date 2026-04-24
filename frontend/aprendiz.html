@@ -6,15 +6,15 @@
     <title>SoftSkills Hub - Painel</title>
     <meta name="theme-color" content="#1565c0">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="emoji/Logo.ico">
-    <link rel="apple-touch-icon" href="emoji/Logo.png">
+    <link rel="icon" href="assets/icons/Logo.ico">
+    <link rel="apple-touch-icon" href="assets/icons/Logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/aprendiz.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/aprendiz.css">
     <script>
         (function () {
             const armazenado = localStorage.getItem('ssh_tema');
@@ -36,7 +36,7 @@
     <!-- ── INÍCIO ──────────────────────────────────── -->
     <main id="viewInicio" class="view active">
         <div id="cardEnquete" class="card" style="border:1px solid #e8f5e9;">
-            <h3><img src="emoji/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Pesquisa de Clima</h3>
+            <h3><img src="assets/icons/satisfacao-do-aprendiz.png" alt="" style="width:56px;height:56px;vertical-align:middle;margin-right:8px;"> Pesquisa de Clima</h3>
             <p id="cardEnqueteDesc">Quais desafios você enfrentou essa semana? Seu voto ajuda a melhorar o ambiente e é <strong>100% anônimo</strong>.</p>
             <button id="btnIrEnquete" class="btn btn-verde" onclick="navegarApp('viewEnquete')">Responder Enquete</button>
         </div>
@@ -204,21 +204,29 @@
 
     <!-- ── JOGO ────────────────────────────────────── -->
     <main id="viewJogo" class="view" style="padding:20px 0 20px;">
-        <div class="card" style="margin:0 20px 12px;padding:14px 18px;">
-            <h3 style="color:var(--roxo);">🧠 Memória Corporativa</h3>
-            <p style="margin:5px 0 0;font-size:0.82rem;">Encontre os 6 pares! Cada carta esconde um termo do mundo do trabalho.</p>
+
+        <div id="jogoHint" class="jogo-hint">
+            <span class="hint-badge">💡 Dica</span>
+            <div class="hint-body">
+                <div><span id="hintEmoji"></span><strong class="hint-termo" id="hintTermo"></strong></div>
+                <div class="hint-def" id="hintDef"></div>
+            </div>
         </div>
 
         <div class="jogo-topo">
             <div class="jogo-kpi">
                 <span class="jogo-kpi-val" id="jogoMovimentos">0</span>
-                <span class="jogo-kpi-label">movimentos</span>
+                <span class="jogo-kpi-label">jogadas</span>
             </div>
-            <div class="jogo-kpi">
-                <span class="jogo-kpi-val" id="jogoPares">0/6</span>
+            <div class="jogo-progress-col">
+                <div class="jogo-pares-segs" id="jogoProgress"></div>
                 <span class="jogo-kpi-label">pares</span>
             </div>
-            <button class="btn-reiniciar" onclick="iniciarJogo()">🔄 Novo jogo</button>
+            <div class="jogo-kpi">
+                <span class="jogo-kpi-val" id="jogoTimer">0:00</span>
+                <span class="jogo-kpi-label">tempo</span>
+            </div>
+            <button class="btn-reiniciar" onclick="iniciarJogo()" aria-label="Novo jogo">🔄</button>
         </div>
 
         <div class="board" id="boardJogo"></div>
@@ -234,9 +242,15 @@
     <!-- Overlay de vitória -->
     <div id="jogoVitoria" class="vitoria-overlay" style="display:none;">
         <div class="vitoria-card">
-            <div style="font-size:2.8rem;">🎉</div>
+            <div class="vitoria-trofeu">🏆</div>
             <h3>Você venceu!</h3>
+            <div class="vitoria-estrelas">
+                <span class="estrela" id="estrela1">⭐</span>
+                <span class="estrela" id="estrela2">⭐</span>
+                <span class="estrela" id="estrela3">⭐</span>
+            </div>
             <p id="jogoVitoriaMensagem"></p>
+            <p id="jogoRecordMsg" class="vitoria-record-msg"></p>
             <button class="btn btn-roxo" onclick="iniciarJogo()" style="margin-top:14px;">Jogar novamente</button>
             <button class="btn" style="background:transparent;color:var(--muted);margin-top:8px;" onclick="document.getElementById('jogoVitoria').style.display='none'">Ver dicionário →</button>
         </div>
@@ -245,7 +259,7 @@
     <!-- ── MURAL ───────────────────────────────────── -->
     <main id="viewMural" class="view">
         <div class="card">
-            <h3><img src="emoji/Mural-da-comunidade.png" alt="" style="width:44px;height:44px;vertical-align:middle;margin-right:8px;"> Mural da Comunidade</h3>
+            <h3><img src="assets/icons/Mural-da-comunidade.png" alt="" style="width:44px;height:44px;vertical-align:middle;margin-right:8px;"> Mural da Comunidade</h3>
             <p>Compartilhe uma mensagem de apoio. Nenhum nome será exibido.</p>
             <div class="mural-box">
                 <textarea id="txtMensagem" rows="3" maxlength="500" placeholder="Escreva algo positivo para a comunidade..." oninput="atualizarContadorMural()"></textarea>
@@ -261,7 +275,7 @@
     <main id="viewTrilhas" class="view">
         <div class="card" style="padding:15px 20px;margin-bottom:5px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="margin:0;"><img src="emoji/conhecimento.png" alt="" style="width:36px;height:36px;vertical-align:middle;margin-right:8px;">Trilhas</h3>
+                <h3 style="margin:0;"><img src="assets/icons/conhecimento.png" alt="" style="width:36px;height:36px;vertical-align:middle;margin-right:8px;">Trilhas</h3>
                 <button class="btn-surpresa" onclick="surpreendaMe()">🎲 Surpresa</button>
             </div>
             <div class="busca-artigos-wrap">
@@ -309,7 +323,7 @@
     <main id="viewPerfil" class="view">
         <div class="card" style="text-align:center;padding:24px 20px;">
             <div class="perfil-avatar" style="background:transparent;box-shadow:none;width:90px;height:90px;">
-                <img src="emoji/perfil-aprendiz.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
+                <img src="assets/icons/perfil-aprendiz.png" alt="Perfil" style="width:90px;height:90px;object-fit:contain;">
             </div>
             <h3 id="perfilNome" style="font-size:1.1rem;"></h3>
             <p style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Membro desde <span id="perfilDesde">—</span></p>
@@ -366,14 +380,18 @@
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="js/theme.js"></script>
-<script src="js/utils.js"></script>
-<script src="js/api.js"></script>
-<script src="js/aprendiz/enquete.js"></script>
-<script src="js/aprendiz/mural.js"></script>
-<script src="js/aprendiz/trilhas.js"></script>
-<script src="js/aprendiz/jogo.js"></script>
-<script src="js/aprendiz/perfil.js"></script>
-<script src="js/aprendiz/app.js"></script>
+<script src="scripts/core/theme.js"></script>
+<script src="scripts/core/dom.js"></script>
+<script src="scripts/core/format.js"></script>
+<script src="scripts/core/feedback.js"></script>
+<script src="scripts/core/animations.js"></script>
+<script src="scripts/core/pwa.js"></script>
+<script src="scripts/core/api.js"></script>
+<script src="scripts/aprendiz/enquete.js"></script>
+<script src="scripts/aprendiz/mural.js"></script>
+<script src="scripts/aprendiz/trilhas.js"></script>
+<script src="scripts/aprendiz/jogo.js"></script>
+<script src="scripts/aprendiz/perfil.js"></script>
+<script src="scripts/aprendiz/app.js"></script>
 </body>
 </html>

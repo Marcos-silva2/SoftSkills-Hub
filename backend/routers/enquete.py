@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 import models
 import schemas
-from database import get_db
-from dependencies import get_aprendiz_atual
+from core.database import get_db
+from core.dependencies import get_aprendiz_atual
 from services.enquete_service import calcular_faixa_etaria, verificar_cooldown
 
 router = APIRouter(prefix="/enquete", tags=["Enquete"])

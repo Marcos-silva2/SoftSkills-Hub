@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional
 from sqlalchemy import Integer, String, Text, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from database import Base
+from core.database import Base
 
 
 def _now() -> datetime:

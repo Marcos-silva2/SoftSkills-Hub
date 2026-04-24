@@ -18,6 +18,7 @@ const _headerTema = {
 
 function navegarApp(id) {
     if (id === 'viewEnquete' && enqueteBloqueada) return;
+    if (typeof jogoLimpar === 'function') jogoLimpar();
 
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));

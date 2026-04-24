@@ -10,8 +10,8 @@ from sqlalchemy.orm import Session
 
 import models
 import schemas
-from database import get_db
-from dependencies import get_gestor_atual
+from core.database import get_db
+from core.dependencies import get_gestor_atual
 from services.dashboard_service import filtrar_ano
 
 logger = logging.getLogger(__name__)
