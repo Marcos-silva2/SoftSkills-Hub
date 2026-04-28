@@ -1,10 +1,11 @@
-const CACHE = 'softskills-v13';
+const CACHE = 'softskills-v14';
 const ASSETS = [
     '/SoftSkills-Hub/',
     '/SoftSkills-Hub/index.html',
     '/SoftSkills-Hub/aprendiz.html',
     '/SoftSkills-Hub/gestor.html',
     '/SoftSkills-Hub/styles/global.css',
+    '/SoftSkills-Hub/styles/login.css',
     '/SoftSkills-Hub/styles/gestor.css',
     '/SoftSkills-Hub/styles/aprendiz.css',
     '/SoftSkills-Hub/scripts/core/api.js',

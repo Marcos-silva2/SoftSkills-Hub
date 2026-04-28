@@ -36,6 +36,13 @@ class Aprendiz(Base):
 
     empresa: Mapped["Empresa"] = relationship(back_populates="aprendizes")
 
+    @property
+    def faixa_etaria(self) -> str:
+        if self.idade <= 16: return "15-16"
+        if self.idade <= 18: return "17-18"
+        if self.idade <= 21: return "19-21"
+        return "22"
+
 
 class Gestor(Base):
     __tablename__ = "gestores"

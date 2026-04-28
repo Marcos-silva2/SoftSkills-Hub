@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timezone, timedelta
 
 from fastapi import HTTPException
@@ -27,8 +28,14 @@ def verificar_cooldown(aprendiz: models.Aprendiz, agora: datetime) -> None:
         ultima = ultima.replace(tzinfo=timezone.utc)
     diff = agora - ultima
     if diff < timedelta(days=COOLDOWN_DIAS):
-        dias_restantes = COOLDOWN_DIAS - diff.days
+        restante_seg = (timedelta(days=COOLDOWN_DIAS) - diff).total_seconds()
+        if restante_seg < 86400:
+            horas = max(1, math.ceil(restante_seg / 3600))
+            prazo = f"{horas} hora{'s' if horas != 1 else ''}"
+        else:
+            dias = math.ceil(restante_seg / 86400)
+            prazo = f"{dias} dia{'s' if dias != 1 else ''}"
         raise HTTPException(
             status_code=429,
-            detail=f"Você já respondeu essa semana. Aguarde {dias_restantes} dia(s) para responder novamente.",
+            detail=f"Você já respondeu essa semana. Aguarde {prazo} para responder novamente.",
         )

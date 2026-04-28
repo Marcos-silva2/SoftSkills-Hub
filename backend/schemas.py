@@ -57,6 +57,7 @@ class AprendizOut(BaseModel):
     username: str
     idade: int
     genero: str
+    faixa_etaria: Optional[str] = None
     empresa_id: int
     created_at: datetime
     last_enquete_at: Optional[datetime] = None
