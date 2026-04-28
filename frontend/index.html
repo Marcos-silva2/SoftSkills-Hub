@@ -402,6 +402,7 @@
     }
 
     let _empresasRetryTimer = null;
+    let _empresasMainTimer  = null;
 
     async function carregarEmpresas(tentativa = 0) {
         const sel   = document.getElementById('cadEmpresa');
@@ -409,6 +410,7 @@
         const MAX   = 4;
 
         clearTimeout(_empresasRetryTimer);
+        clearTimeout(_empresasMainTimer);
         aviso.style.display = 'none';
         sel.innerHTML = tentativa === 0
             ? '<option value="" disabled selected>Carregando...</option>'
@@ -435,7 +437,7 @@
                     if (--restante > 0) _empresasRetryTimer = setTimeout(tick, 1000);
                 };
                 tick();
-                setTimeout(() => carregarEmpresas(tentativa + 1), 10000);
+                _empresasMainTimer = setTimeout(() => carregarEmpresas(tentativa + 1), 10000);
             } else {
                 sel.innerHTML = '<option value="" disabled selected>Falha ao carregar</option>';
                 aviso.className = 'alerta alerta-erro';
