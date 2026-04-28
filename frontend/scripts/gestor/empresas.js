@@ -67,8 +67,8 @@ const LABEL_GENERO = {
 };
 
 const LABEL_POSITIVO = {
-    aprendizado:     'Boa oportunidade de aprendizado',
-    clima_bom:       'Bom clima com a equipe',
+    aprendizado:     'Bom aprendizado prático',
+    clima_bom:       'Bom clima na equipe',
     lideranca_apoio: 'Liderança prestativa',
     beneficios:      'Bons benefícios',
     flexibilidade:   'Flexibilidade de horários',
@@ -76,11 +76,11 @@ const LABEL_POSITIVO = {
 };
 
 const LABEL_NEGATIVO = {
-    comunicacao_ruim:     'Falta de comunicação interna',
-    desorganizacao:       'Desorganização nos processos',
-    clima_tenso:          'Clima organizacional tenso',
+    comunicacao_ruim:     'Comunicação ruim',
+    desorganizacao:       'Desorganização',
+    clima_tenso:          'Clima tenso',
     falta_reconhecimento: 'Falta de reconhecimento',
-    distancia_lideranca:  'Liderança distante ou ausente',
+    distancia_lideranca:  'Liderança ausente',
     nenhum_neg:           'Nenhum ponto negativo',
 };
 
@@ -94,7 +94,7 @@ async function abrirDetalheEmpresa(id, nome) {
     try {
         const d = await apiFetch(`/dashboard/empresa/${id}/detalhes`);
         document.getElementById('detalheTotalRespostas').textContent =
-            `${d.total_respostas} resposta${d.total_respostas !== 1 ? 's' : ''} registradas`;
+            `${d.total_respostas} resposta${d.total_respostas !== 1 ? 's' : ''} registrada${d.total_respostas !== 1 ? 's' : ''}`;
 
         if (!d.efetivacao_genero.length) {
             document.getElementById('detalheGeneroLista').innerHTML = '<div class="loading">Sem dados.</div>';
