@@ -14,6 +14,10 @@ let _artigoAtual    = null;
 let _queryBusca     = '';
 let _buscaTimer     = null;
 
+if (typeof marked !== 'undefined') {
+    marked.use({ breaks: true, gfm: true });
+}
+
 // ── localStorage ───────────────────────────────────────────
 const _KEY_FAV  = 'ssh_favoritos';
 const _KEY_LIDO = 'ssh_lidos';

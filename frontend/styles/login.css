@@ -181,6 +181,17 @@ html.tema-escuro input:focus, html.tema-escuro select:focus {
     background: #282828 !important;
     box-shadow: 0 0 0 4px rgba(79, 181, 62, 0.16);
 }
+input::placeholder, select::placeholder { color: var(--muted); opacity: 0.75; }
+html.tema-escuro input::placeholder, html.tema-escuro select::placeholder { color: var(--muted); opacity: 0.6; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus { -webkit-text-fill-color: var(--texto); transition: background-color 5000s; }
+html.tema-escuro input:-webkit-autofill,
+html.tema-escuro input:-webkit-autofill:hover,
+html.tema-escuro input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--texto) !important;
+    -webkit-box-shadow: 0 0 0 1000px #222 inset !important;
+}
 
 /* Input com ícone à esquerda */
 .input-wrap { position: relative; margin-bottom: 10px; }

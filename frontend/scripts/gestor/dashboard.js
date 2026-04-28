@@ -1,3 +1,23 @@
+let _donutFiltro = null;
+let _donutState  = null;
+
+function toggleFiltros(header) {
+    header.closest('.filtros-card').classList.toggle('aberto');
+}
+
+function toggleDonutFiltro(label) {
+    _donutFiltro = _donutFiltro === label ? null : label;
+    if (!_donutState) return;
+    const { sim, nao, talvez, total } = _donutState;
+    document.getElementById('barrasEfetivacao').innerHTML = donutChart(sim, nao, talvez, total);
+    setTimeout(() => {
+        document.querySelectorAll('#barrasEfetivacao .donut-arco[data-len]').forEach(el => {
+            const len = +el.dataset.len, circ = +el.dataset.circ;
+            el.setAttribute('stroke-dasharray', `${len} ${circ - len}`);
+        });
+    }, 60);
+}
+
 function filtrosQuery() {
     const ano     = document.getElementById('filtroAno').value;
     const empresa = document.getElementById('filtroEmpresa').value;
@@ -61,6 +81,8 @@ function animarContagem(el, alvo, sufixo = '', decimais = 0, duracao = 800) {
 }
 
 function donutChart(sim, nao, talvez, total) {
+    _donutState = { sim, nao, talvez, total };
+
     const r = 44, cx = 62, cy = 62;
     const circ = 2 * Math.PI * r;
     const gap  = circ * 0.012;
@@ -71,20 +93,23 @@ function donutChart(sim, nao, talvez, total) {
     const nTalvez = Math.round(talvez / 100 * total);
 
     const segs = [
-        { perc: sim,    cor: '#27ae60', n: nSim,    emoji: '✅', label: 'Sim'    },
-        { perc: talvez, cor: '#f39c12', n: nTalvez, emoji: '🤔', label: 'Talvez' },
-        { perc: nao,    cor: '#e74c3c', n: nNao,    emoji: '❌', label: 'Não'    },
+        { perc: sim,    cor: '#27ae60', n: nSim,    emoji: '✅', label: 'sim'    },
+        { perc: talvez, cor: '#f39c12', n: nTalvez, emoji: '🤔', label: 'talvez' },
+        { perc: nao,    cor: '#e74c3c', n: nNao,    emoji: '❌', label: 'não'    },
     ];
 
     let cum = 0;
     const arcos = segs.map(s => {
-        const len = Math.max(0, s.perc / 100 * circ - gap);
+        const len     = Math.max(0, s.perc / 100 * circ - gap);
+        const opacity = _donutFiltro ? (_donutFiltro === s.label ? '1' : '0.22') : '1';
         const arc = `<circle class="donut-arco"
-            data-len="${len.toFixed(2)}" data-circ="${circ.toFixed(2)}"
+            data-len="${len.toFixed(2)}" data-circ="${circ.toFixed(2)}" data-label="${s.label}"
             cx="${cx}" cy="${cy}" r="${r}" fill="none"
             stroke="${s.cor}" stroke-width="15"
             stroke-dasharray="0 ${circ.toFixed(2)}"
-            stroke-dashoffset="${(-cum).toFixed(2)}"/>`;
+            stroke-dashoffset="${(-cum).toFixed(2)}"
+            style="cursor:pointer;opacity:${opacity};transition:opacity 0.25s;"
+            onclick="toggleDonutFiltro('${s.label}')"/>`;
         cum += len + gap;
         return arc;
     });
@@ -104,31 +129,43 @@ function donutChart(sim, nao, talvez, total) {
         badgeBg    = dark ? '#3b1010' : '#fdecea';
     }
 
-    const ringStroke  = dark ? '#3a3a3a' : '#f0f0f0';
-    const textFill    = dark ? '#e4e4e4' : '#333333';
-    const mutedFill   = dark ? '#9e9e9e' : '#777777';
+    const ringStroke = dark ? '#3a3a3a' : '#f0f0f0';
+    const textFill   = dark ? '#e4e4e4' : '#333333';
+    const mutedFill  = dark ? '#9e9e9e' : '#777777';
 
-    const legenda = segs.map(s => `
-        <div style="display:flex;align-items:flex-start;gap:8px;">
-            <div style="width:11px;height:11px;border-radius:50%;background:${s.cor};flex-shrink:0;margin-top:3px;"></div>
-            <div>
-                <div style="font-size:0.83rem;font-weight:600;color:var(--texto);">${s.emoji} ${s.label} — <span style="color:${s.cor};">${s.perc}%</span></div>
-                <div style="font-size:0.72rem;color:var(--muted);">${s.n} pessoa${s.n !== 1 ? 's' : ''}</div>
-            </div>
-        </div>`).join('');
+    const legenda = segs.map(s => {
+        const isActive = !_donutFiltro || _donutFiltro === s.label;
+        const displayLabel = s.label.charAt(0).toUpperCase() + s.label.slice(1);
+        return `
+        <div style="display:flex;align-items:center;gap:8px;cursor:pointer;
+            opacity:${isActive ? '1' : '0.35'};transition:opacity 0.25s;padding:4px 6px;border-radius:8px;"
+            onclick="toggleDonutFiltro('${s.label}')">
+            <div style="width:10px;height:10px;border-radius:50%;background:${s.cor};flex-shrink:0;"></div>
+            <span style="font-size:0.8rem;font-weight:600;color:var(--texto);flex:1;">${s.emoji} ${displayLabel}</span>
+            <span style="font-size:0.82rem;font-weight:700;color:${s.cor};">${s.perc}%</span>
+            <span style="font-size:0.72rem;color:var(--muted);">${s.n}</span>
+        </div>`;
+    }).join('');
+
+    const filtroLabel = _donutFiltro
+        ? `<div style="font-size:0.74rem;color:${badgeColor};background:${badgeBg};border-radius:8px;padding:4px 10px;border:1px solid ${badgeColor}22;display:inline-block;">
+               Filtrando: ${_donutFiltro.charAt(0).toUpperCase() + _donutFiltro.slice(1)} — toque novamente para limpar
+           </div>`
+        : '';
 
     return `
-        <div style="display:flex;flex-direction:column;gap:16px;">
-            <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
                 <svg width="124" height="124" viewBox="0 0 124 124" style="flex-shrink:0;">
                     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ringStroke}" stroke-width="15"/>
                     <g transform="rotate(-90 ${cx} ${cy})">${arcos.join('')}</g>
                     <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="${textFill}">${total}</text>
                     <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="${mutedFill}">respostas</text>
                 </svg>
-                <div style="display:flex;flex-direction:column;gap:12px;flex:1;">${legenda}</div>
+                <div style="display:flex;flex-direction:column;gap:4px;flex:1;">${legenda}</div>
             </div>
-            <div style="background:${badgeBg};color:${badgeColor};border-radius:10px;padding:9px 14px;font-size:0.8rem;font-weight:600;text-align:center;border:1px solid ${badgeColor}22;">${badge}</div>
+            ${filtroLabel}
+            <div style="background:${badgeBg};color:${badgeColor};border-radius:10px;padding:8px 14px;font-size:0.8rem;font-weight:600;text-align:center;border:1px solid ${badgeColor}22;">${badge}</div>
         </div>`;
 }
 
@@ -191,23 +228,37 @@ async function carregarResumo() {
         });
 
         if (resumo.top_positivos?.length || resumo.top_negativos?.length) {
-            const _avalRow = (item, cor) =>
-                `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                    <div style="flex:1;font-size:0.82rem;color:var(--texto);">${item.valor.replace(/_/g,' ')}</div>
-                    <div style="font-size:0.8rem;font-weight:600;color:${cor};">${item.total}</div>
+            const maxPos = Math.max(...(resumo.top_positivos || []).map(i => i.total), 1);
+            const maxNeg = Math.max(...(resumo.top_negativos || []).map(i => i.total), 1);
+            const _avalRow = (item, cor, maxVal) => {
+                const pct = Math.round(item.total / maxVal * 100);
+                const bgAlpha = cor === '#27ae60' ? '#27ae6022' : '#e74c3c1a';
+                return `<div style="position:relative;padding:5px 8px;border-radius:7px;margin-bottom:3px;overflow:hidden;">
+                    <div class="aval-barra" data-pct="${pct}"
+                        style="position:absolute;left:0;top:0;height:100%;width:0%;background:${bgAlpha};border-radius:7px 0 0 7px;transition:width 0.55s cubic-bezier(.4,0,.2,1);"></div>
+                    <div style="position:relative;display:flex;align-items:center;gap:6px;">
+                        <div style="flex:1;font-size:0.79rem;color:var(--texto);line-height:1.3;">${item.valor.replace(/_/g,' ')}</div>
+                        <div style="font-size:0.77rem;font-weight:700;color:${cor};flex-shrink:0;">${item.total}</div>
+                    </div>
                 </div>`;
-            const posHtml = (resumo.top_positivos || []).map(i => _avalRow(i,'#27ae60')).join('');
-            const negHtml = (resumo.top_negativos || []).map(i => _avalRow(i,'#e74c3c')).join('');
+            };
+            const posHtml = (resumo.top_positivos || []).map(i => _avalRow(i,'#27ae60',maxPos)).join('');
+            const negHtml = (resumo.top_negativos || []).map(i => _avalRow(i,'#e74c3c',maxNeg)).join('');
             document.getElementById('gridAvaliacoes').innerHTML = `
                 <div>
-                    <p style="font-size:0.75rem;font-weight:600;color:#27ae60;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">✅ Pontos Positivos</p>
+                    <p style="font-size:0.75rem;font-weight:600;color:#27ae60;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">✅ Pontos Positivos</p>
                     ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
                 </div>
                 <div>
-                    <p style="font-size:0.75rem;font-weight:600;color:#e74c3c;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">❌ Pontos Negativos</p>
+                    <p style="font-size:0.75rem;font-weight:600;color:#e74c3c;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">❌ Pontos Negativos</p>
                     ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
                 </div>`;
             document.getElementById('cardAvaliacoes').style.display = 'block';
+            setTimeout(() => {
+                document.querySelectorAll('#gridAvaliacoes .aval-barra[data-pct]').forEach(el => {
+                    el.style.width = el.dataset.pct + '%';
+                });
+            }, 80);
         }
 
         if (efetivacao.length > 0) {
