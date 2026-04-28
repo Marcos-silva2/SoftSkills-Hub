@@ -1,5 +1,6 @@
 # Banco de dados
 backend/softskills.db
+backend/test_fresh.db
 
 # Variáveis de ambiente (nunca commitar)
 .env
