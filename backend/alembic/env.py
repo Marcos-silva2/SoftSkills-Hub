@@ -1,7 +1,14 @@
 import os
+import sys
 from sqlalchemy import create_engine, pool
 from alembic import context
 from dotenv import load_dotenv
+
+# Garante que backend/ está no sys.path independente de como o alembic é invocado
+# (linha de comando, programaticamente pelo uvicorn, CI, etc.)
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
 
 load_dotenv()
 

@@ -1,5 +1,5 @@
 import models
-import auth as auth_module
+from core import security as auth_module
 
 
 def _seed_gestor(db, username="gestor1", senha="senha123"):

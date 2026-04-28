@@ -70,25 +70,31 @@ async def lifespan(app: FastAPI):
     logger.info("iniciando SoftSkills Hub API")
     _run_migrations()
 
-    with engine.connect() as conn:
-        conn.execute(text("UPDATE aprendizes SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
-        conn.execute(text("UPDATE respostas_enquete SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
-        conn.commit()
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("UPDATE aprendizes SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
+            conn.execute(text("UPDATE respostas_enquete SET genero = 'prefiro_nao_dizer' WHERE genero = 'nao_binario'"))
+            conn.commit()
+    except Exception as e:
+        logger.warning("data-fix de gênero ignorado: %s", e)
 
-    with SessionLocal() as session:
-        if not session.query(models.Aprendiz).filter_by(username="aprendiz-adm").first():
-            primeira_empresa = session.query(models.Empresa).first()
-            if primeira_empresa:
-                session.add(models.Aprendiz(
-                    username="aprendiz-adm",
-                    senha_hash=auth.hash_senha("admin"),
-                    idade=18,
-                    genero="prefiro_nao_dizer",
-                    empresa_id=primeira_empresa.id,
-                    is_admin=True,
-                ))
-                session.commit()
-                logger.info("conta aprendiz-adm criada")
+    try:
+        with SessionLocal() as session:
+            if not session.query(models.Aprendiz).filter_by(username="aprendiz-adm").first():
+                primeira_empresa = session.query(models.Empresa).first()
+                if primeira_empresa:
+                    session.add(models.Aprendiz(
+                        username="aprendiz-adm",
+                        senha_hash=auth.hash_senha("admin"),
+                        idade=18,
+                        genero="prefiro_nao_dizer",
+                        empresa_id=primeira_empresa.id,
+                        is_admin=True,
+                    ))
+                    session.commit()
+                    logger.info("conta aprendiz-adm criada")
+    except Exception as e:
+        logger.warning("criação do aprendiz-adm ignorada: %s", e)
 
     logger.info("startup concluído")
     yield
