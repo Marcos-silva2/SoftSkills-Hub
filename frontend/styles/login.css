@@ -102,6 +102,9 @@ html.tema-escuro .btn-instalar {
     background: rgba(66, 165, 245, 0.06);
     color: #64b5f6;
 }
+@media (display-mode: standalone) {
+    .btn-instalar { display: none !important; }
+}
 
 /* ── Tabs ─────────────────────────────────────── */
 .tabs {

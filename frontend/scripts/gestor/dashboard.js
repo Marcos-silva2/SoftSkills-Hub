@@ -211,15 +211,21 @@ async function carregarResumo() {
             return;
         }
 
+        const sat  = resumo.media_satisfacao;
+        const perc = resumo.perc_quer_efetivacao;
         const kpiDados = [
-            { alvo: resumo.total_respostas,      sufixo: '',   decimais: 0, label: `Total de respostas${labelAno}` },
-            { alvo: resumo.media_satisfacao,     sufixo: ' ★', decimais: 1, label: 'Média de satisfação' },
-            { alvo: resumo.perc_quer_efetivacao, sufixo: '%',  decimais: 0, label: 'Querem ser efetivados' },
-            { alvo: efetivacao.length,           sufixo: '',   decimais: 0, label: 'Empresas com dados' },
+            { alvo: resumo.total_respostas, sufixo: '',   decimais: 0, label: `Total de respostas${labelAno}`, icon: '📊', cor: null },
+            { alvo: sat,  sufixo: ' ★', decimais: 1, label: 'Média de satisfação',   icon: '⭐',
+              cor: sat  >= 4 ? '#27ae60' : sat  >= 2.5 ? '#f39c12' : '#e74c3c' },
+            { alvo: perc, sufixo: '%',  decimais: 0, label: 'Querem ser efetivados', icon: '🎯',
+              cor: perc >= 50 ? '#27ae60' : perc >= 30 ? '#f39c12' : '#e74c3c' },
+            { alvo: efetivacao.length, sufixo: '', decimais: 0, label: 'Empresas com dados', icon: '🏢', cor: null },
         ];
         document.getElementById('kpiGrid').innerHTML = kpiDados.map(k => `
-            <div class="kpi">
-                <div class="valor" data-alvo="${k.alvo}" data-sufixo="${k.sufixo}" data-decimais="${k.decimais}">0${k.sufixo}</div>
+            <div class="kpi kpi-interativo">
+                <div class="kpi-icon">${k.icon}</div>
+                <div class="valor" data-alvo="${k.alvo}" data-sufixo="${k.sufixo}" data-decimais="${k.decimais}"
+                    ${k.cor ? `style="color:${k.cor}"` : ''}>0${k.sufixo}</div>
                 <div class="label">${k.label}</div>
             </div>
         `).join('');
@@ -230,28 +236,35 @@ async function carregarResumo() {
         if (resumo.top_positivos?.length || resumo.top_negativos?.length) {
             const maxPos = Math.max(...(resumo.top_positivos || []).map(i => i.total), 1);
             const maxNeg = Math.max(...(resumo.top_negativos || []).map(i => i.total), 1);
-            const _avalRow = (item, cor, maxVal) => {
-                const pct = Math.round(item.total / maxVal * 100);
-                const bgAlpha = cor === '#27ae60' ? '#27ae6022' : '#e74c3c1a';
-                return `<div style="position:relative;padding:5px 8px;border-radius:7px;margin-bottom:3px;overflow:hidden;">
-                    <div class="aval-barra" data-pct="${pct}"
-                        style="position:absolute;left:0;top:0;height:100%;width:0%;background:${bgAlpha};border-radius:7px 0 0 7px;transition:width 0.55s cubic-bezier(.4,0,.2,1);"></div>
-                    <div style="position:relative;display:flex;align-items:center;gap:6px;">
-                        <div style="flex:1;font-size:0.79rem;color:var(--texto);line-height:1.3;">${item.valor.replace(/_/g,' ')}</div>
-                        <div style="font-size:0.77rem;font-weight:700;color:${cor};flex-shrink:0;">${item.total}</div>
+            const _avalRow = (item, cor, maxVal, rank) => {
+                const pct    = Math.round(item.total / maxVal * 100);
+                const label  = escapeHtml(item.valor.replace(/_/g, ' '));
+                const bg     = cor === '#27ae60' ? 'rgba(39,174,96,0.09)' : 'rgba(231,76,60,0.08)';
+                const border = cor === '#27ae60' ? 'rgba(39,174,96,0.22)' : 'rgba(231,76,60,0.2)';
+                return `
+                <div class="aval-row" style="border:1px solid ${border};"
+                     onclick="this.classList.toggle('aval-ativo')">
+                    <div class="aval-barra" data-pct="${pct}" style="background:${bg};"></div>
+                    <div class="aval-conteudo">
+                        <span class="aval-rank">${rank}</span>
+                        <div class="aval-label">${label}</div>
+                        <div class="aval-nums">
+                            <span class="aval-total" style="color:${cor};">${item.total}</span>
+                            <span class="aval-pct">${pct}%</span>
+                        </div>
                     </div>
                 </div>`;
             };
-            const posHtml = (resumo.top_positivos || []).map(i => _avalRow(i,'#27ae60',maxPos)).join('');
-            const negHtml = (resumo.top_negativos || []).map(i => _avalRow(i,'#e74c3c',maxNeg)).join('');
+            const posHtml = (resumo.top_positivos || []).map((i, idx) => _avalRow(i, '#27ae60', maxPos, idx + 1)).join('');
+            const negHtml = (resumo.top_negativos || []).map((i, idx) => _avalRow(i, '#e74c3c', maxNeg, idx + 1)).join('');
             document.getElementById('gridAvaliacoes').innerHTML = `
                 <div>
-                    <p style="font-size:0.75rem;font-weight:600;color:#27ae60;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">✅ Pontos Positivos</p>
-                    ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
+                    <p class="aval-secao-titulo" style="color:#27ae60;border-left:3px solid #27ae60;">✅ Pontos Positivos</p>
+                    ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
                 </div>
                 <div>
-                    <p style="font-size:0.75rem;font-weight:600;color:#e74c3c;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;">❌ Pontos Negativos</p>
-                    ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);">Sem dados</p>'}
+                    <p class="aval-secao-titulo" style="color:#e74c3c;border-left:3px solid #e74c3c;">❌ Pontos Negativos</p>
+                    ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
                 </div>`;
             document.getElementById('cardAvaliacoes').style.display = 'block';
             setTimeout(() => {

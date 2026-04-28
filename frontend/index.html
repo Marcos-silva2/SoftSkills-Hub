@@ -401,9 +401,19 @@
         }
     }
 
-    async function carregarEmpresas() {
-        const sel = document.getElementById('cadEmpresa');
-        ocultar('avisoEmpresa');
+    let _empresasRetryTimer = null;
+
+    async function carregarEmpresas(tentativa = 0) {
+        const sel   = document.getElementById('cadEmpresa');
+        const aviso = document.getElementById('avisoEmpresa');
+        const MAX   = 4;
+
+        clearTimeout(_empresasRetryTimer);
+        aviso.style.display = 'none';
+        sel.innerHTML = tentativa === 0
+            ? '<option value="" disabled selected>Carregando...</option>'
+            : `<option value="" disabled selected>Reconectando (${tentativa}/${MAX})…</option>`;
+
         try {
             const lista = await apiFetch('/empresas');
             sel.innerHTML = '<option value="" disabled selected>Selecione sua empresa...</option>';
@@ -413,9 +423,25 @@
                 opt.textContent = e.nome;
                 sel.appendChild(opt);
             });
+            aviso.style.display = 'none';
         } catch {
-            sel.innerHTML = '<option value="" disabled selected>Erro ao carregar</option>';
-            document.getElementById('avisoEmpresa').style.display = 'block';
+            if (tentativa < MAX) {
+                let restante = 10;
+                sel.innerHTML = '<option value="" disabled selected>Aguardando servidor…</option>';
+                aviso.className = 'alerta alerta-info';
+                aviso.style.display = 'block';
+                const tick = () => {
+                    aviso.innerHTML = `⏳ Servidor iniciando (Render free tier). Nova tentativa em <b>${restante}s</b>…`;
+                    if (--restante > 0) _empresasRetryTimer = setTimeout(tick, 1000);
+                };
+                tick();
+                setTimeout(() => carregarEmpresas(tentativa + 1), 10000);
+            } else {
+                sel.innerHTML = '<option value="" disabled selected>Falha ao carregar</option>';
+                aviso.className = 'alerta alerta-erro';
+                aviso.style.display = 'block';
+                aviso.innerHTML = '⚠️ Não foi possível carregar as empresas. <button type="button" onclick="carregarEmpresas(0)" style="background:none;border:none;color:inherit;font-weight:700;cursor:pointer;font-family:inherit;font-size:inherit;text-decoration:underline;">↺ Tentar novamente</button>';
+            }
         }
     }
 
@@ -536,7 +562,9 @@
 
     let _pwaPrompt = null;
     const _isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
-    const _isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const _isInstalled = window.matchMedia('(display-mode: standalone)').matches
+        || window.navigator.standalone === true
+        || localStorage.getItem('ssh_pwa_installed') === '1';
 
     window.addEventListener('beforeinstallprompt', e => {
         e.preventDefault();
@@ -545,6 +573,7 @@
     window.addEventListener('appinstalled', () => {
         document.getElementById('btnInstalarPwa').style.display = 'none';
         _pwaPrompt = null;
+        localStorage.setItem('ssh_pwa_installed', '1');
     });
 
     if (_isInstalled) {
