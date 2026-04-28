@@ -42,7 +42,10 @@ Usuários do tipo aprendiz. Autenticados via JWT (tipo `"aprendiz"`).
 - `empresa` → muitos-para-um com `empresas`
 
 **Cooldown de enquete:**
-`last_enquete_at` é atualizado no momento do envio de cada resposta. O backend verifica se `agora - last_enquete_at < 7 dias` e retorna HTTP 429 com os dias restantes caso o cooldown não tenha expirado. A coluna foi adicionada via `ALTER TABLE` na inicialização do servidor (migração idempotente com `try/except`).
+`last_enquete_at` é atualizado no momento do envio de cada resposta. O backend verifica se `agora - last_enquete_at < 7 dias` e retorna HTTP 429 com o tempo restante caso o cooldown não tenha expirado. Quando restam menos de 24 horas, a mensagem exibe horas (ex: "Aguarde 3 horas"); caso contrário, exibe dias. A coluna foi adicionada via `ALTER TABLE` na inicialização do servidor (migração idempotente com `try/except`).
+
+**Propriedade `faixa_etaria` (computada):**
+O model `Aprendiz` expõe `faixa_etaria` como `@property` Python, calculada a partir de `idade`. Pydantic lê a propriedade via `from_attributes=True` e a inclui em `AprendizOut`, permitindo que o frontend exiba a faixa no perfil do aprendiz sem expor a idade exata.
 
 **Campo `is_admin`:**
 Identifica contas com permissão especial (ex: apagar mensagens do mural). A conta padrão `aprendiz-adm` é criada automaticamente no startup do backend com `is_admin=True`. Adicionado via migração idempotente junto com `last_enquete_at`.
@@ -157,25 +160,25 @@ Cada linha representa um item marcado na Pergunta 2 ("Avalie pontos da empresa")
 
 **Valores para `tipo = "positivo"`** (validados pelo conjunto `_POSITIVOS_VALIDOS`):
 
-| Valor              | Rótulo                       |
-|--------------------|------------------------------|
-| `aprendizado`      | Aprendizado constante        |
-| `clima_bom`        | Clima de trabalho agradável  |
-| `lideranca_apoio`  | Liderança que apoia          |
-| `beneficios`       | Bons benefícios              |
-| `flexibilidade`    | Flexibilidade de horários    |
-| `nenhum_pos`       | Nenhum ponto positivo        |
+| Valor              | Rótulo (exibido ao aprendiz e ao gestor) |
+|--------------------|------------------------------------------|
+| `aprendizado`      | Bom aprendizado prático                  |
+| `clima_bom`        | Bom clima na equipe                      |
+| `lideranca_apoio`  | Liderança prestativa                     |
+| `beneficios`       | Bons benefícios                          |
+| `flexibilidade`    | Flexibilidade de horários                |
+| `nenhum_pos`       | Nenhum ponto positivo                    |
 
 **Valores para `tipo = "negativo"`** (validados pelo conjunto `_NEGATIVOS_VALIDOS`):
 
-| Valor                  | Rótulo                          |
-|------------------------|---------------------------------|
-| `comunicacao_ruim`     | Comunicação ineficiente         |
-| `desorganizacao`       | Desorganização interna          |
-| `clima_tenso`          | Clima de trabalho tenso         |
-| `falta_reconhecimento` | Falta de reconhecimento         |
-| `distancia_lideranca`  | Liderança distante              |
-| `nenhum_neg`           | Nenhum ponto negativo           |
+| Valor                  | Rótulo (exibido ao aprendiz e ao gestor) |
+|------------------------|------------------------------------------|
+| `comunicacao_ruim`     | Comunicação ruim                         |
+| `desorganizacao`       | Desorganização                           |
+| `clima_tenso`          | Clima tenso                              |
+| `falta_reconhecimento` | Falta de reconhecimento                  |
+| `distancia_lideranca`  | Liderança ausente                        |
+| `nenhum_neg`           | Nenhum ponto negativo                    |
 
 > `nenhum_pos` e `nenhum_neg` são aceitos pelo validador mas **filtrados no frontend antes do POST** — nunca chegam a ser gravados no banco. Existem apenas para que o aprendiz possa indicar explicitamente que não tem pontos positivos/negativos sem travar a validação.
 

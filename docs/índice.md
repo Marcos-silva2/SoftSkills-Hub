@@ -7,6 +7,7 @@
 | `render.yaml` | Configuração de deploy no Render |
 | `.github/workflows/deploy.yml` | CI/CD GitHub Actions |
 | `.gitignore` | Arquivos ignorados pelo git |
+| `CLAUDE.md` | Guia de referência rápida para desenvolvimento |
 
 ---
 
@@ -14,39 +15,44 @@
 
 | Caminho | Função |
 |---|---|
-| `main.py` | Entry point FastAPI, CORS, routers |
-| `models.py` | Modelos SQLAlchemy (tabelas do banco) |
+| `main.py` | Entry point FastAPI, CORS, routers, lifespan |
+| `models.py` | Modelos SQLAlchemy (8 tabelas) |
 | `schemas.py` | Schemas Pydantic (validação de I/O) |
-| `database.py` | Engine SQLite, SessionLocal |
-| `auth.py` | JWT — geração e verificação de tokens |
-| `dependencies.py` | `get_current_user` injetado nas rotas |
-| `limiter.py` | Rate limiting (slowapi) |
 | `seed.py` | Dados iniciais (empresas, gestor padrão) |
 | `softskills.db` | Banco SQLite (não commitar) |
 | `.env` | Variáveis sensíveis (SECRET_KEY etc.) |
 | `.env.example` | Template das variáveis de ambiente |
 | `requirements.txt` | Dependências Python |
 
+### Core `backend/core/`
+
+| Caminho | Função |
+|---|---|
+| `core/security.py` | Hash bcrypt + geração/validação de JWT HS256 |
+| `core/database.py` | Engine SQLAlchemy, SessionLocal, Base, `get_db()` |
+| `core/dependencies.py` | `get_aprendiz_atual`, `get_gestor_atual` injetados nas rotas |
+| `core/rate_limiter.py` | Instância global do slowapi Limiter |
+
 ### Routers `backend/routers/`
 
 | Caminho | Prefixo | Função |
 |---|---|---|
-| `auth_aprendiz.py` | `/auth/aprendiz` | Login e cadastro do aprendiz |
-| `auth_gestor.py` | `/auth/gestor` | Login do gestor |
-| `empresas.py` | `/empresas` | CRUD de empresas |
-| `artigos.py` | `/artigos` | Artigos das trilhas |
-| `mural.py` | `/mural` | Posts e reações do mural |
-| `enquete.py` | `/enquete` | Enquetes profissionais (wizard) |
-| `dashboard.py` | `/dashboard` | Dados agregados para o gestor |
+| `auth_aprendiz.py` | `/auth/aprendiz` | Login, cadastro e perfil do aprendiz |
+| `auth_gestor.py` | `/auth/gestor` | Login e perfil do gestor |
+| `empresas.py` | `/empresas` | Listagem de empresas |
+| `artigos.py` | `/artigos` | CRUD de artigos das trilhas |
+| `mural.py` | `/mural` | Posts anônimos do mural |
+| `enquete.py` | `/enquete` | Envio de respostas da enquete de clima |
+| `dashboard.py` | `/dashboard` | Dados agregados para o painel gestor |
 
 ### Services `backend/services/`
 
 | Caminho | Função |
 |---|---|
-| `dashboard_service.py` | Queries de métricas do gestor |
-| `enquete_service.py` | Lógica de enquete e respostas |
-| `mural_service.py` | Lógica de posts e reações |
-| `sanitizer.py` | Sanitização de texto (XSS) |
+| `enquete_service.py` | Cooldown de 7 dias, cálculo de faixa etária |
+| `mural_service.py` | Rate limit de posts (120s), sanitização |
+| `dashboard_service.py` | Queries de métricas e agregações |
+| `sanitizer.py` | Sanitização de texto (blocklist + strip HTML) |
 
 ### Tests `backend/tests/`
 
@@ -63,59 +69,62 @@
 
 | Caminho | Função |
 |---|---|
-| `index.html` | Tela de login/cadastro (entry point) — inclui splash screen GSAP |
-| `painel.aprendiz.html` | SPA do aprendiz |
-| `painel-gestor.html` | SPA do gestor |
+| `index.html` | Tela de login/cadastro (entry point) — splash screen GSAP |
+| `aprendiz.html` | SPA do aprendiz (6 views) |
+| `gestor.html` | SPA do gestor (6 views) |
 | `manifest.json` | Manifesto PWA |
-| `sw.js` | Service Worker (cache offline) |
+| `sw.js` | Service Worker (cache-first, v14) |
 
-### CSS `frontend/css/`
+### CSS `frontend/styles/`
 
 | Caminho | Escopo |
 |---|---|
-| `global.css` | Variáveis, reset, componentes compartilhados |
+| `global.css` | Variáveis de tema, reset, componentes compartilhados |
 | `login.css` | Telas de login e cadastro |
 | `aprendiz.css` | Painel do aprendiz |
 | `gestor.css` | Painel do gestor |
 
-### JS compartilhado `frontend/js/`
+### JS Core `frontend/scripts/core/`
 
 | Caminho | Função |
 |---|---|
-| `api.js` | `apiFetch` centralizado, base URL |
-| `utils.js` | `mostrar`, `setBotao`, `mostrarToast`, `vibrar` |
+| `api.js` | `apiFetch`, `apiFetchComTotal`, base URL, expiração de sessão |
 | `theme.js` | Toggle dark/light mode |
+| `dom.js` | `mostrar`, `ocultar`, `setBotao`, `escapeHtml`, `emptyState` |
+| `format.js` | `formatarData`, `tempoRelativo` |
+| `feedback.js` | `mostrarToast`, `vibrar`, `adicionarShake`, `animarBotaoSucesso` |
+| `animations.js` | `iniciarRipple`, `atualizarNavPill`, `topBarInicio/Fim`, `animarListaComScroll` |
+| `pwa.js` | `iniciarPullToRefresh`, `initOfflineIndicator` |
 
-### JS do Aprendiz `frontend/js/aprendiz/`
+### JS do Aprendiz `frontend/scripts/aprendiz/`
 
 | Caminho | Função |
 |---|---|
-| `app.js` | Inicialização, navbar, roteamento de abas |
-| `trilhas.js` | Trilhas de aprendizado e artigos |
-| `mural.js` | Feed do mural, posts, reações |
-| `enquete.js` | Wizard multi-step de enquete |
-| `jogo.js` | Minijogo de soft skills |
+| `app.js` | Inicialização, navbar, roteamento de views |
+| `enquete.js` | Wizard multi-step de enquete (4 passos) |
+| `mural.js` | Feed do mural, posts anônimos, paginação |
+| `trilhas.js` | Cards de artigos, filtros, busca, modal de leitura |
+| `jogo.js` | Flashcards do idiomês corporativo |
 | `perfil.js` | Perfil e edição de dados do aprendiz |
 
-### JS do Gestor `frontend/js/gestor/`
+### JS do Gestor `frontend/scripts/gestor/`
 
 | Caminho | Função |
 |---|---|
 | `app.js` | Inicialização e navbar do gestor |
-| `dashboard.js` | Gráficos e métricas (Chart.js) |
-| `empresas.js` | CRUD de empresas |
-| `trilhas.js` | Gestão de artigos das trilhas |
+| `dashboard.js` | KPIs, donut chart de efetivação, barras de avaliação |
+| `empresas.js` | Listagem de satisfação por empresa e detalhe |
+| `trilhas.js` | CRUD de artigos das trilhas |
 | `perfil.js` | Perfil do gestor |
-| `problemas.js` | Relatos/problemas dos aprendizes |
+| `problemas.js` | Ranking de problemas relatados |
 
-### Assets `frontend/emoji/`
+### Assets `frontend/assets/icons/`
 
 | Arquivo | Uso |
 |---|---|
-| `Logo.png` | Logo na tela de login |
+| `Logo.png` | Logo na tela de login e apple-touch-icon |
 | `Logo.ico` | Favicon |
-| `Logo-icon.png` | Ícone PWA pequeno |
-| `icon-512x512.png` | Ícone PWA 512px / apple-touch-icon |
+| `icon-512x512.png` | Ícone PWA 512px |
 | `perfil-aprendiz.png` | Avatar padrão aprendiz |
 | `perfil gestor.png` | Avatar padrão gestor |
 | `Mural-da-comunidade.png` | Ilustração do mural |
@@ -132,6 +141,7 @@
 | `ideia-geral.md` | Visão do produto e público-alvo |
 | `contexto-projeto.md` | Contexto pedagógico e institucional |
 | `DATABASE_SCHEMA.md` | Diagrama e descrição das tabelas |
+| `ARCHITECTURE.md` | Camadas, fluxo de requisição, decisões de design |
 | `STYLEGUIDE.md` | Tokens de design, paleta, tipografia |
 | `empresas.md` | Regras de cadastro de empresas |
-| `jogo.md` | Mecânica do minijogo |
+| `jogo.md` | Mecânica do minijogo de flashcards |
