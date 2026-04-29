@@ -39,6 +39,7 @@
                 <div class="filtros-header-esq">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     <span>Filtros</span>
+                    <span id="badgeResumo" class="filtros-badge"></span>
                 </div>
                 <div class="filtros-header-dir">
                     <button class="btn-csv" onclick="exportarCSV();event.stopPropagation()" title="Exportar CSV" aria-label="Exportar CSV">
@@ -64,7 +65,10 @@
                         <option value="19-21">19–21 anos</option>
                         <option value="22">22 anos</option>
                     </select>
-                    <button class="btn-filtrar" onclick="carregarResumo()">Aplicar filtros</button>
+                    <div class="filtros-acoes">
+                        <button class="btn-limpar" onclick="limparFiltrosResumo()">Limpar</button>
+                        <button class="btn-filtrar" onclick="carregarResumo()">Aplicar filtros</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -82,7 +86,7 @@
         </div>
 
         <div class="card" id="cardAvaliacoes" style="display:none;">
-            <h3>📋 Top Avaliações</h3>
+            <h3 id="tituloAvaliacoes">📋 Top Avaliações</h3>
             <div id="gridAvaliacoes" class="grid-avaliacoes"></div>
         </div>
     </main>
@@ -94,6 +98,7 @@
                 <div class="filtros-header-esq">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     <span>Filtros</span>
+                    <span id="badgeProblemas" class="filtros-badge"></span>
                 </div>
                 <svg class="filtros-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
@@ -114,7 +119,10 @@
                         <option value="19-21">19–21 anos</option>
                         <option value="22">22 anos</option>
                     </select>
-                    <button class="btn-filtrar" onclick="carregarProblemas()">Aplicar filtros</button>
+                    <div class="filtros-acoes">
+                        <button class="btn-limpar" onclick="limparFiltrosProblemas()">Limpar</button>
+                        <button class="btn-filtrar" onclick="carregarProblemas()">Aplicar filtros</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -131,13 +139,17 @@
                 <div class="filtros-header-esq">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     <span>Filtrar por ano</span>
+                    <span id="badgeEmpresas" class="filtros-badge"></span>
                 </div>
                 <svg class="filtros-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
             <div class="filtros-corpo">
                 <div class="filtros">
                     <select id="filtroAnoEmpresas"><option value="">Todos os anos</option></select>
-                    <button class="btn-filtrar" onclick="carregarSatisfacaoEmpresas()">Aplicar</button>
+                    <div class="filtros-acoes">
+                        <button class="btn-limpar" onclick="limparFiltrosEmpresas()">Limpar</button>
+                        <button class="btn-filtrar" onclick="carregarSatisfacaoEmpresas()">Aplicar</button>
+                    </div>
                 </div>
             </div>
         </div>

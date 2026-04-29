@@ -1,7 +1,7 @@
 # SoftSkills Hub — Contexto e Memória do Projeto
 
 > Documento de referência para todas as sessões de desenvolvimento.
-> Atualizado em: 2026-04-23 (sessão 2)
+> Atualizado em: 2026-04-29
 
 ---
 
@@ -223,9 +223,9 @@ Idade exata nunca é gravada nas respostas — convertida em faixa:
 
 | Aba | Conteúdo |
 |-----|----------|
-| 📊 Resumo | 4 KPIs animados + donut chart de efetivação com badge de interpretação |
-| ⚠️ Problemas | Ranking com medalhas 🥇🥈🥉 no pódio; filtros por empresa/gênero/faixa/ano |
-| 🏭 Empresas | Estrelas coloridas + barra de avaliação + % efetivação; detalhe por empresa |
+| 📊 Resumo | 4 KPIs animados + donut chart de efetivação com tooltip, click-to-filter e badge de interpretação; filtros com badge de ativos e botão "Limpar" |
+| ⚠️ Problemas | Ranking com medalhas 🥇🥈🥉 no pódio; filtros por empresa/gênero/faixa/ano com badge e botão "Limpar" |
+| 🏭 Empresas | Estrelas coloridas + barra de avaliação + % efetivação; filtro por ano com badge; detalhe por empresa |
 | 📚 Trilhas | **CRUD de artigos:** listar, criar, editar, apagar com modal bottom sheet |
 | 👤 Perfil | Nome de exibição, senha, tema claro/escuro |
 

@@ -73,7 +73,7 @@
 | `aprendiz.html` | SPA do aprendiz (6 views) |
 | `gestor.html` | SPA do gestor (6 views) |
 | `manifest.json` | Manifesto PWA |
-| `sw.js` | Service Worker (cache-first, v14) |
+| `sw.js` | Service Worker (cache-first, v15) |
 
 ### CSS `frontend/styles/`
 
@@ -112,11 +112,11 @@
 | Caminho | Função |
 |---|---|
 | `app.js` | Inicialização e navbar do gestor |
-| `dashboard.js` | KPIs, donut chart de efetivação, barras de avaliação |
-| `empresas.js` | Listagem de satisfação por empresa e detalhe |
+| `dashboard.js` | KPIs, donut chart de efetivação com tooltip e click-to-filter, barras de avaliação; `_atualizarBadge`, `limparFiltrosResumo` |
+| `empresas.js` | Listagem de satisfação por empresa e detalhe; `limparFiltrosEmpresas` |
 | `trilhas.js` | CRUD de artigos das trilhas |
 | `perfil.js` | Perfil do gestor |
-| `problemas.js` | Ranking de problemas relatados |
+| `problemas.js` | Ranking de problemas relatados; `limparFiltrosProblemas` |
 
 ### Assets `frontend/assets/icons/`
 

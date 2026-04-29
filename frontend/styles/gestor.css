@@ -402,6 +402,30 @@ html.tema-escuro .artigo-admin-card {
 .filtros-card.aberto .filtros-corpo { max-height: 500px; padding: 0 16px 14px; }
 .filtros-corpo .filtros { margin-bottom: 0; }
 
+/* ── Badge de filtros ativos ─────────────────────── */
+.filtros-badge {
+    display: none;
+    background: var(--laranja);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 1px 7px;
+    line-height: 1.7;
+}
+
+/* ── Botões de ação dos filtros ──────────────────── */
+.filtros-acoes { display: flex; gap: 8px; }
+.filtros-acoes .btn-filtrar { flex: 1; }
+.btn-limpar {
+    padding: 10px 14px; min-height: 44px; border: 1px solid #ddd;
+    border-radius: 10px; background: transparent; color: var(--muted);
+    font-size: 0.88rem; cursor: pointer; transition: 0.2s; white-space: nowrap;
+}
+.btn-limpar:hover { background: #f0f0f0; color: var(--texto); }
+html.tema-escuro .btn-limpar { border-color: #3a3a3a; }
+html.tema-escuro .btn-limpar:hover { background: #2a2a2a; color: var(--texto); }
+
 /* ── Botão CSV discreto ──────────────────────────── */
 .btn-csv {
     background: none; border: 1px solid rgba(0,0,0,0.14); border-radius: 7px;

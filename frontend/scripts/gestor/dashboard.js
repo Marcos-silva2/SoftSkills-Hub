@@ -9,13 +9,110 @@ function toggleDonutFiltro(label) {
     _donutFiltro = _donutFiltro === label ? null : label;
     if (!_donutState) return;
     const { sim, nao, talvez, total } = _donutState;
-    document.getElementById('barrasEfetivacao').innerHTML = donutChart(sim, nao, talvez, total);
+    const container = document.getElementById('barrasEfetivacao');
+    container.innerHTML = donutChart(sim, nao, talvez, total);
+    _initDonutTooltip(container);
     setTimeout(() => {
-        document.querySelectorAll('#barrasEfetivacao .donut-arco[data-len]').forEach(el => {
+        container.querySelectorAll('.donut-arco[data-len]').forEach(el => {
             const len = +el.dataset.len, circ = +el.dataset.circ;
             el.setAttribute('stroke-dasharray', `${len} ${circ - len}`);
         });
     }, 60);
+    _recarregarAvaliacoes();
+}
+
+async function _recarregarAvaliacoes() {
+    const cardAvaliacoes = document.getElementById('cardAvaliacoes');
+    const gridAvaliacoes = document.getElementById('gridAvaliacoes');
+    if (!cardAvaliacoes || !gridAvaliacoes) return;
+
+    const params = new URLSearchParams();
+    const ano     = document.getElementById('filtroAno')?.value;
+    const empresa = document.getElementById('filtroEmpresa')?.value;
+    const genero  = document.getElementById('filtroGenero')?.value;
+    const faixa   = document.getElementById('filtroFaixa')?.value;
+    if (ano)     params.set('ano', ano);
+    if (empresa) params.set('empresa_id', empresa);
+    if (genero)  params.set('genero', genero);
+    if (faixa)   params.set('faixa_etaria', faixa);
+    const efetParam = _donutFiltro === 'não' ? 'nao' : _donutFiltro;
+    if (efetParam) params.set('desejo_efetivacao', efetParam);
+    const q = params.toString() ? '?' + params.toString() : '';
+
+    gridAvaliacoes.innerHTML = '<div class="loading">Carregando...</div>';
+    cardAvaliacoes.style.display = 'block';
+    try {
+        const resumo = await apiFetch('/dashboard/resumo' + q);
+        _renderAvaliacoes(resumo);
+    } catch (e) {
+        gridAvaliacoes.innerHTML = `<div class="loading">Erro: ${e.message}</div>`;
+    }
+}
+
+function _renderAvaliacoes(resumo) {
+    const cardAvaliacoes = document.getElementById('cardAvaliacoes');
+    const gridAvaliacoes = document.getElementById('gridAvaliacoes');
+    const titulo = document.getElementById('tituloAvaliacoes');
+
+    if (!resumo.top_positivos?.length && !resumo.top_negativos?.length) {
+        cardAvaliacoes.style.display = 'none';
+        return;
+    }
+
+    const maxPos = Math.max(...(resumo.top_positivos || []).map(i => i.total), 1);
+    const maxNeg = Math.max(...(resumo.top_negativos || []).map(i => i.total), 1);
+    const _avalRow = (item, cor, maxVal, rank) => {
+        const pct    = Math.round(item.total / maxVal * 100);
+        const label  = escapeHtml(item.valor.replace(/_/g, ' '));
+        const bg     = cor === '#27ae60' ? 'rgba(39,174,96,0.09)' : 'rgba(231,76,60,0.08)';
+        const border = cor === '#27ae60' ? 'rgba(39,174,96,0.22)' : 'rgba(231,76,60,0.2)';
+        return `
+        <div class="aval-row" style="border:1px solid ${border};"
+             onclick="this.classList.toggle('aval-ativo')">
+            <div class="aval-barra" data-pct="${pct}" style="background:${bg};"></div>
+            <div class="aval-conteudo">
+                <span class="aval-rank">${rank}</span>
+                <div class="aval-label">${label}</div>
+                <div class="aval-nums">
+                    <span class="aval-total" style="color:${cor};">${item.total}</span>
+                    <span class="aval-pct">${pct}%</span>
+                </div>
+            </div>
+        </div>`;
+    };
+    const posHtml = (resumo.top_positivos || []).map((i, idx) => _avalRow(i, '#27ae60', maxPos, idx + 1)).join('');
+    const negHtml = (resumo.top_negativos || []).map((i, idx) => _avalRow(i, '#e74c3c', maxNeg, idx + 1)).join('');
+
+    if (titulo) {
+        const labelMap = { sim: 'Sim ✅', talvez: 'Talvez 🤔', 'não': 'Não ❌' };
+        titulo.innerHTML = _donutFiltro
+            ? `📋 Top Avaliações <span style="font-size:0.74rem;font-weight:500;color:var(--muted);">— Efetivação: ${labelMap[_donutFiltro]}</span>`
+            : '📋 Top Avaliações';
+    }
+
+    gridAvaliacoes.innerHTML = `
+        <div>
+            <p class="aval-secao-titulo" style="color:#27ae60;border-left:3px solid #27ae60;">✅ Pontos Positivos</p>
+            ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
+        </div>
+        <div>
+            <p class="aval-secao-titulo" style="color:#e74c3c;border-left:3px solid #e74c3c;">❌ Pontos Negativos</p>
+            ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
+        </div>`;
+    cardAvaliacoes.style.display = 'block';
+    setTimeout(() => {
+        gridAvaliacoes.querySelectorAll('.aval-barra[data-pct]').forEach(el => {
+            el.style.width = el.dataset.pct + '%';
+        });
+    }, 80);
+}
+
+function _atualizarBadge(selectIds, badgeId) {
+    const badge = document.getElementById(badgeId);
+    if (!badge) return;
+    const count = selectIds.filter(id => document.getElementById(id)?.value).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
 function filtrosQuery() {
@@ -23,12 +120,20 @@ function filtrosQuery() {
     const empresa = document.getElementById('filtroEmpresa').value;
     const genero  = document.getElementById('filtroGenero').value;
     const faixa   = document.getElementById('filtroFaixa').value;
+    _atualizarBadge(['filtroAno','filtroEmpresa','filtroGenero','filtroFaixa'], 'badgeResumo');
     const params  = new URLSearchParams();
     if (ano)     params.set('ano', ano);
     if (empresa) params.set('empresa_id', empresa);
     if (genero)  params.set('genero', genero);
     if (faixa)   params.set('faixa_etaria', faixa);
     return params.toString() ? '?' + params.toString() : '';
+}
+
+function limparFiltrosResumo() {
+    ['filtroAno','filtroEmpresa','filtroGenero','filtroFaixa']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+    _atualizarBadge(['filtroAno','filtroEmpresa','filtroGenero','filtroFaixa'], 'badgeResumo');
+    carregarResumo();
 }
 
 function popularFiltroAnos() {
@@ -104,6 +209,7 @@ function donutChart(sim, nao, talvez, total) {
         const opacity = _donutFiltro ? (_donutFiltro === s.label ? '1' : '0.22') : '1';
         const arc = `<circle class="donut-arco"
             data-len="${len.toFixed(2)}" data-circ="${circ.toFixed(2)}" data-label="${s.label}"
+            data-perc="${s.perc}" data-n="${s.n}"
             cx="${cx}" cy="${cy}" r="${r}" fill="none"
             stroke="${s.cor}" stroke-width="15"
             stroke-dasharray="0 ${circ.toFixed(2)}"
@@ -169,6 +275,42 @@ function donutChart(sim, nao, talvez, total) {
         </div>`;
 }
 
+function _initDonutTooltip(container) {
+    let tip = document.getElementById('_donut-tip');
+    if (!tip) {
+        tip = document.createElement('div');
+        tip.id = '_donut-tip';
+        tip.style.cssText = [
+            'position:fixed', 'pointer-events:none', 'z-index:9999',
+            'background:rgba(30,30,30,0.92)', 'color:#fff',
+            'font-size:0.75rem', 'font-weight:600',
+            'padding:5px 10px', 'border-radius:7px',
+            'white-space:nowrap', 'opacity:0',
+            'transition:opacity 0.15s', 'box-shadow:0 2px 8px rgba(0,0,0,0.25)',
+        ].join(';');
+        document.body.appendChild(tip);
+    }
+
+    const hide = () => { tip.style.opacity = '0'; };
+    const show = (arc, x, y) => {
+        const label = arc.dataset.label.charAt(0).toUpperCase() + arc.dataset.label.slice(1);
+        tip.textContent = `${label}: ${arc.dataset.perc}% (${arc.dataset.n})`;
+        tip.style.left = (x + 14) + 'px';
+        tip.style.top  = (y - 32) + 'px';
+        tip.style.opacity = '1';
+    };
+
+    container.querySelectorAll('.donut-arco').forEach(arc => {
+        arc.addEventListener('mousemove', e => show(arc, e.clientX, e.clientY));
+        arc.addEventListener('mouseleave', hide);
+        arc.addEventListener('touchstart', e => {
+            const t = e.touches[0];
+            show(arc, t.clientX, t.clientY - 20);
+        }, { passive: true });
+        arc.addEventListener('touchend', () => setTimeout(hide, 1200));
+    });
+}
+
 async function exportarCSV() {
     const token = getToken();
     const q = filtrosQuery();
@@ -191,6 +333,7 @@ async function exportarCSV() {
 }
 
 async function carregarResumo() {
+    _donutFiltro = null;
     document.getElementById('kpiGrid').innerHTML = skeletonKpi(4);
     document.getElementById('cardEfetivacao').style.display = 'none';
     document.getElementById('cardAvaliacoes').style.display = 'none';
@@ -233,46 +376,7 @@ async function carregarResumo() {
             animarContagem(el, +el.dataset.alvo, el.dataset.sufixo, +el.dataset.decimais, 800);
         });
 
-        if (resumo.top_positivos?.length || resumo.top_negativos?.length) {
-            const maxPos = Math.max(...(resumo.top_positivos || []).map(i => i.total), 1);
-            const maxNeg = Math.max(...(resumo.top_negativos || []).map(i => i.total), 1);
-            const _avalRow = (item, cor, maxVal, rank) => {
-                const pct    = Math.round(item.total / maxVal * 100);
-                const label  = escapeHtml(item.valor.replace(/_/g, ' '));
-                const bg     = cor === '#27ae60' ? 'rgba(39,174,96,0.09)' : 'rgba(231,76,60,0.08)';
-                const border = cor === '#27ae60' ? 'rgba(39,174,96,0.22)' : 'rgba(231,76,60,0.2)';
-                return `
-                <div class="aval-row" style="border:1px solid ${border};"
-                     onclick="this.classList.toggle('aval-ativo')">
-                    <div class="aval-barra" data-pct="${pct}" style="background:${bg};"></div>
-                    <div class="aval-conteudo">
-                        <span class="aval-rank">${rank}</span>
-                        <div class="aval-label">${label}</div>
-                        <div class="aval-nums">
-                            <span class="aval-total" style="color:${cor};">${item.total}</span>
-                            <span class="aval-pct">${pct}%</span>
-                        </div>
-                    </div>
-                </div>`;
-            };
-            const posHtml = (resumo.top_positivos || []).map((i, idx) => _avalRow(i, '#27ae60', maxPos, idx + 1)).join('');
-            const negHtml = (resumo.top_negativos || []).map((i, idx) => _avalRow(i, '#e74c3c', maxNeg, idx + 1)).join('');
-            document.getElementById('gridAvaliacoes').innerHTML = `
-                <div>
-                    <p class="aval-secao-titulo" style="color:#27ae60;border-left:3px solid #27ae60;">✅ Pontos Positivos</p>
-                    ${posHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
-                </div>
-                <div>
-                    <p class="aval-secao-titulo" style="color:#e74c3c;border-left:3px solid #e74c3c;">❌ Pontos Negativos</p>
-                    ${negHtml || '<p style="font-size:0.82rem;color:var(--muted);padding:6px 0;">Sem dados</p>'}
-                </div>`;
-            document.getElementById('cardAvaliacoes').style.display = 'block';
-            setTimeout(() => {
-                document.querySelectorAll('#gridAvaliacoes .aval-barra[data-pct]').forEach(el => {
-                    el.style.width = el.dataset.pct + '%';
-                });
-            }, 80);
-        }
+        _renderAvaliacoes(resumo);
 
         if (efetivacao.length > 0) {
             let sim = 0, nao = 0, talvez = 0, total = 0;
@@ -287,9 +391,11 @@ async function carregarResumo() {
             const pTalvez = total ? Math.round(talvez / total * 100) : 0;
 
             document.getElementById('cardEfetivacao').style.display = 'block';
-            document.getElementById('barrasEfetivacao').innerHTML = donutChart(pSim, pNao, pTalvez, Math.round(total));
+            const donutContainer = document.getElementById('barrasEfetivacao');
+            donutContainer.innerHTML = donutChart(pSim, pNao, pTalvez, Math.round(total));
+            _initDonutTooltip(donutContainer);
             setTimeout(() => {
-                document.querySelectorAll('#barrasEfetivacao .donut-arco[data-len]').forEach(el => {
+                donutContainer.querySelectorAll('.donut-arco[data-len]').forEach(el => {
                     const len = +el.dataset.len, circ = +el.dataset.circ;
                     el.setAttribute('stroke-dasharray', `${len} ${circ - len}`);
                 });

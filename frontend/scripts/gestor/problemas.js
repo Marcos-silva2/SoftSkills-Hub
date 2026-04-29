@@ -19,12 +19,20 @@ function filtrosQueryProblemas() {
     const empresa = document.getElementById('filtroEmpresaProb').value;
     const genero  = document.getElementById('filtroGeneroProb').value;
     const faixa   = document.getElementById('filtroFaixaProb').value;
+    _atualizarBadge(['filtroAnoProb','filtroEmpresaProb','filtroGeneroProb','filtroFaixaProb'], 'badgeProblemas');
     const params  = new URLSearchParams();
     if (ano)     params.set('ano', ano);
     if (empresa) params.set('empresa_id', empresa);
     if (genero)  params.set('genero', genero);
     if (faixa)   params.set('faixa_etaria', faixa);
     return params.toString() ? '?' + params.toString() : '';
+}
+
+function limparFiltrosProblemas() {
+    ['filtroAnoProb','filtroEmpresaProb','filtroGeneroProb','filtroFaixaProb']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+    _atualizarBadge(['filtroAnoProb','filtroEmpresaProb','filtroGeneroProb','filtroFaixaProb'], 'badgeProblemas');
+    carregarProblemas();
 }
 
 function skeletonRank(n = 5) {

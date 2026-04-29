@@ -880,78 +880,136 @@ html.tema-escuro .badge-verde-perfil{ background: #1a3a1a; color: #4fb53e; }
 
 ### Donut Chart (Desejo de Efetivação)
 
-Gráfico SVG animado no painel do gestor. Três arcos (Sim / Não / Talvez) com separação visual por gap, legenda com contagens absolutas e badge de interpretação.
+Gráfico SVG animado no painel do gestor (`dashboard.js`). Três arcos (Sim / Talvez / Não) com separação visual por gap, legenda clicável, badge de interpretação e tooltip ao hover.
+
+**Assinatura:** `donutChart(sim, nao, talvez, total)` — `sim`/`nao`/`talvez` são **percentuais** (0–100); `total` é a contagem absoluta de respostas.
+
+**Atributos `data-*` em cada `<circle class="donut-arco">`:**
+
+| Atributo | Conteúdo |
+|----------|----------|
+| `data-len` | Comprimento real do arco (após animação) |
+| `data-circ` | Circunferência total (2πr) |
+| `data-label` | `"sim"` \| `"talvez"` \| `"não"` |
+| `data-perc` | Percentual do segmento |
+| `data-n` | Contagem absoluta do segmento |
+
+**SVG:** `width="124" height="124"`, `cx=62 cy=62 r=44`, `stroke-width=15`.
+
+**Animação dos arcos** — arcos iniciam com `stroke-dasharray="0 circ"` e recebem o valor real após 60 ms:
 
 ```javascript
-function donutChart(sim, nao, talvez, total) {
-    if (!total) return '<p style="text-align:center;color:var(--muted)">Sem dados</p>';
-
-    const r    = 44;
-    const circ = 2 * Math.PI * r; // ~276.5
-    const gap  = circ * 0.012;
-
-    const pcts = [sim, nao, talvez].map(v => v / total);
-    const lens = pcts.map(p => Math.max(p * circ - gap, 0));
-
-    const cores  = ['#27ae60', '#e74c3c', '#f39c12'];
-    const labels = ['Sim', 'Não', 'Talvez'];
-    const vals   = [sim, nao, talvez];
-
-    // Cada arco começa com dasharray=0 (estado inicial para animação)
-    let cum = 0;
-    const arcos = lens.map((len, i) => {
-        const offset = -(cum / circ * circ); // rotação acumulada
-        cum += len + gap;
-        return `<circle class="donut-arco" cx="50" cy="50" r="${r}"
-            fill="none" stroke="${cores[i]}" stroke-width="12"
-            stroke-dasharray="0 ${circ}"
-            stroke-dashoffset="${-( (cum - len - gap) )}"
-            data-dash="${len} ${circ - len}"
-            transform="rotate(-90 50 50)"/>`;
-    }).join('');
-
-    // Interpretação
-    const pctSim = total ? Math.round(sim / total * 100) : 0;
-    const corBadge = pctSim >= 60 ? '#27ae60' : pctSim >= 35 ? '#f39c12' : '#e74c3c';
-    const textoBadge = pctSim >= 60 ? 'Alto interesse em efetivação'
-        : pctSim >= 35 ? 'Interesse moderado'
-        : 'Baixo interesse em efetivação';
-
-    return `<div style="text-align:center">
-        <svg width="100" height="100" viewBox="0 0 100 100">${arcos}
-            <text x="50" y="54" text-anchor="middle" font-size="13" font-weight="bold" fill="var(--texto)">${Math.round(sim/total*100)}%</text>
-        </svg>
-        <!-- legenda + badge de interpretação -->
-    </div>`;
-}
-```
-
-**CSS de animação dos arcos:**
-
-```css
-.donut-arco { transition: stroke-dasharray 0.8s cubic-bezier(.4,0,.2,1); }
-```
-
-**Acionamento da animação** — requer um ciclo de render entre definir `0` e o valor real:
-
-```javascript
-// Após injetar o HTML do donut no DOM:
+// Após container.innerHTML = donutChart(...):
+_initDonutTooltip(container);
 setTimeout(() => {
-    document.querySelectorAll('.donut-arco').forEach(arc => {
-        arc.setAttribute('stroke-dasharray', arc.dataset.dash);
+    container.querySelectorAll('.donut-arco[data-len]').forEach(el => {
+        const len = +el.dataset.len, circ = +el.dataset.circ;
+        el.setAttribute('stroke-dasharray', `${len} ${circ - len}`);
     });
 }, 60);
 ```
 
+**Tooltip** — inicializado via `_initDonutTooltip(container)` sempre que o innerHTML é atualizado (carregamento inicial e ao clicar num segmento):
+
+```javascript
+function _initDonutTooltip(container) {
+    // Cria/reutiliza um <div id="_donut-tip"> fixo no body
+    // Attach: mousemove → mostra "Label: X% (N)", mouseleave → esconde
+    // Touch: touchstart → mostra, touchend → esconde após 1,2 s
+}
+```
+
+**Interatividade de clique** — `onclick="toggleDonutFiltro('sim')"` destaca o segmento selecionado (opacity 1) e esmaece os demais (opacity 0.22). Clicar novamente limpa o filtro.
+
 **Badge de interpretação:**
 
+```javascript
+// Baseado no percentual de "sim":
+if (sim >= 60) badge = '🎯 Boa retenção de talentos';
+else if (sim >= 35) badge = '📊 Retenção moderada';
+else badge = '⚠️ Atenção: baixa retenção';
+```
+
+---
+
+### Filtros com accordion, badge e limpar (painel gestor)
+
+O painel gestor usa um card colapsável (`.filtros-card`) com três melhorias:
+
+**1. Badge de filtros ativos** — aparece no cabeçalho mesmo com o card fechado, mostrando a contagem de selects preenchidos:
+
 ```html
-<div style="margin-top:10px;padding:8px 12px;border-radius:8px;
-            background:${corBadge}22;border:1px solid ${corBadge}55;
-            color:${corBadge};font-size:0.78rem;font-weight:600;">
-    ${textoBadge}
+<div class="filtros-header-esq">
+    <span>Filtros</span>
+    <span id="badgeResumo" class="filtros-badge"></span>
 </div>
 ```
+
+```css
+.filtros-badge {
+    display: none;                     /* ocultado quando count = 0 */
+    background: var(--laranja);
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.66rem; font-weight: 700;
+    padding: 1px 7px; line-height: 1.7;
+}
+```
+
+```javascript
+function _atualizarBadge(selectIds, badgeId) {
+    const badge = document.getElementById(badgeId);
+    if (!badge) return;
+    const count = selectIds.filter(id => document.getElementById(id)?.value).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
+}
+// Chamado dentro de filtrosQuery() / filtrosQueryProblemas() / carregarSatisfacaoEmpresas()
+```
+
+**2. Botões de ação lado a lado** — "Limpar" (secundário) + "Aplicar" (primário):
+
+```html
+<div class="filtros-acoes">
+    <button class="btn-limpar" onclick="limparFiltrosResumo()">Limpar</button>
+    <button class="btn-filtrar" onclick="carregarResumo()">Aplicar filtros</button>
+</div>
+```
+
+```css
+.filtros-acoes { display: flex; gap: 8px; }
+.filtros-acoes .btn-filtrar { flex: 1; }
+
+.btn-limpar {
+    padding: 10px 14px; min-height: 44px;
+    border: 1px solid #ddd; border-radius: 10px;
+    background: transparent; color: var(--muted);
+    font-size: 0.88rem; cursor: pointer; transition: 0.2s;
+}
+.btn-limpar:hover { background: #f0f0f0; color: var(--texto); }
+html.tema-escuro .btn-limpar { border-color: #3a3a3a; }
+html.tema-escuro .btn-limpar:hover { background: #2a2a2a; color: var(--texto); }
+```
+
+**3. Funções limpar por seção** — resetam os selects, atualizam o badge e re-buscam os dados:
+
+```javascript
+function limparFiltrosResumo() {
+    ['filtroAno','filtroEmpresa','filtroGenero','filtroFaixa']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+    _atualizarBadge([...], 'badgeResumo');
+    carregarResumo();
+}
+// Equivalentes: limparFiltrosProblemas(), limparFiltrosEmpresas()
+```
+
+**IDs de badge por seção:**
+
+| View | Badge ID | Select IDs |
+|------|----------|------------|
+| Resumo | `badgeResumo` | `filtroAno`, `filtroEmpresa`, `filtroGenero`, `filtroFaixa` |
+| Problemas | `badgeProblemas` | `filtroAnoProb`, `filtroEmpresaProb`, `filtroGeneroProb`, `filtroFaixaProb` |
+| Empresas | `badgeEmpresas` | `filtroAnoEmpresas` |
 
 ---
 

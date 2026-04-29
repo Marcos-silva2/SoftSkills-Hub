@@ -28,6 +28,7 @@ def dashboard_resumo(
     genero: Optional[str] = None,
     faixa_etaria: Optional[str] = None,
     ano: Optional[int] = None,
+    desejo_efetivacao: Optional[str] = None,
     gestor: models.Gestor = Depends(get_gestor_atual),
     db: Session = Depends(get_db),
 ):
@@ -38,6 +39,8 @@ def dashboard_resumo(
         query = query.filter(models.RespostaEnquete.genero == genero)
     if faixa_etaria:
         query = query.filter(models.RespostaEnquete.faixa_etaria == faixa_etaria)
+    if desejo_efetivacao:
+        query = query.filter(models.RespostaEnquete.desejo_efetivacao == desejo_efetivacao)
     query = filtrar_ano(query, ano)
 
     agg = query.with_entities(
@@ -67,6 +70,8 @@ def dashboard_resumo(
             q = q.filter(models.RespostaEnquete.genero == genero)
         if faixa_etaria:
             q = q.filter(models.RespostaEnquete.faixa_etaria == faixa_etaria)
+        if desejo_efetivacao:
+            q = q.filter(models.RespostaEnquete.desejo_efetivacao == desejo_efetivacao)
         q = filtrar_ano(q, ano)
         return [
             {"valor": r.valor, "total": r.total}

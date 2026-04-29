@@ -16,11 +16,19 @@ function skeletonEmpresa(n = 3) {
     `).join('');
 }
 
+function limparFiltrosEmpresas() {
+    const el = document.getElementById('filtroAnoEmpresas');
+    if (el) el.selectedIndex = 0;
+    _atualizarBadge(['filtroAnoEmpresas'], 'badgeEmpresas');
+    carregarSatisfacaoEmpresas();
+}
+
 async function carregarSatisfacaoEmpresas() {
     const lista = document.getElementById('listaEmpresas');
     lista.innerHTML = skeletonEmpresa(3);
     try {
         const ano = document.getElementById('filtroAnoEmpresas').value;
+        _atualizarBadge(['filtroAnoEmpresas'], 'badgeEmpresas');
         const q   = ano ? `?ano=${ano}` : '';
         const [dados, efetivacao] = await Promise.all([
             apiFetch('/dashboard/satisfacao-por-empresa' + q),

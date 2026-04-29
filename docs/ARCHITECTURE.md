@@ -47,6 +47,10 @@ A camada de apresentação é dividida em três grupos por responsabilidade:
 | `animations.js` | Micro-interações GSAP | `iniciarRipple`, `atualizarNavPill`, `topBarInicio/Fim` |
 | `pwa.js` | Recursos PWA | `iniciarPullToRefresh`, `initOfflineIndicator` |
 
+#### Módulos do Gestor — funções de filtro compartilhadas
+
+`dashboard.js` expõe `_atualizarBadge(selectIds, badgeId)` — utilitário global acessível por `problemas.js` e `empresas.js` (mesma página). Cada módulo de view tem sua própria `filtrosQuery*()` e `limparFiltros*()` — o badge é atualizado sempre que a query é construída ou os filtros são limpos.
+
 ---
 
 ### Backend
