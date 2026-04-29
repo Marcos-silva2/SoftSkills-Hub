@@ -449,11 +449,11 @@ html.tema-escuro .flash-progress-bar { background: #2d1a40; }
 
 /* ── Flashcard: Card ─────────────────────────────── */
 .flashcard {
-    min-height: 178px; cursor: pointer; perspective: 700px;
+    min-height: 220px; cursor: pointer; perspective: 700px;
     animation: cardEnter 0.38s ease both; position: relative;
 }
 .flashcard-inner {
-    width: 100%; min-height: 178px; position: relative;
+    width: 100%; min-height: 220px; position: relative;
     transform-style: preserve-3d;
     transition: transform 0.52s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -463,7 +463,7 @@ html.tema-escuro .flash-progress-bar { background: #2d1a40; }
     position: absolute; inset: 0; border-radius: 14px;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
     display: flex; flex-direction: column;
-    padding: 14px 12px; min-height: 178px; gap: 6px;
+    padding: 14px 12px; min-height: 220px; gap: 6px;
 }
 
 /* Frente — gradiente roxo */
@@ -483,6 +483,7 @@ html.tema-escuro .flash-progress-bar { background: #2d1a40; }
     background: white; border: 2px solid #e8daef;
     transform: rotateY(180deg);
     align-items: flex-start; justify-content: flex-start; gap: 8px;
+    overflow: hidden;
 }
 html.tema-escuro .flashcard-verso { background: #1e1e1e; border-color: #4a2d5e; }
 .fc-def { font-size: 0.77rem; color: var(--texto); line-height: 1.45; margin: 0; }
