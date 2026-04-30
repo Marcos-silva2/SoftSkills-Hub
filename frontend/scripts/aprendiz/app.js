@@ -46,6 +46,7 @@ function navegarApp(id) {
         activeBtn = document.getElementById('navInicio');
         activeBtn.classList.add('active');
     }
+    if (id === 'viewEnquete') { if (typeof enqueteIniciar === 'function') enqueteIniciar(); }
     if (id === 'viewJogo')  { iniciarJogo(); }
     if (id === 'viewMural') {
         activeBtn = document.getElementById('navMural');

@@ -57,7 +57,7 @@ function _renderArtigoCard(a, i) {
     const isLido = _getLidos().has(a.id);
     const tempo  = _tempoLeitura(a);
     return `
-        <div class="artigo-card" style="animation:cardEnter 0.3s ease both;animation-delay:${i * 0.06}s;" onclick="abrirLeitura(${a.id})">
+        <div class="artigo-card cat-borda-${a.categoria}" style="animation:cardEnter 0.3s ease both;animation-delay:${i * 0.06}s;" onclick="abrirLeitura(${a.id})">
             <div class="artigo-card-header">
                 <div class="artigo-meta">
                     <span class="tag">${escapeHtml(categoriaLabel[a.categoria] || a.categoria)}</span>
@@ -126,7 +126,7 @@ async function carregarArtigos(forcar = false) {
 
 // ── Filtros por categoria ──────────────────────────────────
 function filtrarCategoria(btn, categoria) {
-    document.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('ativo'));
+    document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
     btn.classList.add('ativo');
     _categoriaAtiva = categoria;
     _renderLista();

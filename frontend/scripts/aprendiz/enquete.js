@@ -171,6 +171,52 @@ function dispararConfetti() {
     setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1, y: 0.6 }, colors: cores }), 400);
 }
 
+function enqueteIniciar() {
+    _selecionados.p1.clear();
+    _selecionados.positivos.clear();
+    _selecionados.negativos.clear();
+    _efetivacao     = null;
+    notaSelecionada = null;
+    _passoAtual     = 0;
+
+    document.querySelectorAll('.pill-tag').forEach(el => el.classList.remove('pill-selecionada'));
+    document.querySelectorAll('.efetivacao-card').forEach(el => el.classList.remove('selecionado'));
+    document.querySelectorAll('.escala-btn').forEach(el => el.classList.remove('selecionado'));
+
+    // Limpa transforms/opacity deixados pelo GSAP antes de setar display
+    for (let i = 0; i < _TOTAL_PASSOS; i++) {
+        const p = document.getElementById(`passo-${i}`);
+        if (!p) continue;
+        if (typeof gsap !== 'undefined') {
+            gsap.killTweensOf(p);
+            gsap.set(p, { clearProps: 'all' });
+        } else {
+            p.style.removeProperty('opacity');
+            p.style.removeProperty('transform');
+        }
+        p.style.display = i === 0 ? 'block' : 'none';
+    }
+
+    const pillScroll = document.querySelector('.pill-scroll');
+    if (pillScroll) {
+        pillScroll.scrollTop = 0;
+        const hint = pillScroll.querySelector('.pill-scroll-hint');
+        if (hint) hint.style.opacity = '1';
+    }
+
+    _atualizarIndicador(0);
+
+    document.getElementById('btnVoltarWizard').style.display  = 'none';
+    document.getElementById('btnProximoWizard').style.display = 'flex';
+    document.getElementById('btnEnviarEnquete').style.display = 'none';
+
+    const erroEl = document.getElementById('erroEnquete');
+    if (erroEl) erroEl.style.display = 'none';
+
+    const btnEnviar = document.getElementById('btnEnviarEnquete');
+    if (btnEnviar) { btnEnviar.disabled = false; btnEnviar.textContent = 'Enviar Respostas ✓'; }
+}
+
 async function enviarEnquete() {
     const erroEl = document.getElementById('erroEnquete');
     erroEl.style.display = 'none';

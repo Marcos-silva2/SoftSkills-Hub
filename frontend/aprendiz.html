@@ -102,33 +102,36 @@
             <div class="wizard-passo" id="passo-0">
                 <p class="passo-titulo">Quais problemas você enfrenta ou já enfrentou?</p>
                 <p class="passo-sub">Selecione todos que se aplicam à sua realidade.</p>
-                <div class="pill-group">
-                    <button class="pill-tag" data-value="nenhum" onclick="togglePill(this,'p1')">🟢 Nenhum problema</button>
-                    <button class="pill-tag" data-value="assedio_moral" onclick="togglePill(this,'p1')">Assédio moral</button>
-                    <button class="pill-tag" data-value="favorecimento" onclick="togglePill(this,'p1')">Favorecimento indevido</button>
-                    <button class="pill-tag" data-value="machismo" onclick="togglePill(this,'p1')">Machismo</button>
-                    <button class="pill-tag" data-value="assedio_sexual" onclick="togglePill(this,'p1')">Assédio sexual</button>
-                    <button class="pill-tag" data-value="desvio_funcao" onclick="togglePill(this,'p1')">Desvio de função</button>
-                    <button class="pill-tag" data-value="carga_excessiva" onclick="togglePill(this,'p1')">Carga horária excessiva</button>
-                    <button class="pill-tag" data-value="falta_orientacao" onclick="togglePill(this,'p1')">Falta de orientação</button>
-                    <button class="pill-tag" data-value="sobrecarga" onclick="togglePill(this,'p1')">Sobrecarga de tarefas</button>
-                    <button class="pill-tag" data-value="preconceito_etario" onclick="togglePill(this,'p1')">Preconceito etário</button>
-                    <button class="pill-tag" data-value="discriminacao_racial" onclick="togglePill(this,'p1')">Discriminação racial</button>
-                    <button class="pill-tag" data-value="homofobia" onclick="togglePill(this,'p1')">Homofobia / Transfobia</button>
-                    <button class="pill-tag" data-value="intolerancia_religiosa" onclick="togglePill(this,'p1')">Intolerância religiosa</button>
-                    <button class="pill-tag" data-value="atraso_pagamento" onclick="togglePill(this,'p1')">Atraso no pagamento</button>
-                    <button class="pill-tag" data-value="falta_feedback" onclick="togglePill(this,'p1')">Falta de feedback</button>
-                    <button class="pill-tag" data-value="pressao_psicologica" onclick="togglePill(this,'p1')">Pressão psicológica</button>
-                    <button class="pill-tag" data-value="condicoes_inseguras" onclick="togglePill(this,'p1')">Condições inseguras</button>
-                    <button class="pill-tag" data-value="exclusao_equipe" onclick="togglePill(this,'p1')">Exclusão da equipe</button>
-                    <button class="pill-tag" data-value="desvalorizacao_ideias" onclick="togglePill(this,'p1')">Desvalorização de ideias</button>
-                    <button class="pill-tag" data-value="microgerenciamento" onclick="togglePill(this,'p1')">Microgerenciamento</button>
-                    <button class="pill-tag" data-value="tarefas_repetitivas" onclick="togglePill(this,'p1')">Tarefas repetitivas</button>
-                    <button class="pill-tag" data-value="ameacas_demissao" onclick="togglePill(this,'p1')">Ameaças de demissão</button>
-                    <button class="pill-tag" data-value="falta_estrutura" onclick="togglePill(this,'p1')">Falta de estrutura</button>
-                    <button class="pill-tag" data-value="desrespeito_direitos" onclick="togglePill(this,'p1')">Desrespeito à Lei da Aprendizagem</button>
-                    <button class="pill-tag" data-value="ausencia_intervalo" onclick="togglePill(this,'p1')">Ausência de intervalo</button>
-                    <button class="pill-tag" data-value="proibicao_cursos" onclick="togglePill(this,'p1')">Proibição de cursos</button>
+                <div class="pill-scroll" onscroll="const h=this.querySelector('.pill-scroll-hint');if(h)h.style.opacity=this.scrollHeight-this.scrollTop-this.clientHeight<10?'0':'1'">
+                    <div class="pill-group">
+                        <button class="pill-tag" data-value="nenhum" onclick="togglePill(this,'p1')">🟢 Nenhum problema</button>
+                        <button class="pill-tag" data-value="assedio_moral" onclick="togglePill(this,'p1')">Assédio moral</button>
+                        <button class="pill-tag" data-value="favorecimento" onclick="togglePill(this,'p1')">Favorecimento indevido</button>
+                        <button class="pill-tag" data-value="machismo" onclick="togglePill(this,'p1')">Machismo</button>
+                        <button class="pill-tag" data-value="assedio_sexual" onclick="togglePill(this,'p1')">Assédio sexual</button>
+                        <button class="pill-tag" data-value="desvio_funcao" onclick="togglePill(this,'p1')">Desvio de função</button>
+                        <button class="pill-tag" data-value="carga_excessiva" onclick="togglePill(this,'p1')">Carga horária excessiva</button>
+                        <button class="pill-tag" data-value="falta_orientacao" onclick="togglePill(this,'p1')">Falta de orientação</button>
+                        <button class="pill-tag" data-value="sobrecarga" onclick="togglePill(this,'p1')">Sobrecarga de tarefas</button>
+                        <button class="pill-tag" data-value="preconceito_etario" onclick="togglePill(this,'p1')">Preconceito etário</button>
+                        <button class="pill-tag" data-value="discriminacao_racial" onclick="togglePill(this,'p1')">Discriminação racial</button>
+                        <button class="pill-tag" data-value="homofobia" onclick="togglePill(this,'p1')">Homofobia / Transfobia</button>
+                        <button class="pill-tag" data-value="intolerancia_religiosa" onclick="togglePill(this,'p1')">Intolerância religiosa</button>
+                        <button class="pill-tag" data-value="atraso_pagamento" onclick="togglePill(this,'p1')">Atraso no pagamento</button>
+                        <button class="pill-tag" data-value="falta_feedback" onclick="togglePill(this,'p1')">Falta de feedback</button>
+                        <button class="pill-tag" data-value="pressao_psicologica" onclick="togglePill(this,'p1')">Pressão psicológica</button>
+                        <button class="pill-tag" data-value="condicoes_inseguras" onclick="togglePill(this,'p1')">Condições inseguras</button>
+                        <button class="pill-tag" data-value="exclusao_equipe" onclick="togglePill(this,'p1')">Exclusão da equipe</button>
+                        <button class="pill-tag" data-value="desvalorizacao_ideias" onclick="togglePill(this,'p1')">Desvalorização de ideias</button>
+                        <button class="pill-tag" data-value="microgerenciamento" onclick="togglePill(this,'p1')">Microgerenciamento</button>
+                        <button class="pill-tag" data-value="tarefas_repetitivas" onclick="togglePill(this,'p1')">Tarefas repetitivas</button>
+                        <button class="pill-tag" data-value="ameacas_demissao" onclick="togglePill(this,'p1')">Ameaças de demissão</button>
+                        <button class="pill-tag" data-value="falta_estrutura" onclick="togglePill(this,'p1')">Falta de estrutura</button>
+                        <button class="pill-tag" data-value="desrespeito_direitos" onclick="togglePill(this,'p1')">Desrespeito à Lei da Aprendizagem</button>
+                        <button class="pill-tag" data-value="ausencia_intervalo" onclick="togglePill(this,'p1')">Ausência de intervalo</button>
+                        <button class="pill-tag" data-value="proibicao_cursos" onclick="togglePill(this,'p1')">Proibição de cursos</button>
+                    </div>
+                    <div class="pill-scroll-hint">▼ role para ver mais</div>
                 </div>
             </div>
 
@@ -282,11 +285,11 @@
             <p id="totalArtigos" style="font-size:0.74rem;color:var(--muted);margin:8px 0 0;min-height:1em;"></p>
         </div>
         <div class="categoria-filtros">
-            <button class="btn-categoria ativo" onclick="filtrarCategoria(this, '')">Todos</button>
-            <button class="btn-categoria" onclick="filtrarCategoria(this, 'inteligencia_emocional')">Int. Emocional</button>
-            <button class="btn-categoria" onclick="filtrarCategoria(this, 'comunicacao')">Comunicação</button>
-            <button class="btn-categoria" onclick="filtrarCategoria(this, 'postura_profissional')">Postura Prof.</button>
-            <button class="btn-categoria" onclick="filtrarCategoria(this, 'saude_mental')">Saúde Mental</button>
+            <button class="btn-cat btn-cat-todos ativo" onclick="filtrarCategoria(this, '')">Todos</button>
+            <button class="btn-cat btn-cat-ie" onclick="filtrarCategoria(this, 'inteligencia_emocional')">Int. Emocional</button>
+            <button class="btn-cat btn-cat-com" onclick="filtrarCategoria(this, 'comunicacao')">Comunicação</button>
+            <button class="btn-cat btn-cat-pp" onclick="filtrarCategoria(this, 'postura_profissional')">Postura Prof.</button>
+            <button class="btn-cat btn-cat-sm" onclick="filtrarCategoria(this, 'saude_mental')">Saúde Mental</button>
             <button class="btn-filtro-especial btn-categoria" onclick="filtrarEspecial(this, 'favoritos')">❤️ Favoritos</button>
             <button class="btn-filtro-especial btn-categoria" onclick="filtrarEspecial(this, 'lidos')">✓ Já li</button>
         </div>

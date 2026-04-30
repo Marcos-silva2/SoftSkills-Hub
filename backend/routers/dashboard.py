@@ -1,6 +1,7 @@
 import csv
 import io
 import logging
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -165,6 +166,7 @@ def efetivacao_por_empresa(
 ):
     query = (
         db.query(
+            models.Empresa.id,
             models.Empresa.nome,
             models.RespostaEnquete.desejo_efetivacao,
             func.count(models.RespostaEnquete.id).label("qtd"),
@@ -179,25 +181,128 @@ def efetivacao_por_empresa(
         query = query.filter(models.RespostaEnquete.faixa_etaria == faixa_etaria)
     query = filtrar_ano(query, ano)
 
-    linhas = query.group_by(models.Empresa.nome, models.RespostaEnquete.desejo_efetivacao).all()
+    linhas = query.group_by(
+        models.Empresa.id, models.Empresa.nome, models.RespostaEnquete.desejo_efetivacao
+    ).all()
 
     por_empresa: dict = {}
-    for nome, opcao, qtd in linhas:
-        if nome not in por_empresa:
-            por_empresa[nome] = {"sim": 0, "nao": 0, "talvez": 0}
-        por_empresa[nome][opcao] = qtd
+    for eid, nome, opcao, qtd in linhas:
+        if eid not in por_empresa:
+            por_empresa[eid] = {"nome": nome, "sim": 0, "nao": 0, "talvez": 0}
+        por_empresa[eid][opcao] = qtd
 
     resultado = []
-    for nome, cont in por_empresa.items():
+    for eid, cont in por_empresa.items():
         total = cont["sim"] + cont["nao"] + cont["talvez"]
         resultado.append({
-            "empresa": nome,
-            "total": total,
+            "empresa_id":  eid,
+            "empresa":     cont["nome"],
+            "total":       total,
             "sim_perc":    round(cont["sim"]    / total * 100, 1),
             "nao_perc":    round(cont["nao"]    / total * 100, 1),
             "talvez_perc": round(cont["talvez"] / total * 100, 1),
         })
     return resultado
+
+
+@router.get("/alertas", summary="Detecta anomalias automáticas nos últimos 7 dias")
+def dashboard_alertas(
+    _: models.Gestor = Depends(get_gestor_atual),
+    db: Session = Depends(get_db),
+):
+    agora      = datetime.utcnow()
+    ini_atual  = agora - timedelta(days=7)
+    ini_ant    = agora - timedelta(days=14)
+
+    alertas: list[dict] = []
+
+    PROBLEMAS_GRAVES = (
+        "assedio_moral", "assedio_sexual", "machismo", "discriminacao_racial",
+        "homofobia", "pressao_psicologica", "ameacas_demissao",
+        "desrespeito_direitos", "intolerancia_religiosa",
+    )
+    LABEL_PROBLEMA = {
+        "assedio_moral":          "assédio moral",
+        "assedio_sexual":         "assédio sexual",
+        "machismo":               "machismo",
+        "discriminacao_racial":   "discriminação racial",
+        "homofobia":              "homofobia",
+        "pressao_psicologica":    "pressão psicológica",
+        "ameacas_demissao":       "ameaças de demissão",
+        "desrespeito_direitos":   "desrespeito a direitos",
+        "intolerancia_religiosa": "intolerância religiosa",
+    }
+
+    def _query_prob(ini, fim=None):
+        q = (
+            db.query(
+                models.Empresa.id.label("empresa_id"),
+                models.Empresa.nome.label("empresa"),
+                models.RespostaProblema.problema,
+                func.count().label("qtd"),
+            )
+            .join(models.RespostaEnquete, models.Empresa.id == models.RespostaEnquete.empresa_id)
+            .join(models.RespostaProblema, models.RespostaEnquete.id == models.RespostaProblema.resposta_id)
+            .filter(
+                models.RespostaProblema.problema.in_(PROBLEMAS_GRAVES),
+                models.RespostaEnquete.data_resposta >= ini,
+            )
+        )
+        if fim:
+            q = q.filter(models.RespostaEnquete.data_resposta < fim)
+        return q.group_by(models.Empresa.id, models.Empresa.nome, models.RespostaProblema.problema).all()
+
+    atuais     = _query_prob(ini_atual)
+    anteriores = _query_prob(ini_ant, ini_atual)
+    ant_dict   = {(r.empresa_id, r.problema): r.qtd for r in anteriores}
+
+    visto: set[int] = set()
+    for r in sorted(atuais, key=lambda x: -x.qtd):
+        if r.empresa_id in visto:
+            continue
+        ant = ant_dict.get((r.empresa_id, r.problema), 0)
+        if r.qtd >= 2 and r.qtd > ant:
+            label = LABEL_PROBLEMA.get(r.problema, r.problema.replace("_", " "))
+            s = "s" if r.qtd > 1 else ""
+            alertas.append({
+                "tipo":       "problema_grave",
+                "icone":      "⚠️",
+                "severidade": "alta" if r.qtd >= 3 else "media",
+                "mensagem":   f"A empresa {r.empresa} teve {r.qtd} relato{s} de {label} nesta semana",
+                "empresa_id": r.empresa_id,
+                "empresa":    r.empresa,
+            })
+            visto.add(r.empresa_id)
+
+    def _avg_sat(ini, fim=None):
+        q = db.query(func.avg(models.RespostaEnquete.nota_satisfacao)).filter(
+            models.RespostaEnquete.data_resposta >= ini
+        )
+        if fim:
+            q = q.filter(models.RespostaEnquete.data_resposta < fim)
+        return q.scalar()
+
+    sat_atual = _avg_sat(ini_atual)
+    sat_ant   = _avg_sat(ini_ant, ini_atual)
+
+    if sat_atual is not None and sat_ant is not None and float(sat_ant) > 0:
+        queda_pct = round(((float(sat_ant) - float(sat_atual)) / float(sat_ant)) * 100)
+        if queda_pct >= 10:
+            alertas.append({
+                "tipo":       "queda_satisfacao",
+                "icone":      "📉",
+                "severidade": "alta" if queda_pct >= 20 else "media",
+                "mensagem":   (
+                    f"A satisfação geral caiu {queda_pct}% nos últimos 7 dias "
+                    f"({round(float(sat_ant), 1)} ★ → {round(float(sat_atual), 1)} ★)"
+                ),
+                "empresa_id": None,
+                "empresa":    None,
+            })
+
+    ordem = {"alta": 0, "media": 1}
+    alertas.sort(key=lambda a: ordem.get(a["severidade"], 9))
+    return alertas[:5]
 
 
 @router.get(

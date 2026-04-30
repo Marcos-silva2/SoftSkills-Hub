@@ -147,7 +147,33 @@ html.tema-escuro .step-circle { background: #2a2a2a; }
 html.tema-escuro .wizard-line { background: #3a3a3a; }
 
 /* ── Wizard passo ─────────────────────────────────────── */
-.wizard-passo { overflow: hidden; }
+.wizard-passo { overflow: visible; }
+
+/* ── Área scrollável de pills (passo 1 tem 26 opções) ── */
+.pill-scroll {
+    max-height: 44vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 10px 10px 4px;
+    background: #fafafa;
+    -webkit-overflow-scrolling: touch;
+}
+html.tema-escuro .pill-scroll { background: #1a1a1a; border-color: #3a3a3a; }
+.pill-scroll::-webkit-scrollbar { width: 4px; }
+.pill-scroll::-webkit-scrollbar-track { background: transparent; }
+.pill-scroll::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+html.tema-escuro .pill-scroll::-webkit-scrollbar-thumb { background: #444; }
+.pill-scroll-hint {
+    text-align: center; font-size: 0.65rem; color: var(--muted);
+    padding: 6px 0 4px; letter-spacing: 0.2px;
+    position: sticky; bottom: 0;
+    background: linear-gradient(transparent, #fafafa 60%);
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+html.tema-escuro .pill-scroll-hint { background: linear-gradient(transparent, #1a1a1a 60%); }
 .passo-titulo { font-size: 1rem; font-weight: 700; color: var(--texto); margin-bottom: 5px; line-height: 1.4; }
 .passo-sub    { font-size: 0.82rem; color: var(--muted); margin-bottom: 14px; }
 
@@ -277,8 +303,13 @@ html.tema-escuro .msg-card { border-color: #3a3a3a; background: #2a2a2a; }
 /* ── Artigo card ─────────────────────────────────────────── */
 .artigo-card {
     background: var(--card); border-radius: 12px; padding: 18px 16px;
-    margin-bottom: 12px; border: 1px solid #eee; cursor: pointer; transition: 0.2s;
+    margin-bottom: 12px; border: 1px solid #eee; border-left: 4px solid #ddd;
+    cursor: pointer; transition: 0.2s;
 }
+.cat-borda-inteligencia_emocional { border-left-color: #7b1fa2; }
+.cat-borda-comunicacao            { border-left-color: #1565c0; }
+.cat-borda-postura_profissional   { border-left-color: #2e7d32; }
+.cat-borda-saude_mental           { border-left-color: #e65100; }
 .artigo-card:hover { border-color: var(--verde); box-shadow: 0 8px 20px rgba(54,122,40,0.12); transform: translateY(-2px); }
 html.tema-escuro .artigo-card { border-color: #3a3a3a; background: #2a2a2a; }
 .artigo-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -324,6 +355,18 @@ html.tema-escuro .busca-artigos:focus { border-color: var(--verde); background: 
 
 /* ── Filtros de categoria ────────────────────────────────── */
 .categoria-filtros { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; padding: 0; }
+.btn-cat {
+    padding: 5px 12px; border: none; border-radius: 20px;
+    font-size: 0.74rem; font-weight: 700; cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.15s;
+    color: white; opacity: 0.55; font-family: inherit;
+}
+.btn-cat.ativo { opacity: 1; transform: scale(1.04); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.btn-cat-todos { background: #555; }
+.btn-cat-ie    { background: #7b1fa2; }
+.btn-cat-com   { background: #1565c0; }
+.btn-cat-pp    { background: #2e7d32; }
+.btn-cat-sm    { background: #e65100; }
 .btn-categoria {
     padding: 5px 12px; min-height: 34px; border-radius: 20px; border: 1px solid #ddd;
     background: #f5f5f5; color: var(--muted); font-size: 0.78rem;

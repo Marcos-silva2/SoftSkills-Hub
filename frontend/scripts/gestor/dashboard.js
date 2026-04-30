@@ -205,9 +205,8 @@ function animarContagem(el, alvo, sufixo = '', decimais = 0, duracao = 800) {
 function donutChart(sim, nao, talvez, total) {
     _donutState = { sim, nao, talvez, total };
 
-    const r = 44, cx = 62, cy = 62;
+    const r = 46, cx = 62, cy = 62;
     const circ = 2 * Math.PI * r;
-    const gap  = circ * 0.012;
     const dark = document.documentElement.classList.contains('tema-escuro');
 
     const nSim    = Math.round(sim    / 100 * total);
@@ -222,18 +221,19 @@ function donutChart(sim, nao, talvez, total) {
 
     let cum = 0;
     const arcos = segs.map(s => {
-        const len     = Math.max(0, s.perc / 100 * circ - gap);
-        const opacity = _donutFiltro ? (_donutFiltro === s.label ? '1' : '0.22') : '1';
+        const len     = s.perc / 100 * circ;
+        const sw      = _donutFiltro === s.label ? '20' : '17';
+        const opacity = _donutFiltro ? (_donutFiltro === s.label ? '1' : '0.28') : '1';
         const arc = `<circle class="donut-arco"
             data-len="${len.toFixed(2)}" data-circ="${circ.toFixed(2)}" data-label="${s.label}"
             data-perc="${s.perc}" data-n="${s.n}"
             cx="${cx}" cy="${cy}" r="${r}" fill="none"
-            stroke="${s.cor}" stroke-width="15"
+            stroke="${s.cor}" stroke-width="${sw}"
             stroke-dasharray="0 ${circ.toFixed(2)}"
             stroke-dashoffset="${(-cum).toFixed(2)}"
-            style="cursor:pointer;opacity:${opacity};transition:opacity 0.25s;"
+            style="cursor:pointer;opacity:${opacity};transition:opacity 0.25s,stroke-width 0.2s;"
             onclick="toggleDonutFiltro('${s.label}')"/>`;
-        cum += len + gap;
+        cum += len;
         return arc;
     });
 
@@ -255,6 +255,11 @@ function donutChart(sim, nao, talvez, total) {
     const ringStroke = dark ? '#3a3a3a' : '#f0f0f0';
     const textFill   = dark ? '#e4e4e4' : '#333333';
     const mutedFill  = dark ? '#9e9e9e' : '#777777';
+
+    const activeSeg  = _donutFiltro ? segs.find(s => s.label === _donutFiltro) : null;
+    const centerVal  = activeSeg ? `${activeSeg.perc}%`        : String(total);
+    const centerLbl  = activeSeg ? `${activeSeg.emoji} ${activeSeg.n}` : 'respostas';
+    const centerClr  = activeSeg ? activeSeg.cor               : textFill;
 
     const legenda = segs.map(s => {
         const isActive = !_donutFiltro || _donutFiltro === s.label;
@@ -280,10 +285,10 @@ function donutChart(sim, nao, talvez, total) {
         <div style="display:flex;flex-direction:column;gap:14px;">
             <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
                 <svg width="124" height="124" viewBox="0 0 124 124" style="flex-shrink:0;">
-                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ringStroke}" stroke-width="15"/>
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${ringStroke}" stroke-width="17"/>
                     <g transform="rotate(-90 ${cx} ${cy})">${arcos.join('')}</g>
-                    <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="${textFill}">${total}</text>
-                    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="${mutedFill}">respostas</text>
+                    <text x="${cx}" y="${cy-7}" text-anchor="middle" font-size="20" font-weight="700" fill="${centerClr}">${centerVal}</text>
+                    <text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="${mutedFill}">${centerLbl}</text>
                 </svg>
                 <div style="display:flex;flex-direction:column;gap:4px;flex:1;">${legenda}</div>
             </div>
@@ -349,17 +354,96 @@ async function exportarCSV() {
     }
 }
 
+function _renderAlertas(alertas) {
+    const el = document.getElementById('cardAlertas');
+    if (!el) return;
+    if (!alertas?.length) { el.innerHTML = ''; return; }
+
+    const items = alertas.map(a => {
+        const ver = a.empresa_id
+            ? `<button class="btn-alerta-ver" data-id="${a.empresa_id}"
+                        data-nome="${escapeHtml(a.empresa || '')}"
+                        onclick="abrirDetalheEmpresa(+this.dataset.id, this.dataset.nome)">Ver →</button>`
+            : '';
+        return `
+            <div class="alerta-item alerta-${a.severidade}">
+                <span class="alerta-icone">${a.icone}</span>
+                <span class="alerta-texto">${escapeHtml(a.mensagem)}</span>
+                ${ver}
+            </div>`;
+    }).join('');
+
+    el.innerHTML = `
+        <div class="card" style="padding:14px 16px 12px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                <span style="font-size:0.97rem;font-weight:700;color:var(--texto);">🔔 Alertas</span>
+                <span style="background:#e74c3c;color:white;border-radius:10px;font-size:0.68rem;
+                             font-weight:700;padding:1px 7px;line-height:1.8;">${alertas.length}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">${items}</div>
+        </div>`;
+}
+
+function _renderTop3Empresas(satisfacaoEmpresas, efetivacao) {
+    const el = document.getElementById('cardTop3');
+    if (!el) return;
+
+    const comDados   = (satisfacaoEmpresas || []).filter(e => e.total_respostas >= 2);
+    const piores     = [...comDados].sort((a, b) => a.media_satisfacao - b.media_satisfacao).slice(0, 3);
+    const riscoEvasao = [...(efetivacao || [])].filter(e => e.total >= 2)
+        .sort((a, b) => b.nao_perc - a.nao_perc).slice(0, 3);
+
+    if (!piores.length && !riscoEvasao.length) { el.style.display = 'none'; return; }
+
+    const _row = (empresa_id, nome, val, valCor, i) => `
+        <div class="top3-row">
+            <span class="top3-rank">${i + 1}º</span>
+            <span class="top3-nome">${escapeHtml(nome)}</span>
+            <span class="top3-val" style="color:${valCor};">${val}</span>
+            ${empresa_id
+                ? `<button class="btn-top3-ver" data-id="${empresa_id}" data-nome="${escapeHtml(nome)}"
+                           onclick="abrirDetalheEmpresa(+this.dataset.id, this.dataset.nome)">Ver →</button>`
+                : ''}
+        </div>`;
+
+    const pioresHtml = piores.map((e, i) => {
+        const cor = e.media_satisfacao <= 2 ? '#e74c3c' : e.media_satisfacao <= 3 ? '#f39c12' : '#27ae60';
+        return _row(e.empresa_id, e.empresa, `${e.media_satisfacao.toFixed(1)} ★`, cor, i);
+    }).join('');
+
+    const evasaoHtml = riscoEvasao.map((e, i) => {
+        const cor = e.nao_perc >= 50 ? '#e74c3c' : '#f39c12';
+        return _row(e.empresa_id, e.empresa, `❌ ${e.nao_perc}%`, cor, i);
+    }).join('');
+
+    el.style.display = 'block';
+    el.innerHTML = `
+        <div style="font-size:0.97rem;font-weight:700;color:var(--texto);margin-bottom:14px;">🚨 Empresas que precisam de atenção</div>
+        ${piores.length ? `<p class="secao-titulo" style="margin-bottom:8px;">Piores avaliações</p><div>${pioresHtml}</div>` : ''}
+        ${riscoEvasao.length ? `
+            <div style="margin-top:${piores.length ? '16px' : '0'};">
+                <p class="secao-titulo" style="margin-bottom:8px;">Alto risco de evasão</p>
+                <div>${evasaoHtml}</div>
+            </div>` : ''}`;
+}
+
 async function carregarResumo() {
     _donutFiltro = null;
     document.getElementById('kpiGrid').innerHTML = skeletonKpi(4);
     document.getElementById('cardEfetivacao').style.display = 'none';
     document.getElementById('cardAvaliacoes').style.display = 'none';
+    const top3El = document.getElementById('cardTop3');
+    if (top3El) top3El.style.display = 'none';
+    const alertasEl = document.getElementById('cardAlertas');
+    if (alertasEl) alertasEl.innerHTML = '';
 
     try {
         const q = filtrosQuery();
-        const [resumo, efetivacao] = await Promise.all([
+        const [resumo, efetivacao, satisfacaoEmpresas, alertas] = await Promise.all([
             apiFetch('/dashboard/resumo' + q),
             apiFetch('/dashboard/efetivacao-por-empresa' + q),
+            apiFetch('/dashboard/satisfacao-por-empresa' + q),
+            apiFetch('/dashboard/alertas').catch(() => []),
         ]);
 
         const anoSel = document.getElementById('filtroAno').value;
@@ -393,6 +477,8 @@ async function carregarResumo() {
             animarContagem(el, +el.dataset.alvo, el.dataset.sufixo, +el.dataset.decimais, 800);
         });
 
+        _renderAlertas(alertas);
+        _renderTop3Empresas(satisfacaoEmpresas, efetivacao);
         _renderAvaliacoes(resumo);
 
         if (efetivacao.length > 0) {
