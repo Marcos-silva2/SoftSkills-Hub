@@ -28,7 +28,7 @@ class Aprendiz(Base):
     idade: Mapped[int] = mapped_column(Integer, nullable=False)
     # feminino | masculino | prefiro_nao_dizer
     genero: Mapped[str] = mapped_column(String(30), nullable=False)
-    empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), nullable=False)
+    empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), nullable=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     last_enquete_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     last_mural_post_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -65,7 +65,7 @@ class RespostaEnquete(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
     # Dados demográficos copiados (sem vínculo com a tabela de usuários)
-    empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), nullable=False)
+    empresa_id: Mapped[int] = mapped_column(ForeignKey("empresas.id"), nullable=False, index=True)
     genero: Mapped[str] = mapped_column(String(30), nullable=False)
     # Faixa etária em vez de idade exata — maior privacidade
     faixa_etaria: Mapped[str] = mapped_column(String(10), nullable=False)  # ex: "17-18"
@@ -74,7 +74,7 @@ class RespostaEnquete(Base):
     desejo_efetivacao: Mapped[str] = mapped_column(String(10), nullable=False)  # sim | nao | talvez
     nota_satisfacao: Mapped[int] = mapped_column(Integer, nullable=False)  # 1 a 5
 
-    data_resposta: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    data_resposta: Mapped[datetime] = mapped_column(DateTime, default=_now, index=True)
 
     empresa: Mapped["Empresa"] = relationship(back_populates="respostas")
     problemas: Mapped[list["RespostaProblema"]] = relationship(back_populates="resposta", cascade="all, delete")
@@ -86,7 +86,7 @@ class RespostaProblema(Base):
     __tablename__ = "respostas_problemas"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    resposta_id: Mapped[int] = mapped_column(ForeignKey("respostas_enquete.id"), nullable=False)
+    resposta_id: Mapped[int] = mapped_column(ForeignKey("respostas_enquete.id"), nullable=False, index=True)
     problema: Mapped[str] = mapped_column(String(80), nullable=False)
 
     resposta: Mapped["RespostaEnquete"] = relationship(back_populates="problemas")
@@ -97,7 +97,7 @@ class RespostaAvaliacao(Base):
     __tablename__ = "respostas_avaliacao"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    resposta_id: Mapped[int] = mapped_column(ForeignKey("respostas_enquete.id"), nullable=False)
+    resposta_id: Mapped[int] = mapped_column(ForeignKey("respostas_enquete.id"), nullable=False, index=True)
     tipo: Mapped[str] = mapped_column(String(10), nullable=False)  # positivo | negativo
     valor: Mapped[str] = mapped_column(String(80), nullable=False)
 
@@ -122,6 +122,6 @@ class Artigo(Base):
     resumo: Mapped[str] = mapped_column(String(300), nullable=False)
     conteudo: Mapped[str] = mapped_column(Text, nullable=False)
     # inteligencia_emocional | comunicacao | postura_profissional | saude_mental
-    categoria: Mapped[str] = mapped_column(String(40), nullable=False)
+    categoria: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     tempo_leitura: Mapped[int] = mapped_column(Integer, nullable=True)  # em minutos
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)

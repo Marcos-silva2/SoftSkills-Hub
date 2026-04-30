@@ -23,4 +23,4 @@ def verificar_rate_limit(aprendiz: models.Aprendiz, db: Session) -> None:
                 detail=f"Aguarde {restante}s antes de postar novamente.",
             )
     aprendiz.last_mural_post_at = agora
-    db.commit()
+    # Não comita aqui — o caller comita junto com a mensagem em uma única transação.

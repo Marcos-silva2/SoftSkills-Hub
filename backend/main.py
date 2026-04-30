@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from slowapi.errors import RateLimitExceeded
 from slowapi import _rate_limit_exceeded_handler
 from sqlalchemy import text
@@ -79,6 +80,21 @@ async def lifespan(app: FastAPI):
         logger.warning("data-fix de gênero ignorado: %s", e)
 
     try:
+        # Remove artigos com encoding corrompido (caractere de substituição U+FFFD).
+        # Ocorre quando seed.py é executado com encoding incorreto e insere duplicatas corrompidas.
+        PAT = "%�%"
+        with engine.connect() as conn:
+            r = conn.execute(
+                text("DELETE FROM artigos WHERE titulo LIKE :p OR resumo LIKE :p OR conteudo LIKE :p"),
+                {"p": PAT},
+            )
+            conn.commit()
+            if r.rowcount:
+                logger.warning("data-fix: %d artigo(s) corrompido(s) removido(s)", r.rowcount)
+    except Exception as e:
+        logger.warning("data-fix de artigos corrompidos ignorado: %s", e)
+
+    try:
         with SessionLocal() as session:
             if not session.query(models.Aprendiz).filter_by(username="aprendiz-adm").first():
                 primeira_empresa = session.query(models.Empresa).first()
@@ -116,6 +132,7 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

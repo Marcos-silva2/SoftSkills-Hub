@@ -187,22 +187,22 @@ html.tema-escuro .ponto-item { border-color: #3a3a3a; }
     transition: width 0.6s cubic-bezier(.4,0,.2,1);
 }
 .aval-conteudo {
-    position: relative; display: flex; align-items: center; gap: 8px;
+    position: relative; display: flex; align-items: flex-start; gap: 10px;
 }
 .aval-rank {
     font-size: 0.69rem; font-weight: 700; color: var(--muted);
-    min-width: 16px; flex-shrink: 0; text-align: right;
+    min-width: 16px; flex-shrink: 0; text-align: right; padding-top: 2px;
 }
 .aval-label {
     flex: 1; font-size: 0.82rem; color: var(--texto);
-    line-height: 1.3; min-width: 0;
+    line-height: 1.35; min-width: 0; word-break: break-word;
 }
 .aval-nums {
     display: flex; flex-direction: column; align-items: flex-end;
-    flex-shrink: 0; gap: 1px;
+    flex-shrink: 0; gap: 3px;
 }
-.aval-total { font-size: 0.82rem; font-weight: 700; line-height: 1.1; }
-.aval-pct   { font-size: 0.67rem; color: var(--muted); line-height: 1.1; }
+.aval-total { font-size: 0.82rem; font-weight: 700; line-height: 1.2; }
+.aval-pct   { font-size: 0.67rem; color: var(--muted); line-height: 1.2; }
 
 .donut-arco { transition: stroke-dasharray 0.8s cubic-bezier(.4,0,.2,1); }
 
@@ -224,8 +224,8 @@ html.tema-escuro .artigo-item { background: #2a2a2a; border-color: #3a3a3a; }
 .btn-artigo-apagar:hover { background: #e74c3c; color: white; }
 
 .cat-badge {
-    display: inline-block; padding: 2px 8px; border-radius: 12px;
-    font-size: 0.7rem; font-weight: 700; margin-left: 6px;
+    display: inline-block; padding: 3px 10px; border-radius: 12px;
+    font-size: 0.76rem; font-weight: 700;
 }
 .cat-inteligencia_emocional { background: #f3e5f5; color: #7b1fa2; }
 .cat-comunicacao            { background: #e3f2fd; color: #1565c0; }
@@ -314,8 +314,8 @@ html.tema-escuro .btn-modal-fechar:hover { background: #2a2a2a; }
 .artigo-admin-card {
     background: var(--card);
     border-radius: 14px;
-    padding: 14px 16px;
-    margin: 0 20px 10px;
+    padding: 16px 18px;
+    margin: 0 20px 12px;
     border: 1px solid #eee;
     border-left: 4px solid var(--laranja);
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -337,25 +337,25 @@ html.tema-escuro .artigo-admin-card {
 
 .artigo-admin-topo {
     display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 8px;
+    justify-content: space-between; margin-bottom: 10px;
 }
 .artigo-admin-tempo {
-    font-size: 0.72rem; color: var(--muted); font-weight: 600;
+    font-size: 0.76rem; color: var(--muted); font-weight: 600;
 }
 .artigo-admin-titulo {
-    font-size: 0.9rem; font-weight: 700; color: var(--texto);
-    margin: 0 0 5px; line-height: 1.35;
+    font-size: 1rem; font-weight: 700; color: var(--texto);
+    margin: 0 0 7px; line-height: 1.4;
 }
 .artigo-admin-resumo {
-    font-size: 0.78rem; color: var(--muted); line-height: 1.4;
-    margin: 0 0 10px;
-    display: -webkit-box; -webkit-line-clamp: 2;
+    font-size: 0.85rem; color: var(--muted); line-height: 1.55;
+    margin: 0 0 12px;
+    display: -webkit-box; -webkit-line-clamp: 3;
     -webkit-box-orient: vertical; overflow: hidden;
 }
 .artigo-admin-rodape {
     display: flex; align-items: center; justify-content: space-between;
 }
-.artigo-admin-data { font-size: 0.72rem; color: var(--muted); }
+.artigo-admin-data { font-size: 0.76rem; color: var(--muted); }
 .artigo-admin-acoes { display: flex; gap: 6px; }
 
 /* Botões de ação por card */

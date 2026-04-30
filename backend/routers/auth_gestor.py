@@ -25,6 +25,9 @@ def login_gestor(
     if not gestor or not auth.verificar_senha(dados.senha, gestor.senha_hash):
         logger.warning("login_falho_gestor username=%s", dados.username)
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")
+    if auth.hash_desatualizado(gestor.senha_hash):
+        gestor.senha_hash = auth.hash_senha(dados.senha)
+        db.commit()
     token = auth.criar_token({"sub": str(gestor.id), "tipo": "gestor"})
     logger.info("login_gestor id=%s", gestor.id)
     return {"access_token": token, "token_type": "bearer"}

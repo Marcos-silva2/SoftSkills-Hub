@@ -56,7 +56,7 @@ async function carregarSatisfacaoEmpresas() {
                         <div style="width:${ratingPct}%;height:100%;background:${ratingCor};border-radius:5px;transition:width 0.7s ease;"></div>
                     </div>
                     ${ef ? `<div class="detalhe">Efetivação: ✅ ${ef.sim_perc}% · ❌ ${ef.nao_perc}% · 🤔 ${ef.talvez_perc}%</div>` : ''}
-                    <button class="btn-detalhe" onclick="abrirDetalheEmpresa(${e.empresa_id}, '${escapeHtml(e.empresa).replace(/'/g, "\\'")}')">
+                    <button class="btn-detalhe" data-nome="${escapeHtml(e.empresa)}" onclick="abrirDetalheEmpresa(${e.empresa_id}, this.dataset.nome)">
                         Ver detalhes →
                     </button>
                 </div>

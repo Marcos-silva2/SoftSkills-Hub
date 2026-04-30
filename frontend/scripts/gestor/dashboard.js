@@ -1,6 +1,21 @@
 let _donutFiltro = null;
 let _donutState  = null;
 
+const LABEL_AVALIACAO = {
+    aprendizado:          'Bom aprendizado prático',
+    clima_bom:            'Bom clima na equipe',
+    lideranca_apoio:      'Liderança prestativa',
+    beneficios:           'Bons benefícios',
+    flexibilidade:        'Flexibilidade de horários',
+    nenhum_pos:           'Nenhum ponto positivo',
+    comunicacao_ruim:     'Comunicação ruim',
+    desorganizacao:       'Desorganização',
+    clima_tenso:          'Clima tenso',
+    falta_reconhecimento: 'Falta de reconhecimento',
+    distancia_lideranca:  'Liderança ausente',
+    nenhum_neg:           'Nenhum ponto negativo',
+};
+
 function toggleFiltros(header) {
     header.closest('.filtros-card').classList.toggle('aberto');
 }
@@ -59,23 +74,25 @@ function _renderAvaliacoes(resumo) {
         return;
     }
 
+    const totalRespostas = resumo.total_respostas || 1;
     const maxPos = Math.max(...(resumo.top_positivos || []).map(i => i.total), 1);
     const maxNeg = Math.max(...(resumo.top_negativos || []).map(i => i.total), 1);
     const _avalRow = (item, cor, maxVal, rank) => {
-        const pct    = Math.round(item.total / maxVal * 100);
-        const label  = escapeHtml(item.valor.replace(/_/g, ' '));
-        const bg     = cor === '#27ae60' ? 'rgba(39,174,96,0.09)' : 'rgba(231,76,60,0.08)';
-        const border = cor === '#27ae60' ? 'rgba(39,174,96,0.22)' : 'rgba(231,76,60,0.2)';
+        const barPct  = Math.round(item.total / maxVal * 100);
+        const realPct = Math.round(item.total / totalRespostas * 100);
+        const label   = escapeHtml(LABEL_AVALIACAO[item.valor] || item.valor.replace(/_/g, ' '));
+        const bg      = cor === '#27ae60' ? 'rgba(39,174,96,0.09)' : 'rgba(231,76,60,0.08)';
+        const border  = cor === '#27ae60' ? 'rgba(39,174,96,0.22)' : 'rgba(231,76,60,0.2)';
         return `
         <div class="aval-row" style="border:1px solid ${border};"
              onclick="this.classList.toggle('aval-ativo')">
-            <div class="aval-barra" data-pct="${pct}" style="background:${bg};"></div>
+            <div class="aval-barra" data-pct="${barPct}" style="background:${bg};"></div>
             <div class="aval-conteudo">
                 <span class="aval-rank">${rank}</span>
                 <div class="aval-label">${label}</div>
                 <div class="aval-nums">
                     <span class="aval-total" style="color:${cor};">${item.total}</span>
-                    <span class="aval-pct">${pct}%</span>
+                    <span class="aval-pct">${realPct}%</span>
                 </div>
             </div>
         </div>`;

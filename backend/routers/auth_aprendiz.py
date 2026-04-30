@@ -52,6 +52,9 @@ def login_aprendiz(
     if not aprendiz or not auth.verificar_senha(form_data.password, aprendiz.senha_hash):
         logger.warning("login_falho_aprendiz username=%s", form_data.username)
         raise HTTPException(status_code=401, detail="Usuário ou senha incorretos")
+    if auth.hash_desatualizado(aprendiz.senha_hash):
+        aprendiz.senha_hash = auth.hash_senha(form_data.password)
+        db.commit()
     token = auth.criar_token({"sub": str(aprendiz.id), "tipo": "aprendiz"})
     logger.info("login_aprendiz id=%s", aprendiz.id)
     return {"access_token": token, "token_type": "bearer"}

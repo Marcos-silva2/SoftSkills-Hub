@@ -52,8 +52,9 @@ function togglePill(btn, grupo) {
     } else {
         if (val === exclusivo) {
             // "Nenhum" selecionado — limpa todos os outros
+            const container = btn.closest('.pill-group, .wizard-passo');
             _selecionados[grupo].forEach(v => {
-                const el = btn.closest('.pill-group, .wizard-passo').querySelector(`[data-value="${v}"]`);
+                const el = container && container.querySelector(`[data-value="${v}"]`);
                 if (el) el.classList.remove('pill-selecionada');
             });
             _selecionados[grupo].clear();

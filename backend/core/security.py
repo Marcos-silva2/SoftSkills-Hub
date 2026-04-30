@@ -16,7 +16,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "chave-local-somente-para-desenvolvime
 ALGORITHM = "HS256"
 EXPIRACAO_HORAS = 8
 
-_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+_pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=10)
 
 
 # ─── Senha ────────────────────────────────────────────────────────────────────
@@ -29,6 +29,11 @@ def hash_senha(senha: str) -> str:
 def verificar_senha(senha_plana: str, senha_hash: str) -> bool:
     """Verifica se a senha em texto plano corresponde ao hash armazenado."""
     return _pwd_context.verify(senha_plana, senha_hash)
+
+
+def hash_desatualizado(senha_hash: str) -> bool:
+    """Retorna True se o hash foi gerado com configuração antiga (ex: mais rounds)."""
+    return _pwd_context.needs_update(senha_hash)
 
 
 # ─── JWT ──────────────────────────────────────────────────────────────────────
